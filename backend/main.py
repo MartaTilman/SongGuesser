@@ -13,15 +13,39 @@ game_manager = GameManager(lobby_manager)
 @app.get("/")
 def root():
     return {"status": "backend running"}
-@app.get("/test-song")
-def test_song():
 
-    from services.song_cache import SongCache
 
-    cache = SongCache()
-    cache.fill_cache()
+@app.get("/lobbies")
+def get_lobbies():
+    return list(lobby_manager.lobbies.keys())
 
-    return cache.get_song("90s")
+
+@app.get("/lobby/{lobby_id}/players")
+def get_players(lobby_id):
+
+    lobby = lobby_manager.lobbies.get(lobby_id)
+
+    if not lobby:
+        return {"error": "Lobby not found"}
+
+    return [player.name for player in lobby.players]
+
+@app.get("/lobby/{lobby_id}/info")
+def get_lobby_info(lobby_id):
+
+    lobby = lobby_manager.lobbies.get(lobby_id)
+
+    if not lobby:
+        return {"error": "Lobby not found"}
+
+    return {
+        "lobby_id": lobby.id,
+        "host": lobby.host,
+        "players": [player.name for player in lobby.players],
+        "current_round": lobby.current_round,
+        "current_song_in_round": lobby.current_song_in_round
+    }
+
 @app.get("/lobby/{lobby_id}/blockchain")
 def get_blockchain(lobby_id):
 
@@ -30,7 +54,11 @@ def get_blockchain(lobby_id):
     if not lobby:
         return {"error": "Lobby not found"}
 
-    return [block.__dict__ for block in lobby.blockchain.chain]
+    return {
+        "valid": lobby.blockchain.is_valid(),
+        "chain": lobby.blockchain.to_list()
+    }
+
 
 @app.websocket("/ws/{lobby_id}/{player_name}")
 async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: str):
@@ -41,6 +69,9 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
     game = lobby_manager.join_lobby(lobby_id, player)
 
+    # dodatni auth zapis na blockchain
+    game.blockchain.add_auth_event(player.name, "join_lobby")
+
     try:
 
         while True:
@@ -49,11 +80,13 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
             msg_type = data.get("type")
 
+            # host pokreće sljedeću pjesmu / rundu
             if msg_type == "start_round":
 
                 if player.name == game.host:
                     await game_manager.start_round(lobby_id)
 
+            # igrač šalje odgovor
             elif msg_type == "answer":
 
                 await game_manager.submit_answer(
@@ -62,6 +95,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
                     data.get("answer")
                 )
 
+            # host završava trenutnu pjesmu i računa bodove
             elif msg_type == "finish_song":
 
                 if player.name == game.host:
@@ -69,4 +103,4 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
     except WebSocketDisconnect:
 
-        print(player_name, "disconnected")
+        print(f"{player_name} disconnected")

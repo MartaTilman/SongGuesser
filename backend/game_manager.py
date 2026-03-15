@@ -23,6 +23,19 @@ class GameManager:
 
         return durations.get(round_number, 3)
 
+    def calculate_kahoot_score(self, elapsed_time, max_time):
+
+        if elapsed_time < 0:
+            elapsed_time = 0
+
+        if elapsed_time > max_time:
+            elapsed_time = max_time
+
+        # Kahoot stil: točan odgovor daje između 500 i 1000 bodova
+        score = int(500 + 500 * (1 - (elapsed_time / max_time)))
+
+        return max(score, 500)
+
     async def start_round(self, lobby_id):
 
         game = self.lobby_manager.lobbies[lobby_id]
@@ -42,6 +55,8 @@ class GameManager:
         song = None
         chosen_decade = None
 
+        # traži pjesmu koja nije već korištena u ovom lobbyju
+        # i da nije isti izvođač kao prošli put
         for decade in decades:
 
             song = song_cache.get_song(
@@ -54,6 +69,7 @@ class GameManager:
                 chosen_decade = decade
                 break
 
+        # ako nema više pjesama
         if song is None:
             for player in game.players:
                 await player.websocket.send_json({
@@ -62,13 +78,18 @@ class GameManager:
                 })
             return
 
+        # označi pjesmu kao korištenu u ovom lobbyju
         game.used_songs.add(song["youtube_id"])
         game.last_artist = song["artist"]
 
         game.current_song = song
-        game.answers = []
         game.current_decade = chosen_decade
+        game.answers = []
+
         duration = self.get_round_duration(game.current_round)
+
+        # vrijeme kada završava pjesma i kreće odgovaranje
+        game.answer_phase_started_at = time.time() + duration
 
         for player in game.players:
 
@@ -110,29 +131,52 @@ class GameManager:
 
         game = self.lobby_manager.lobbies[lobby_id]
 
-        correct = game.current_song["title"]
+        correct_title = game.current_song["title"]
 
+        # koliko sekundi igrači imaju za upis odgovora nakon pjesme
+        answer_window = 10
+
+        # sortiraj odgovore po vremenu
         sorted_answers = sorted(game.answers, key=lambda x: x["time"])
 
-        position = 0
+        # ovdje spremamo bodove osvojene baš za ovu pjesmu
+        awarded_points = []
 
         for entry in sorted_answers:
 
             player = entry["player"]
             answer = entry["answer"]
+            submitted_at = entry["time"]
 
-            # ako answer dolazi kao string
             if isinstance(answer, str):
-                user_answer = answer.lower()
+                user_answer = answer.lower().strip()
             else:
-                user_answer = str(answer).lower()
+                user_answer = str(answer).lower().strip()
 
-            if user_answer in correct.lower():
+            gained_points = 0
+            is_correct = False
 
-                score = max(10 - position, 1)
-                player.score += score
+            # bodove dobiva samo točan odgovor
+            if user_answer in correct_title.lower():
 
-            position += 1
+                is_correct = True
+
+                elapsed = submitted_at - game.answer_phase_started_at
+
+                gained_points = self.calculate_kahoot_score(
+                    elapsed_time=elapsed,
+                    max_time=answer_window
+                )
+
+                player.score += gained_points
+
+            awarded_points.append({
+                "name": player.name,
+                "answer": answer,
+                "correct": is_correct,
+                "gained_points": gained_points,
+                "total_score": player.score
+            })
 
         leaderboard = [
             {"name": p.name, "score": p.score}
@@ -141,18 +185,16 @@ class GameManager:
 
         leaderboard.sort(key=lambda x: x["score"], reverse=True)
 
-        game.blockchain.add_block({
-            "type": "round_result",
-            "song": game.current_song["title"],
-            "artist": game.current_song["artist"],
-            "round": game.current_round,
-            "song_number": game.current_song_in_round,
-            "players": [
-                {"name": p.name, "score": p.score}
-                for p in game.players
-            ],
-            "timestamp": time.time()
-        })
+        # zapis na blockchain za ovu pjesmu
+        game.blockchain.add_song_result(
+            song_title=game.current_song["title"],
+            artist=game.current_song["artist"],
+            year=game.current_song.get("year"),
+            decade=game.current_decade,
+            round_number=game.current_round,
+            song_number=game.current_song_in_round,
+            awarded_points=awarded_points
+        )
 
         for p in game.players:
 
@@ -160,7 +202,8 @@ class GameManager:
                 "type": "leaderboard",
                 "data": leaderboard,
                 "round": game.current_round,
-                "song_number": game.current_song_in_round
+                "song_number": game.current_song_in_round,
+                "awarded_points": awarded_points
             })
 
         # pomak na sljedeću pjesmu / rundu
@@ -170,8 +213,11 @@ class GameManager:
             game.current_song_in_round = 1
             game.current_round += 1
 
-        # obavijesti frontend što dalje
+        # ako je igra gotova, spremi finalni leaderboard na blockchain
         if game.current_round > game.total_rounds:
+
+            game.blockchain.add_game_finished(leaderboard)
+
             for p in game.players:
                 await p.websocket.send_json({
                     "type": "game_finished",

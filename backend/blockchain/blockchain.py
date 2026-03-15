@@ -27,6 +27,56 @@ class Blockchain:
 
         self.chain.append(new_block)
 
+        return new_block
+
+    # zapis kad igrač uđe u lobby
+    def add_player_join(self, player_name):
+
+        self.add_block({
+            "type": "player_join",
+            "player": player_name
+        })
+
+    # zapis za autentifikaciju / join akciju
+    def add_auth_event(self, player_name, action):
+
+        self.add_block({
+            "type": "auth_event",
+            "player": player_name,
+            "action": action
+        })
+
+    # zapis za rezultat jedne pjesme s kahoot bodovanjem
+    def add_song_result(
+        self,
+        song_title,
+        artist,
+        year,
+        decade,
+        round_number,
+        song_number,
+        awarded_points
+    ):
+
+        self.add_block({
+            "type": "song_result",
+            "song_title": song_title,
+            "artist": artist,
+            "year": year,
+            "decade": decade,
+            "round": round_number,
+            "song_number": song_number,
+            "awarded_points": awarded_points
+        })
+
+    # zapis za kraj cijele igre
+    def add_game_finished(self, leaderboard):
+
+        self.add_block({
+            "type": "game_finished",
+            "leaderboard": leaderboard
+        })
+
     def is_valid(self):
 
         for i in range(1, len(self.chain)):
@@ -41,3 +91,7 @@ class Blockchain:
                 return False
 
         return True
+
+    def to_list(self):
+
+        return [block.to_dict() for block in self.chain]

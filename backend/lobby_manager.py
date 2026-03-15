@@ -18,6 +18,7 @@ class Lobby:
         self.current_song_in_round = 1
         self.songs_per_round = 5
         self.total_rounds = 4
+        self.answer_phase_started_at = None
         self.blockchain = Blockchain()
 
 
@@ -39,9 +40,7 @@ class LobbyManager:
 
         lobby.players.append(player)
 
-        lobby.blockchain.add_block({
-            "type": "player_join",
-            "player": player.name
-        })
+        lobby.blockchain.add_player_join(player.name)
+        lobby.blockchain.add_auth_event(player.name, "join_lobby")
 
         return lobby

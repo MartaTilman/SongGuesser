@@ -23,3 +23,13 @@ class Block:
         }, sort_keys=True)
 
         return hashlib.sha256(block_string.encode()).hexdigest()
+
+    def to_dict(self):
+
+        return {
+            "index": self.index,
+            "timestamp": self.timestamp,
+            "data": self.data,
+            "previous_hash": self.previous_hash,
+            "hash": self.hash
+        }
