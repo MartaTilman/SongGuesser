@@ -9,23 +9,30 @@
           <p>Dekada: {{ store.roundData.decade }}</p>
           <p>Vrijeme: {{ remainingSeconds }} s</p>
           <p>Faza: {{ phaseLabel }}</p>
+          <p v-if="store.roundData.is_host_turn" class="host-note">
+            Ti si host — zvuk ide samo kod tebe.
+          </p>
+          <p v-else class="listener-note">
+            Slušaj pjesmu kod hosta i upiši odgovore ovdje.
+          </p>
         </div>
 
         <VinylPlayer
-  :youtube-id="store.roundData.youtube_id"
-  :start-time="store.roundData.start_time"
-  :clip-duration="store.roundData.clip_duration"
-  :clip-started-at="store.roundData.clip_started_at"
-/>
+          :youtube-id="store.roundData.youtube_id"
+          :start-time="store.roundData.start_time"
+          :clip-duration="store.roundData.clip_duration"
+          :clip-started-at="store.roundData.clip_started_at"
+          :play-audio="store.roundData.is_host_turn"
+        />
       </div>
 
       <div class="section">
         <RoundAnswerForm
-  :key="`${store.roundData.round}-${store.roundData.song_number}`"
-  :can-answer="canAnswer"
-  :year-options="store.roundData.year_options || []"
-  @submit-answer="submitAnswer"
-/>
+          :key="`${store.roundData.round}-${store.roundData.song_number}`"
+          :can-answer="canAnswer"
+          :year-options="store.roundData.year_options || []"
+          @submit-answer="submitAnswer"
+        />
       </div>
     </div>
   </div>
@@ -57,10 +64,6 @@ onBeforeUnmount(() => {
 const clipStart = computed(() => store.roundData?.clip_started_at || 0);
 const clipEnd = computed(() => clipStart.value + (store.roundData?.clip_duration || 0));
 const roundEnd = computed(() => store.roundData?.round_ends_at || 0);
-
-const isClipPlaying = computed(() => {
-  return now.value >= clipStart.value && now.value <= clipEnd.value;
-});
 
 const canAnswer = computed(() => {
   return now.value >= clipStart.value && now.value <= roundEnd.value;
@@ -115,5 +118,15 @@ watch(
   background: #1f2937;
   padding: 20px;
   border-radius: 16px;
+}
+
+.host-note {
+  margin-top: 10px;
+  color: #86efac;
+}
+
+.listener-note {
+  margin-top: 10px;
+  color: #d1d5db;
 }
 </style>

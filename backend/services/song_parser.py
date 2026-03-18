@@ -54,6 +54,7 @@ BAD_TITLE_HINTS = [
 def cleanup_title(youtube_title):
     cleaned = youtube_title
 
+    
     cleaned = re.sub(r"\(.*?\)", "", cleaned)
     cleaned = re.sub(r"\[.*?\]", "", cleaned)
     cleaned = re.sub(r"\{.*?\}", "", cleaned)
@@ -67,13 +68,28 @@ def cleanup_title(youtube_title):
         "Official Audio",
         "official audio",
         "HD",
-        "4K"
+        "4K",
+        "TopPop",
+        "• TopPop",
+        "| TopPop",
+        "Remastered",
+        "remastered",
+        "Mono",
+        "mono",
+        "Stereo",
+        "stereo",
+        "HQ",
+        "Lyrics",
+        "lyric video",
+        "LYRIC VIDEO"
     ]
 
     for item in replacements:
         cleaned = cleaned.replace(item, "")
 
+   
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
+
     return cleaned
 
 
@@ -81,6 +97,8 @@ def looks_like_bad_candidate(youtube_title):
     lowered = youtube_title.lower()
 
     for hint in BAD_TITLE_HINTS:
+        if hint=="live":
+            continue
         if hint in lowered:
             return True
 

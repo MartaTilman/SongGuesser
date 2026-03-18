@@ -346,8 +346,8 @@ def passes_basic_filters(candidate, decade):
         return False
 
     min_views_by_decade = {
-        "50s": 100000,
-        "60s": 100000,
+        "50s": 30000,
+        "60s": 50000,
         "70s": 150000,
         "80s": 250000,
         "90s": 250000,

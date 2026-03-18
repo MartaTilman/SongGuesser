@@ -58,6 +58,14 @@ def validate_candidate(candidate, target_decade, cache):
     raw_title = candidate.get("raw_title", "")
     youtube_id = candidate.get("youtube_id")
 
+    raw_lower = raw_title.lower()
+
+   
+    if "live" in raw_lower:
+        if target_decade not in ["50s", "60s"]:
+            print(f"REJECT [{target_decade}] live not allowed: {raw_title}")
+            return None
+        
     if not youtube_id or not raw_title:
         return None
 

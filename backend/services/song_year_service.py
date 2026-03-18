@@ -205,7 +205,7 @@ def validate_song_year_for_decade(artist, title, target_decade):
             "decade": decade
         }
 
-    min_confidence = 75 if result.get("source") == "ai" else 0
+    min_confidence = 60 if result.get("source") == "ai" else 0
 
     if confidence < min_confidence:
         return {

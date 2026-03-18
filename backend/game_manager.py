@@ -129,7 +129,7 @@ class GameManager:
         game.answers = []
 
         clip_duration = self.get_round_duration(game.current_round)
-        answer_window = 5
+        answer_window = 15
 
         now = time.time()
         game.clip_started_at = now
@@ -151,10 +151,14 @@ class GameManager:
             "songs_per_round": game.songs_per_round,
             "clip_started_at": game.clip_started_at,
             "round_ends_at": game.round_ends_at,
-            "year_options": year_options
+            "year_options": year_options,
+            "is_host_turn": False
         }
 
-        await self.lobby_manager.broadcast(lobby_id, payload)
+        for player in game.players:
+            player_payload = payload.copy()
+            player_payload["is_host_turn"] = player.name == game.host
+            await player.websocket.send_json(player_payload)
 
         if lobby_id in self.round_tasks:
             self.round_tasks[lobby_id].cancel()
