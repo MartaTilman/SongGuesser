@@ -1,6 +1,10 @@
 import json
 import os
 import re
+import time
+from difflib import SequenceMatcher
+from html import unescape
+
 import requests
 from dotenv import load_dotenv
 
@@ -12,6 +16,7 @@ client = None
 if USE_OPENAI:
     try:
         from openai import OpenAI
+
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     except Exception as e:
         print(f"OpenAI client init error in song_year_service: {e}")
@@ -53,40 +58,132 @@ def extract_year_from_text(text):
     return None
 
 
+def normalize_text(value):
+    text = unescape(str(value or "")).lower().strip()
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def simplify_text(value):
+    text = normalize_text(value)
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"\[[^\]]*\]", " ", text)
+    text = re.sub(r"\b(feat|ft|featuring)\b.*$", "", text).strip()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def similarity(a, b):
+    if not a or not b:
+        return 0.0
+
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def score_musicbrainz_recording(recording, artist, title):
+    target_artist = simplify_text(artist)
+    target_title = simplify_text(title)
+
+    recording_title = simplify_text(recording.get("title", ""))
+    artist_credit = " ".join(
+        credit.get("name", "")
+        for credit in recording.get("artist-credit", [])
+        if isinstance(credit, dict)
+    )
+    recording_artist = simplify_text(artist_credit)
+
+    title_score = similarity(target_title, recording_title)
+    artist_score = similarity(target_artist, recording_artist)
+
+    first_release = recording.get("first-release-date")
+    year = extract_year_from_text(first_release)
+    if year is None:
+        return None
+
+    base_score = int(recording.get("score", 0))
+    combined = (title_score * 0.45) + (artist_score * 0.45) + ((min(base_score, 100) / 100) * 0.10)
+
+    if title_score < 0.72 or artist_score < 0.72:
+        return None
+
+    return {
+        "year": year,
+        "confidence": max(0, min(100, int(round(combined * 100)))),
+        "source": "musicbrainz",
+        "title_score": title_score,
+        "artist_score": artist_score,
+    }
+
+
 def get_song_year_from_musicbrainz(artist, title):
     url = "https://musicbrainz.org/ws/2/recording/"
     params = {
         "query": f'artist:"{artist}" recording:"{title}"',
         "fmt": "json",
-        "limit": 5
+        "limit": 10,
     }
 
     headers = {
         "User-Agent": "song-guesser/1.0 (student project)"
     }
 
-    try:
-        response = requests.get(url, params=params, headers=headers, timeout=6)
-        response.raise_for_status()
-        data = response.json()
+    for attempt in range(3):
+        try:
+            time.sleep(1.2)
 
-        recordings = data.get("recordings", [])
-        if not recordings:
-            return None
+            response = requests.get(url, params=params, headers=headers, timeout=8)
 
-        for rec in recordings:
-            first_release = rec.get("first-release-date")
-            year = extract_year_from_text(first_release)
+            if response.status_code == 503:
+                print(f"MusicBrainz temporary unavailable (attempt {attempt + 1}/3)")
+                time.sleep(3 + attempt)
+                continue
 
-            if year is not None:
-                return {
-                    "year": year,
-                    "confidence": 90,
-                    "source": "musicbrainz"
-                }
+            if response.status_code == 429:
+                print(f"MusicBrainz rate limited (attempt {attempt + 1}/3)")
+                time.sleep(5 + attempt)
+                continue
 
-    except Exception as e:
-        print(f"MusicBrainz error: {e}")
+            response.raise_for_status()
+            data = response.json()
+
+            recordings = data.get("recordings", [])
+            if not recordings:
+                return None
+
+            scored_results = []
+
+            for rec in recordings:
+                scored = score_musicbrainz_recording(rec, artist, title)
+                if scored is not None:
+                    scored_results.append(scored)
+
+            if not scored_results:
+                return None
+
+            scored_results.sort(
+                key=lambda item: (
+                    item.get("confidence", 0),
+                    item.get("title_score", 0),
+                    item.get("artist_score", 0),
+                ),
+                reverse=True,
+            )
+
+            best = scored_results[0]
+
+            if best["confidence"] < 80:
+                return None
+
+            return {
+                "year": best["year"],
+                "confidence": best["confidence"],
+                "source": "musicbrainz",
+            }
+
+        except Exception as e:
+            print(f"MusicBrainz error: {e}")
+            time.sleep(3 + attempt)
 
     return None
 
@@ -125,9 +222,8 @@ Rules:
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            temperature=0,
+            messages=[{"role": "user", "content": prompt}],
         )
 
         text = response.choices[0].message.content.strip()
@@ -155,7 +251,7 @@ Rules:
         return {
             "year": year,
             "confidence": confidence,
-            "source": "ai"
+            "source": "ai",
         }
 
     except Exception as e:
@@ -175,7 +271,7 @@ def get_song_year(artist, title):
     return {
         "year": None,
         "confidence": 0,
-        "source": "fallback"
+        "source": "fallback",
     }
 
 
@@ -191,7 +287,7 @@ def validate_song_year_for_decade(artist, title, target_decade):
             "year": None,
             "confidence": confidence,
             "source": result.get("source"),
-            "decade": None
+            "decade": None,
         }
 
     decade = year_to_decade(year)
@@ -202,10 +298,10 @@ def validate_song_year_for_decade(artist, title, target_decade):
             "year": year,
             "confidence": confidence,
             "source": result.get("source"),
-            "decade": decade
+            "decade": decade,
         }
 
-    min_confidence = 60 if result.get("source") == "ai" else 0
+    min_confidence = 75 if result.get("source") == "ai" else 80
 
     if confidence < min_confidence:
         return {
@@ -213,7 +309,7 @@ def validate_song_year_for_decade(artist, title, target_decade):
             "year": year,
             "confidence": confidence,
             "source": result.get("source"),
-            "decade": decade
+            "decade": decade,
         }
 
     return {
@@ -221,5 +317,5 @@ def validate_song_year_for_decade(artist, title, target_decade):
         "year": year,
         "confidence": confidence,
         "source": result.get("source"),
-        "decade": decade
+        "decade": decade,
     }

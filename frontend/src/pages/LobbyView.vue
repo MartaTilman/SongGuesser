@@ -11,10 +11,14 @@
 
         <div class="card">
           <h3>Kontrole</h3>
-          <button v-if="store.isHost" @click="store.startRound()">Pokreni rundu</button>
+          <button v-if="store.isHost" type="button" @click="store.startRound()">
+            Pokreni rundu
+          </button>
           <p v-else>Čekanje hosta da pokrene igru...</p>
 
-          <button class="secondary" @click="goBlockchain">Pregled blockchaina</button>
+          <button class="secondary" type="button" @click="goBlockchain">
+            Pregled blockchaina
+          </button>
         </div>
       </div>
 
@@ -27,33 +31,42 @@
 
 <script setup>
 import { onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import PlayerList from "../components/PlayerList.vue";
 
 const router = useRouter();
+const route = useRoute();
 const store = useGameStore();
 
 onMounted(async () => {
   if (!store.lobbyId || !store.playerName) {
-    router.push("/");
+    await router.replace({ name: "home" });
     return;
   }
 
-  await store.fetchLobbyInfo();
+  try {
+    await store.fetchLobbyInfo();
+  } catch (error) {
+    console.error("Lobby info fetch failed:", error);
+    store.error = "Ne mogu dohvatiti informacije o lobbyju.";
+  }
 });
 
 watch(
   () => store.phase,
-  (phase) => {
-    if (phase === "round") {
-      router.push("/game");
+  async (phase) => {
+    if (phase === "round" && route.name !== "game") {
+      await router.replace({ name: "game" });
     }
-  }
+  },
+  { flush: "post" }
 );
 
-function goBlockchain() {
-  router.push("/blockchain");
+async function goBlockchain() {
+  if (route.name !== "blockchain") {
+    await router.replace({ name: "blockchain" });
+  }
 }
 </script>
 

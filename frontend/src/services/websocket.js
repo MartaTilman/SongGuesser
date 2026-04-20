@@ -1,6 +1,13 @@
 let socket = null;
 
-export function connectWebSocket(lobbyId, playerName, onMessage, onOpen, onClose, avatar = "🎵") {
+export function connectWebSocket(
+  lobbyId,
+  playerName,
+  onMessage,
+  onOpen,
+  onClose,
+  avatar = "🎵"
+) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     return socket;
   }

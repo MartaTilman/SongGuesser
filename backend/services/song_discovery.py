@@ -1,9 +1,9 @@
 import random
 
 from services.metadata_cache import (
+    add_song_to_cache,
     load_metadata_cache,
     save_metadata_cache,
-    add_song_to_cache,
     song_exists,
 )
 from services.song_parser import parse_song_from_title
@@ -23,6 +23,20 @@ def generate_start_time(duration_seconds):
         return random.randint(25, 55)
 
     return random.randint(30, 70)
+
+
+def get_min_parse_confidence(target_decade):
+    if target_decade in ["50s", "60s"]:
+        return 65
+
+    return MIN_PARSE_CONFIDENCE
+
+
+def get_min_total_score(target_decade):
+    if target_decade in ["50s", "60s"]:
+        return 60
+
+    return MIN_TOTAL_SCORE
 
 
 def compute_final_score(candidate, parsed, year_result):
@@ -60,12 +74,11 @@ def validate_candidate(candidate, target_decade, cache):
 
     raw_lower = raw_title.lower()
 
-   
     if "live" in raw_lower:
         if target_decade not in ["50s", "60s"]:
             print(f"REJECT [{target_decade}] live not allowed: {raw_title}")
             return None
-        
+
     if not youtube_id or not raw_title:
         return None
 
@@ -77,7 +90,8 @@ def validate_candidate(candidate, target_decade, cache):
     if not parsed.get("is_real_song", False):
         return None
 
-    if parsed.get("confidence", 0) < MIN_PARSE_CONFIDENCE:
+    min_parse_confidence = get_min_parse_confidence(target_decade)
+    if parsed.get("confidence", 0) < min_parse_confidence:
         return None
 
     artist = parsed.get("artist", "").strip()
@@ -124,7 +138,8 @@ def validate_candidate(candidate, target_decade, cache):
     final_score = compute_final_score(candidate, parsed, year_result)
     song["final_score"] = final_score
 
-    if final_score < MIN_TOTAL_SCORE:
+    min_total_score = get_min_total_score(target_decade)
+    if final_score < min_total_score:
         return None
 
     return song

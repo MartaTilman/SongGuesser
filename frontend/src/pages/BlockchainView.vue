@@ -2,15 +2,16 @@
   <div class="page">
     <div class="container">
       <h1>Blockchain zapis</h1>
-      <p>Status lanca:
+      <p>
+        Status lanca:
         <strong :class="store.blockchainValid ? 'valid' : 'invalid'">
-          {{ store.blockchainValid ? 'VALIDAN' : 'NEVALIDAN' }}
+          {{ store.blockchainValid ? "VALIDAN" : "NEVALIDAN" }}
         </strong>
       </p>
 
       <div class="actions">
-        <button @click="refresh">Osvježi</button>
-        <button @click="goBack">Natrag</button>
+        <button type="button" @click="refresh">Osvježi</button>
+        <button type="button" @click="goBack">Natrag</button>
       </div>
 
       <div class="blocks">

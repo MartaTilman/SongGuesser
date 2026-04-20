@@ -29,12 +29,30 @@ class SongCache:
             if decade in self.cache:
                 self.cache[decade].append(song)
 
+    def get_decades_sorted_by_priority(self):
+        counts = {
+            decade: len(songs)
+            for decade, songs in self.cache.items()
+        }
+
+        empty_decades = [
+            decade for decade, count in counts.items()
+            if count == 0
+        ]
+
+        if empty_decades:
+            return empty_decades
+
+        return sorted(self.cache.keys(), key=lambda decade: counts[decade])
+
     def fill_cache(self, min_songs_per_decade=5):
         print("Checking song cache...")
 
         self.load_from_metadata_cache()
 
-        for decade in self.cache.keys():
+        priority_decades = self.get_decades_sorted_by_priority()
+
+        for decade in priority_decades:
             current_count = len(self.cache[decade])
 
             if current_count >= min_songs_per_decade:
@@ -56,6 +74,8 @@ class SongCache:
                 self.cache[decade] = discovered
                 print(f"{decade}: total {len(self.cache[decade])} songs in cache")
 
+                break
+
             except Exception as e:
                 error_text = str(e).lower()
 
@@ -74,6 +94,7 @@ class SongCache:
             return
 
         if self.youtube_quota_exceeded:
+            print(f"Skipping refill for {decade} because YouTube quota is exceeded")
             return
 
         print(f"Refilling decade {decade} because only {current_count} songs are available...")

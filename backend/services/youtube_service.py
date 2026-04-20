@@ -1,5 +1,6 @@
 import os
 import re
+
 import isodate
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
@@ -11,13 +12,11 @@ youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
 
 BAD_WORDS = [
-    "live",
     "cover",
     "karaoke",
     "remix",
     "reaction",
     "tribute",
-    "concert",
     "jukebox",
     "playlist",
     "compilation",
@@ -28,7 +27,6 @@ BAD_WORDS = [
     "slowed",
     "reverb",
     "instrumental",
-    "lyrics",
     "full album",
     "medley",
     "teaser",
@@ -36,11 +34,8 @@ BAD_WORDS = [
     "tutorial",
     "fan made",
     "fanmade",
-    "version",
-    "soul version",
     "lofi",
     "8d audio",
-    "remastered",
     "edit"
 ]
 
@@ -88,10 +83,15 @@ def normalize_text(value):
     return str(value or "").strip().lower()
 
 
-def title_has_bad_words(title):
+def title_has_bad_words(title, decade=None):
     lowered = normalize_text(title)
 
-    if any(word in lowered for word in BAD_WORDS):
+    dynamic_bad_words = list(BAD_WORDS)
+
+    if decade not in ["50s", "60s"]:
+        dynamic_bad_words.extend(["live", "lyrics", "remastered", "version"])
+
+    if any(word in lowered for word in dynamic_bad_words):
         return True
 
     if any(phrase in lowered for phrase in BAD_PHRASES):
@@ -117,9 +117,6 @@ def looks_like_song_title(title):
     if len(cleaned) < 5:
         return False
 
-    if " - " in cleaned or ":" in cleaned:
-        return True
-
     suspicious_patterns = [
         r"\b\d+\s+songs\b",
         r"\btop\s+\d+\b",
@@ -137,12 +134,6 @@ def looks_like_song_title(title):
 
 
 def is_decade_thematic_fake(title, target_decade):
-    """
-    Odbacuje videe tipa:
-    - '1950's soul version'
-    - 'song in 60s style'
-    - '80s remix'
-    """
     lowered = normalize_text(title)
 
     target_patterns = DECADE_TEXT_PATTERNS.get(target_decade, [])
@@ -167,18 +158,20 @@ def is_decade_thematic_fake(title, target_decade):
 def build_search_queries(decade):
     if decade == "50s":
         return [
-            'site:youtube.com 1950s official music video',
-            '"1950s" "official video" song',
-            '"50s" "official music video"',
-            '"rock and roll" official video oldies'
+            '"1950s" song',
+            '"50s" oldies song',
+            '"rock and roll" 1950s song',
+            '"doo wop" official audio',
+            '"1950s" topic song'
         ]
 
     if decade == "60s":
         return [
-            '"1960s" "official music video"',
-            '"60s" "official video" song',
-            '"motown" official video',
-            '"british invasion" official video'
+            '"1960s" song',
+            '"60s" oldies song',
+            '"motown" song',
+            '"british invasion" song',
+            '"1960s" official audio'
         ]
 
     if decade == "70s":
@@ -235,14 +228,19 @@ def search_youtube_candidates(decade, max_results_per_query=15):
 
     for query in queries:
         try:
-            response = youtube.search().list(
-                part="snippet",
-                q=query,
-                maxResults=max_results_per_query,
-                type="video",
-                videoCategoryId="10",
-                order="viewCount"
-            ).execute()
+            request_kwargs = {
+                "part": "snippet",
+                "q": query,
+                "maxResults": max_results_per_query,
+                "type": "video",
+                "order": "viewCount"
+            }
+
+            if decade not in ["50s", "60s"]:
+                request_kwargs["videoCategoryId"] = "10"
+
+            response = youtube.search().list(**request_kwargs).execute()
+
         except Exception as e:
             print(f"YouTube search error for query '{query}': {e}")
 
@@ -283,7 +281,7 @@ def fetch_video_details(video_ids):
 
         try:
             response = youtube.videos().list(
-                part="contentDetails,statistics,snippet",
+                part="contentDetails,statistics,snippet,status",
                 id=",".join(chunk)
             ).execute()
         except Exception as e:
@@ -300,6 +298,7 @@ def fetch_video_details(video_ids):
             snippet = item.get("snippet", {})
             stats = item.get("statistics", {})
             content = item.get("contentDetails", {})
+            status = item.get("status", {})
 
             duration_iso = content.get("duration", "PT0S")
             try:
@@ -318,7 +317,9 @@ def fetch_video_details(video_ids):
                 "description": snippet.get("description", ""),
                 "published_at": snippet.get("publishedAt"),
                 "view_count": view_count,
-                "duration_seconds": duration_seconds
+                "duration_seconds": duration_seconds,
+                "embeddable": bool(status.get("embeddable", False)),
+                "privacy_status": status.get("privacyStatus", "")
             }
 
     return details
@@ -329,11 +330,15 @@ def passes_basic_filters(candidate, decade):
     channel_title = candidate.get("channel_title", "")
     duration_seconds = candidate.get("duration_seconds", 0)
     view_count = candidate.get("view_count", 0)
+    embeddable = candidate.get("embeddable", False)
 
     if not raw_title:
         return False
 
-    if title_has_bad_words(raw_title):
+    if not embeddable:
+        return False
+
+    if title_has_bad_words(raw_title, decade=decade):
         return False
 
     if is_decade_thematic_fake(raw_title, decade):
@@ -342,12 +347,37 @@ def passes_basic_filters(candidate, decade):
     if not looks_like_song_title(raw_title):
         return False
 
-    if duration_seconds < 120 or duration_seconds > 480:
+    min_duration_by_decade = {
+        "50s": 90,
+        "60s": 100,
+        "70s": 120,
+        "80s": 120,
+        "90s": 120,
+        "2000s": 120,
+        "2010s": 120,
+        "2020s": 120
+    }
+
+    max_duration_by_decade = {
+        "50s": 420,
+        "60s": 480,
+        "70s": 480,
+        "80s": 480,
+        "90s": 480,
+        "2000s": 480,
+        "2010s": 480,
+        "2020s": 480
+    }
+
+    if duration_seconds < min_duration_by_decade.get(decade, 120):
+        return False
+
+    if duration_seconds > max_duration_by_decade.get(decade, 480):
         return False
 
     min_views_by_decade = {
-        "50s": 30000,
-        "60s": 50000,
+        "50s": 5000,
+        "60s": 15000,
         "70s": 150000,
         "80s": 250000,
         "90s": 250000,
@@ -415,6 +445,8 @@ def score_candidate(candidate):
 
     if 150 <= duration_seconds <= 330:
         score += 10
+    elif 90 <= duration_seconds <= 360:
+        score += 5
 
     if view_count >= 500000:
         score += 10

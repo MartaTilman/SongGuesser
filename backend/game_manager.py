@@ -70,6 +70,16 @@ class GameManager:
         score = int(300 + 700 * (1 - (elapsed_time / max_time)))
         return max(score, 300)
 
+    def get_min_ready_count(self, game):
+        remaining_songs = max(
+            1,
+            (game.total_rounds - game.current_round) * game.songs_per_round
+            + (game.songs_per_round - game.current_song_in_round)
+            + 1
+        )
+
+        return min(5, remaining_songs)
+
     async def start_round(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
 
@@ -80,7 +90,11 @@ class GameManager:
             })
             return
 
-        decades = song_cache.get_available_decades(min_ready_count=5)
+        min_ready_count = self.get_min_ready_count(game)
+        decades = song_cache.get_available_decades(min_ready_count=min_ready_count)
+
+        if not decades:
+            decades = song_cache.get_available_decades(min_ready_count=1)
 
         if not decades:
             await self.lobby_manager.broadcast(lobby_id, {

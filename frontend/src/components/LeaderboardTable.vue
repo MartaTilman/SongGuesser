@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <h3>Leaderboard</h3>
+    <h3>{{ title }}</h3>
     <table>
       <thead>
         <tr>
@@ -10,9 +10,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(player, index) in leaderboard" :key="player.name">
+        <tr v-for="(player, index) in sortedLeaderboard" :key="player.name">
           <td>{{ index + 1 }}</td>
-          <td>{{ player.name }}</td>
+          <td class="player-cell">
+            <span class="avatar">{{ player.avatar || "🎵" }}</span>
+            <span>{{ player.name }}</span>
+          </td>
           <td>{{ player.score }}</td>
         </tr>
       </tbody>
@@ -21,11 +24,21 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   leaderboard: {
     type: Array,
     default: () => []
+  },
+  title: {
+    type: String,
+    default: "Leaderboard"
   }
+});
+
+const sortedLeaderboard = computed(() => {
+  return [...props.leaderboard].sort((a, b) => b.score - a.score);
 });
 </script>
 
@@ -41,9 +54,20 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   text-align: left;
   padding: 10px;
   border-bottom: 1px solid #374151;
+}
+
+.player-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  font-size: 20px;
 }
 </style>

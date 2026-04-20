@@ -6,14 +6,16 @@ import LeaderboardView from "../pages/LeaderboardView.vue";
 import BlockchainView from "../pages/BlockchainView.vue";
 
 const routes = [
-  { path: "/", component: HomeView },
-  { path: "/lobby", component: LobbyView },
-  { path: "/game", component: GameView },
-  { path: "/leaderboard", component: LeaderboardView },
-  { path: "/blockchain", component: BlockchainView }
+  { path: "/", name: "home", component: HomeView },
+  { path: "/lobby", name: "lobby", component: LobbyView },
+  { path: "/game", name: "game", component: GameView },
+  { path: "/leaderboard", name: "leaderboard", component: LeaderboardView },
+  { path: "/blockchain", name: "blockchain", component: BlockchainView }
 ];
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes
 });
+
+export default router;

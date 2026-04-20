@@ -1,0 +1,12 @@
+{
+  "cSpell.words": [
+    "dotenv",
+    "fastapi",
+    "uvicorn",
+    "websocket",
+    "websockets",
+    "musicbrainz",
+    "youtube",
+    "pinia"
+  ]
+}

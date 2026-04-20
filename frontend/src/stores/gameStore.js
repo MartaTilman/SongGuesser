@@ -20,7 +20,7 @@ export const useGameStore = defineStore("game", {
     blockchainValid: null,
 
     error: "",
-    phase: "lobby" // lobby | round | leaderboard | finished
+    phase: "lobby"
   }),
 
   getters: {
@@ -44,7 +44,7 @@ export const useGameStore = defineStore("game", {
       connectWebSocket(
         this.lobbyId,
         this.playerName,
-        this.handleMessage,
+        (message) => this.handleMessage(message),
         () => {
           this.connected = true;
         },
@@ -79,11 +79,15 @@ export const useGameStore = defineStore("game", {
       if (message.type === "leaderboard") {
         this.leaderboard = message.data || [];
         this.awardedPoints = message.awarded_points || [];
-        this.roundData = {
-          ...this.roundData,
-          correct_title: message.correct_title,
-          correct_artist: message.correct_artist
-        };
+        this.roundData = this.roundData
+          ? {
+              ...this.roundData,
+              correct_title: message.correct_title,
+              correct_artist: message.correct_artist,
+              correct_year: message.correct_year,
+              correct_decade: message.correct_decade
+            }
+          : null;
         this.phase = "leaderboard";
       }
 
@@ -95,7 +99,7 @@ export const useGameStore = defineStore("game", {
 
     async fetchLobbyInfo() {
       const res = await api.get(`/lobby/${this.lobbyId}/info`);
-      this.host = res.data.host;
+      this.host = res.data.host || "";
       this.players = res.data.players || [];
     },
 
@@ -110,13 +114,13 @@ export const useGameStore = defineStore("game", {
     },
 
     submitAnswer(payload) {
-  sendWebSocketMessage({
-    type: "answer",
-    title_answer: payload.title_answer,
-    artist_answer: payload.artist_answer,
-    year_answer: payload.year_answer
-  });
-},
+      sendWebSocketMessage({
+        type: "answer",
+        title_answer: payload.title_answer,
+        artist_answer: payload.artist_answer,
+        year_answer: payload.year_answer
+      });
+    },
 
     finishSong() {
       sendWebSocketMessage({ type: "finish_song" });

@@ -1,16 +1,16 @@
 <template>
   <div class="page">
-    <div class="container" v-if="store.roundData">
+    <div v-if="store.roundData" class="container">
       <h1>Runda {{ store.roundData.round }}</h1>
 
       <div class="grid">
         <div class="card">
           <p>Pjesma: {{ store.roundData.song_number }} / {{ store.roundData.songs_per_round }}</p>
-          <p>Dekada: {{ store.roundData.decade }}</p>
           <p>Vrijeme: {{ remainingSeconds }} s</p>
           <p>Faza: {{ phaseLabel }}</p>
+
           <p v-if="store.roundData.is_host_turn" class="host-note">
-            Ti si host — zvuk ide samo kod tebe.
+            Ti si host, zvuk ide samo kod tebe.
           </p>
           <p v-else class="listener-note">
             Slušaj pjesmu kod hosta i upiši odgovore ovdje.
@@ -40,30 +40,38 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import VinylPlayer from "../components/VinylPlayer.vue";
 import RoundAnswerForm from "../components/RoundAnswerForm.vue";
 
 const router = useRouter();
+const route = useRoute();
 const store = useGameStore();
 
 const now = ref(Date.now() / 1000);
-let interval = null;
+let intervalId = null;
 
-onMounted(() => {
-  interval = setInterval(() => {
+onMounted(async () => {
+  intervalId = setInterval(() => {
     now.value = Date.now() / 1000;
   }, 250);
+
+  if (!store.roundData && route.name !== "lobby") {
+    await router.replace({ name: "lobby" });
+  }
 });
 
 onBeforeUnmount(() => {
-  if (interval) clearInterval(interval);
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
 });
 
-const clipStart = computed(() => store.roundData?.clip_started_at || 0);
-const clipEnd = computed(() => clipStart.value + (store.roundData?.clip_duration || 0));
-const roundEnd = computed(() => store.roundData?.round_ends_at || 0);
+const clipStart = computed(() => store.roundData?.clip_started_at ?? 0);
+const clipEnd = computed(() => clipStart.value + (store.roundData?.clip_duration ?? 0));
+const roundEnd = computed(() => store.roundData?.round_ends_at ?? 0);
 
 const canAnswer = computed(() => {
   return now.value >= clipStart.value && now.value <= roundEnd.value;
@@ -85,11 +93,12 @@ function submitAnswer(payload) {
 
 watch(
   () => store.phase,
-  (phase) => {
-    if (phase === "leaderboard" || phase === "finished") {
-      router.push("/leaderboard");
+  async (phase) => {
+    if ((phase === "leaderboard" || phase === "finished") && route.name !== "leaderboard") {
+      await router.replace({ name: "leaderboard" });
     }
-  }
+  },
+  { flush: "post" }
 );
 </script>
 

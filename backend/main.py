@@ -11,7 +11,8 @@ from models.player import Player
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        song_cache.fill_cache(min_songs_per_decade=5)
+        song_cache.load_from_metadata_cache()
+        print("Loaded songs from metadata cache only.")
     except Exception as e:
         print(f"Song cache loading failed: {e}")
 
@@ -108,13 +109,13 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
                     await game_manager.start_round(lobby_id)
 
             elif msg_type == "answer":
-                 await game_manager.submit_answer(
+                await game_manager.submit_answer(
                     lobby_id,
                     player,
                     data.get("title_answer"),
                     data.get("artist_answer"),
                     data.get("year_answer")
-    )
+                )
 
             elif msg_type == "finish_song":
                 if player.name == game.host:

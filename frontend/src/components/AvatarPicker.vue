@@ -5,6 +5,7 @@
       <button
         v-for="avatar in avatars"
         :key="avatar"
+        type="button"
         :class="{ active: modelValue === avatar }"
         @click="$emit('update:modelValue', avatar)"
       >

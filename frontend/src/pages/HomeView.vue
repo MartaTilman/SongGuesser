@@ -9,7 +9,7 @@
         <input v-model="lobbyId" type="text" placeholder="Lobby ID" />
         <AvatarPicker v-model="avatar" />
 
-        <button @click="joinLobby">Uđi u lobby</button>
+        <button type="button" @click="joinLobby">Uđi u lobby</button>
         <p v-if="error" class="error">{{ error }}</p>
       </div>
     </div>
