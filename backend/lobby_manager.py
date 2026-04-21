@@ -1,3 +1,6 @@
+import random
+import string
+
 from blockchain.blockchain import Blockchain
 
 
@@ -26,16 +29,39 @@ class LobbyManager:
     def __init__(self):
         self.lobbies = {}
 
+    def generate_lobby_id(self, length=6):
+        alphabet = string.ascii_uppercase + string.digits
+
+        for _ in range(100):
+            lobby_id = "".join(random.choice(alphabet) for _ in range(length))
+            if lobby_id not in self.lobbies:
+                return lobby_id
+
+        raise RuntimeError("Ne mogu generirati jedinstveni lobby kod.")
+
+    def create_lobby(self):
+        lobby_id = self.generate_lobby_id()
+        lobby = Lobby(lobby_id, "")
+        self.lobbies[lobby_id] = lobby
+        return lobby
+
     def join_lobby(self, lobby_id, player):
+        lobby_id = str(lobby_id or "").strip().upper()
+
+        if not lobby_id:
+            raise ValueError("Lobby kod je obavezan.")
+
         if lobby_id not in self.lobbies:
-            lobby = Lobby(lobby_id, player.name)
-            self.lobbies[lobby_id] = lobby
-        else:
-            lobby = self.lobbies[lobby_id]
+            raise ValueError("Lobby s tim kodom ne postoji.")
+
+        lobby = self.lobbies[lobby_id]
 
         existing_names = [p.name.lower() for p in lobby.players]
         if player.name.lower() in existing_names:
             raise ValueError("Igrač s tim imenom već postoji u lobbyju.")
+
+        if not lobby.host:
+            lobby.host = player.name
 
         lobby.players.append(player)
 

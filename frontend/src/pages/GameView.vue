@@ -13,7 +13,22 @@
             Ti si host, zvuk ide samo kod tebe.
           </p>
           <p v-else class="listener-note">
-            Slušaj pjesmu kod hosta i upiši odgovore ovdje.
+            Slušaj pjesmu i upiši odgovore ovdje.
+          </p>
+
+          <div v-if="showCountdown" class="countdown-box">
+            <span class="countdown-label">Runda počinje za</span>
+            <strong class="countdown-number">{{ countdownValue }}</strong>
+          </div>
+
+          <div v-if="showFinishFallback" class="fallback-box">
+            <button type="button" class="finish-btn" @click="finishRoundNow">
+              Završi rundu
+            </button>
+          </div>
+
+          <p v-else-if="waitingForResults" class="waiting-note">
+            Čekanje rezultata...
           </p>
         </div>
 
@@ -23,6 +38,7 @@
           :clip-duration="store.roundData.clip_duration"
           :clip-started-at="store.roundData.clip_started_at"
           :play-audio="store.roundData.is_host_turn"
+          :countdown-active="showCountdown"
         />
       </div>
 
@@ -73,22 +89,51 @@ const clipStart = computed(() => store.roundData?.clip_started_at ?? 0);
 const clipEnd = computed(() => clipStart.value + (store.roundData?.clip_duration ?? 0));
 const roundEnd = computed(() => store.roundData?.round_ends_at ?? 0);
 
-const canAnswer = computed(() => {
-  return now.value >= clipStart.value && now.value <= roundEnd.value;
+const countdownRemaining = computed(() => {
+  return Math.max(0, clipStart.value - now.value);
 });
 
-const phaseLabel = computed(() => {
-  if (now.value <= clipEnd.value) return "slušanje + odgovaranje";
-  if (now.value <= roundEnd.value) return "zadnjih 5 sekundi za odgovore";
-  return "čekanje rezultata";
+const countdownValue = computed(() => {
+  return Math.max(1, Math.ceil(countdownRemaining.value));
+});
+
+const showCountdown = computed(() => {
+  return countdownRemaining.value > 0;
+});
+
+const canAnswer = computed(() => {
+  return now.value >= clipStart.value && now.value <= roundEnd.value;
 });
 
 const remainingSeconds = computed(() => {
   return Math.max(0, Math.ceil(roundEnd.value - now.value));
 });
 
+const waitingForResults = computed(() => {
+  return remainingSeconds.value === 0;
+});
+
+const showFinishFallback = computed(() => {
+  return (
+    remainingSeconds.value === 0 &&
+    store.phase === "round" &&
+    store.roundData?.is_host_turn
+  );
+});
+
+const phaseLabel = computed(() => {
+  if (showCountdown.value) return "odbrojavanje";
+  if (now.value <= clipEnd.value) return "slušanje + odgovaranje";
+  if (now.value <= roundEnd.value) return "zadnjih sekundi za odgovore";
+  return "čekanje rezultata";
+});
+
 function submitAnswer(payload) {
   store.submitAnswer(payload);
+}
+
+function finishRoundNow() {
+  store.finishSong();
 }
 
 watch(
@@ -137,5 +182,47 @@ watch(
 .listener-note {
   margin-top: 10px;
   color: #d1d5db;
+}
+
+.countdown-box {
+  margin-top: 18px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.countdown-label {
+  display: block;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+.countdown-number {
+  display: block;
+  font-size: 56px;
+  line-height: 1;
+  color: #facc15;
+}
+
+.waiting-note {
+  margin-top: 16px;
+  color: #facc15;
+  font-weight: 600;
+}
+
+.fallback-box {
+  margin-top: 16px;
+}
+
+.finish-btn {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #dc2626;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>

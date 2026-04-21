@@ -60,9 +60,12 @@ FEATURE_SEPARATORS = [
     " featuring ",
 ]
 
+DASH_PATTERN = r"[-\u2010\u2011\u2012\u2013\u2014\u2015]"
+
 
 def normalize_for_compare(value):
     text = unescape(str(value or ""))
+    text = text.replace("â€“", "-").replace("â€”", "-").replace("–", "-").replace("—", "-")
     text = text.lower()
     text = re.sub(r"\s+", " ", text).strip()
     return text
@@ -70,6 +73,8 @@ def normalize_for_compare(value):
 
 def cleanup_title(youtube_title):
     cleaned = unescape(str(youtube_title or ""))
+    cleaned = cleaned.replace("â€“", "-").replace("â€”", "-").replace("–", "-").replace("—", "-")
+    cleaned = cleaned.replace("â€˜", "'").replace("â€™", "'").replace("“", '"').replace("”", '"')
 
     cleaned = re.sub(r"\(.*?\)", "", cleaned)
     cleaned = re.sub(r"\[.*?\]", "", cleaned)
@@ -83,10 +88,13 @@ def cleanup_title(youtube_title):
         "official music video",
         "Official Audio",
         "official audio",
+        "Visualiser",
+        "Visualizer",
+        "official visualizer",
+        "Official Visualizer",
         "HD",
         "4K",
         "TopPop",
-        "• TopPop",
         "| TopPop",
         "Remastered",
         "remastered",
@@ -98,13 +106,13 @@ def cleanup_title(youtube_title):
         "Lyrics",
         "lyric video",
         "LYRIC VIDEO",
+        "#shorts",
     ]
 
     for item in replacements:
         cleaned = cleaned.replace(item, "")
 
-    cleaned = re.sub(r"\s+", " ", cleaned).strip()
-
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" -|:")
     return cleaned
 
 
@@ -115,9 +123,9 @@ def strip_featured_artists(value):
     for separator in FEATURE_SEPARATORS:
         index = lowered.find(separator)
         if index != -1:
-            return text[:index].strip(" -–|,")
+            return text[:index].strip(" -–—|,")
 
-    return text.strip(" -–|,")
+    return text.strip(" -–—|,")
 
 
 def is_plausible_artist_title(artist, title):
@@ -135,12 +143,13 @@ def is_plausible_artist_title(artist, title):
 
     banned_title_patterns = [
         r"\b\d{4}s\b",
-        r"\bmmxx\b",
         r"\bofficial video\b",
         r"\bofficial audio\b",
         r"\bfull album\b",
         r"\bplaylist\b",
         r"\bcompilation\b",
+        r"\bmost popular\b",
+        r"\beach month\b",
     ]
 
     if any(re.search(pattern, lowered_title) for pattern in banned_title_patterns):
@@ -169,15 +178,17 @@ def parse_song_with_regex(youtube_title):
     cleaned = cleanup_title(youtube_title)
 
     patterns = [
-        r"^(?P<artist>.+?)\s*-\s*(?P<title>.+)$",
+        rf"^(?P<artist>.+?)\s*{DASH_PATTERN}\s*(?P<title>.+)$",
         r"^(?P<artist>.+?)\s*:\s*(?P<title>.+)$",
+        r'^(?P<artist>.+?)\s+"(?P<title>.+)"$',
+        r"^(?P<artist>.+?)\s+\|\s+(?P<title>.+)$",
     ]
 
     for pattern in patterns:
         match = re.match(pattern, cleaned)
         if match:
             artist = strip_featured_artists(match.group("artist"))
-            title = match.group("title").strip(" -–|")
+            title = match.group("title").strip(' -–—|:"')
 
             if is_plausible_artist_title(artist, title):
                 return {

@@ -30,12 +30,47 @@ export const useGameStore = defineStore("game", {
   actions: {
     setUserData({ playerName, lobbyId, avatar }) {
       this.playerName = playerName;
-      this.lobbyId = lobbyId;
+      this.lobbyId = String(lobbyId || "").trim().toUpperCase();
       this.avatar = avatar;
 
       localStorage.setItem("playerName", playerName);
-      localStorage.setItem("lobbyId", lobbyId);
+      localStorage.setItem("lobbyId", this.lobbyId);
       localStorage.setItem("avatar", avatar);
+    },
+
+    async createLobby(playerName, avatar) {
+      const res = await api.post("/lobbies");
+      const generatedLobbyId = res.data?.lobby_id;
+
+      if (!generatedLobbyId) {
+        throw new Error("Generiranje lobby koda nije uspjelo.");
+      }
+
+      this.setUserData({
+        playerName,
+        lobbyId: generatedLobbyId,
+        avatar
+      });
+
+      return generatedLobbyId;
+    },
+
+    async joinExistingLobby(playerName, lobbyId, avatar) {
+      const normalizedLobbyId = String(lobbyId || "").trim().toUpperCase();
+
+      if (!normalizedLobbyId) {
+        throw new Error("Unesi lobby kod.");
+      }
+
+      await api.get(`/lobby/${normalizedLobbyId}/info`);
+
+      this.setUserData({
+        playerName,
+        lobbyId: normalizedLobbyId,
+        avatar
+      });
+
+      return normalizedLobbyId;
     },
 
     connect() {

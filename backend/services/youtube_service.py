@@ -169,9 +169,10 @@ def build_search_queries(decade):
         return [
             '"1960s" song',
             '"60s" oldies song',
-            '"motown" song',
-            '"british invasion" song',
-            '"1960s" official audio'
+            '"motown" official audio',
+            '"motown" topic',
+            '"british invasion" official audio',
+            '"1960s" topic song'
         ]
 
     if decade == "70s":
@@ -216,9 +217,10 @@ def build_search_queries(decade):
 
     return [
         '"2020s" official music video',
-        '"2020s hit" official video',
-        '"2020s pop" official video',
-        '"2020s song" official video'
+        '"2020s" official audio',
+        '"2020s" topic song',
+        '"2020s pop" official audio',
+        '"viral 2020s song"'
     ]
 
 
@@ -349,13 +351,13 @@ def passes_basic_filters(candidate, decade):
 
     min_duration_by_decade = {
         "50s": 90,
-        "60s": 100,
+        "60s": 90,
         "70s": 120,
         "80s": 120,
         "90s": 120,
         "2000s": 120,
         "2010s": 120,
-        "2020s": 120
+        "2020s": 80
     }
 
     max_duration_by_decade = {
@@ -377,13 +379,13 @@ def passes_basic_filters(candidate, decade):
 
     min_views_by_decade = {
         "50s": 5000,
-        "60s": 15000,
+        "60s": 5000,
         "70s": 150000,
         "80s": 250000,
         "90s": 250000,
         "2000s": 400000,
         "2010s": 500000,
-        "2020s": 300000
+        "2020s": 20000
     }
 
     if view_count < min_views_by_decade.get(decade, 300000):
@@ -434,7 +436,7 @@ def score_candidate(candidate):
     if looks_like_song_title(raw_title):
         score += 20
 
-    if not title_has_bad_words(raw_title):
+    if not title_has_bad_words(raw_title, decade=None):
         score += 25
 
     channel_score = channel_quality_score(channel_title)
@@ -445,7 +447,7 @@ def score_candidate(candidate):
 
     if 150 <= duration_seconds <= 330:
         score += 10
-    elif 90 <= duration_seconds <= 360:
+    elif 80 <= duration_seconds <= 360:
         score += 5
 
     if view_count >= 500000:
@@ -459,6 +461,8 @@ def score_candidate(candidate):
 
 def fetch_youtube_candidates_for_decade(decade, max_results_per_query=15):
     raw_candidates = search_youtube_candidates(decade, max_results_per_query)
+    print(f"{decade}: raw youtube candidates={len(raw_candidates)}")
+
     enriched = enrich_candidates_with_details(raw_candidates)
 
     filtered = []
@@ -467,9 +471,107 @@ def fetch_youtube_candidates_for_decade(decade, max_results_per_query=15):
             candidate["pre_validation_score"] = score_candidate(candidate)
             filtered.append(candidate)
 
+    print(f"{decade}: candidates after youtube filters={len(filtered)}")
+
     filtered.sort(
         key=lambda c: (c.get("pre_validation_score", 0), c.get("view_count", 0)),
         reverse=True
     )
 
     return filtered
+
+
+def is_video_embeddable(video_id):
+    if not video_id:
+        return False
+
+    details = fetch_video_details([video_id]).get(video_id, {})
+    return bool(details.get("embeddable", False))
+
+
+def candidate_matches_song(candidate, artist, title):
+    raw_title = normalize_text(candidate.get("raw_title", ""))
+    normalized_artist = normalize_text(artist)
+    normalized_title = normalize_text(title)
+
+    artist_tokens = [token for token in re.split(r"\s+", normalized_artist) if len(token) > 2]
+    title_tokens = [token for token in re.split(r"\s+", normalized_title) if len(token) > 2]
+
+    artist_hits = sum(1 for token in artist_tokens if token in raw_title)
+    title_hits = sum(1 for token in title_tokens if token in raw_title)
+
+    artist_ok = artist_hits >= max(1, min(2, len(artist_tokens)))
+    title_ok = title_hits >= max(1, min(2, len(title_tokens)))
+
+    return artist_ok and title_ok
+
+
+def build_replacement_queries(artist, title):
+    return [
+        f'"{artist}" "{title}" official video',
+        f'"{artist}" "{title}" topic',
+        f'"{artist}" "{title}" official audio',
+        f'"{artist}" "{title}"'
+    ]
+
+
+def find_replacement_video_for_song(artist, title, decade, exclude_ids=None, max_results_per_query=10):
+    exclude_ids = set(exclude_ids or [])
+    collected = {}
+
+    for query in build_replacement_queries(artist, title):
+        try:
+            response = youtube.search().list(
+                part="snippet",
+                q=query,
+                maxResults=max_results_per_query,
+                type="video",
+                order="relevance"
+            ).execute()
+        except Exception as e:
+            print(f"YouTube replacement search error for query '{query}': {e}")
+
+            error_text = str(e).lower()
+            if "quota" in error_text or "quotaexceeded" in error_text:
+                raise RuntimeError("YouTube quota exceeded")
+
+            continue
+
+        for item in response.get("items", []):
+            video_id = item["id"]["videoId"]
+
+            if video_id in exclude_ids or video_id in collected:
+                continue
+
+            snippet = item.get("snippet", {})
+            collected[video_id] = {
+                "youtube_id": video_id,
+                "raw_title": snippet.get("title", ""),
+                "channel_title": snippet.get("channelTitle", ""),
+                "description": snippet.get("description", ""),
+                "published_at": snippet.get("publishedAt"),
+                "source_query": query
+            }
+
+    if not collected:
+        return None
+
+    enriched = enrich_candidates_with_details(list(collected.values()))
+
+    filtered = []
+    for candidate in enriched:
+        if not candidate_matches_song(candidate, artist, title):
+            continue
+
+        if not passes_basic_filters(candidate, decade):
+            continue
+
+        candidate["pre_validation_score"] = score_candidate(candidate)
+        filtered.append(candidate)
+
+    filtered.sort(
+        key=lambda c: (c.get("pre_validation_score", 0), c.get("view_count", 0)),
+        reverse=True
+    )
+
+    return filtered[0] if filtered else None

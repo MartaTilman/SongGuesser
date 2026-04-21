@@ -9,14 +9,14 @@
     </div>
 
     <p v-if="playAudio" class="status">
-      {{ isPlaying ? "Reproducira se isječak..." : "Klikni Play za pokretanje zvuka" }}
+      {{ statusText }}
     </p>
     <p v-else class="status muted">
       Samo host reproducira zvuk.
     </p>
 
     <button
-      v-if="playAudio"
+      v-if="playAudio && showManualPlay"
       class="play-btn"
       type="button"
       @click="startPlayback"
@@ -51,14 +51,20 @@ const props = defineProps({
   playAudio: {
     type: Boolean,
     default: false
+  },
+  countdownActive: {
+    type: Boolean,
+    default: false
   }
 });
 
 const player = ref(null);
 const isPlaying = ref(false);
+const autoStarted = ref(false);
 const playerElementId = `youtube-player-${Math.random().toString(36).slice(2)}`;
 
 let stopTimeout = null;
+let autoStartInterval = null;
 
 const effectiveStartSeconds = computed(() => {
   if (!props.clipStartedAt) {
@@ -70,10 +76,29 @@ const effectiveStartSeconds = computed(() => {
   return Math.floor((props.startTime || 0) + elapsed);
 });
 
+const showManualPlay = computed(() => {
+  return !isPlaying.value && !props.countdownActive;
+});
+
+const statusText = computed(() => {
+  if (props.countdownActive) {
+    return "Priprema reprodukcije...";
+  }
+
+  return isPlaying.value ? "Reproducira se isječak..." : "Ako autoplay ne krene, klikni Play";
+});
+
 function clearStopTimeout() {
   if (stopTimeout) {
     clearTimeout(stopTimeout);
     stopTimeout = null;
+  }
+}
+
+function clearAutoStartInterval() {
+  if (autoStartInterval) {
+    clearInterval(autoStartInterval);
+    autoStartInterval = null;
   }
 }
 
@@ -121,10 +146,28 @@ function startPlayback() {
     if (player.value?.playVideo) {
       player.value.playVideo();
       isPlaying.value = true;
+      autoStarted.value = true;
     }
   }, 250);
 
   scheduleStop(remaining * 1000);
+}
+
+function startAutoPlaybackWatcher() {
+  clearAutoStartInterval();
+
+  if (!props.playAudio || !props.youtubeId || !props.clipStartedAt) {
+    return;
+  }
+
+  autoStartInterval = setInterval(() => {
+    const now = Date.now() / 1000;
+
+    if (!autoStarted.value && now >= props.clipStartedAt) {
+      startPlayback();
+      clearAutoStartInterval();
+    }
+  }, 150);
 }
 
 function createPlayer() {
@@ -145,6 +188,7 @@ function createPlayer() {
     events: {
       onReady: () => {
         console.log("YouTube player ready");
+        startAutoPlaybackWatcher();
       },
       onStateChange: (event) => {
         if (!window.YT) return;
@@ -195,11 +239,17 @@ function loadYouTubeApi() {
 watch(
   () => [props.youtubeId, props.startTime, props.clipDuration, props.clipStartedAt, props.playAudio],
   () => {
+    autoStarted.value = false;
+
     if (!player.value) return;
 
     if (!props.playAudio) {
       stopPlayback();
+      clearAutoStartInterval();
+      return;
     }
+
+    startAutoPlaybackWatcher();
   }
 );
 
@@ -209,6 +259,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearStopTimeout();
+  clearAutoStartInterval();
 
   if (player.value?.destroy) {
     player.value.destroy();

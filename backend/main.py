@@ -1,18 +1,18 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from lobby_manager import LobbyManager
 from game_manager import GameManager, song_cache
+from lobby_manager import LobbyManager
 from models.player import Player
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        song_cache.load_from_metadata_cache()
-        print("Loaded songs from metadata cache only.")
+        song_cache.fill_cache(min_songs_per_decade=5)
+        print("Song cache refreshed with YouTube discovery.")
     except Exception as e:
         print(f"Song cache loading failed: {e}")
 
@@ -38,6 +38,12 @@ def root():
     return {"status": "backend running"}
 
 
+@app.post("/lobbies")
+def create_lobby():
+    lobby = lobby_manager.create_lobby()
+    return {"lobby_id": lobby.id}
+
+
 @app.get("/lobbies")
 def get_lobbies():
     return list(lobby_manager.lobbies.keys())
@@ -45,20 +51,20 @@ def get_lobbies():
 
 @app.get("/lobby/{lobby_id}/players")
 def get_players(lobby_id: str):
-    lobby = lobby_manager.lobbies.get(lobby_id)
+    lobby = lobby_manager.lobbies.get(lobby_id.upper())
 
     if not lobby:
-        return {"error": "Lobby not found"}
+        raise HTTPException(status_code=404, detail="Lobby not found")
 
     return [player.to_dict() for player in lobby.players]
 
 
 @app.get("/lobby/{lobby_id}/info")
 def get_lobby_info(lobby_id: str):
-    lobby = lobby_manager.lobbies.get(lobby_id)
+    lobby = lobby_manager.lobbies.get(lobby_id.upper())
 
     if not lobby:
-        return {"error": "Lobby not found"}
+        raise HTTPException(status_code=404, detail="Lobby not found")
 
     return {
         "lobby_id": lobby.id,
@@ -73,10 +79,10 @@ def get_lobby_info(lobby_id: str):
 
 @app.get("/lobby/{lobby_id}/blockchain")
 def get_blockchain(lobby_id: str):
-    lobby = lobby_manager.lobbies.get(lobby_id)
+    lobby = lobby_manager.lobbies.get(lobby_id.upper())
 
     if not lobby:
-        return {"error": "Lobby not found"}
+        raise HTTPException(status_code=404, detail="Lobby not found")
 
     return {
         "valid": lobby.blockchain.is_valid(),
@@ -90,11 +96,12 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
     avatar = websocket.query_params.get("avatar", "🎵")
     player = Player(player_name, websocket, avatar)
+    normalized_lobby_id = lobby_id.upper()
 
     try:
-        game = lobby_manager.join_lobby(lobby_id, player)
+        game = lobby_manager.join_lobby(normalized_lobby_id, player)
 
-        await lobby_manager.broadcast(lobby_id, {
+        await lobby_manager.broadcast(normalized_lobby_id, {
             "type": "lobby_update",
             "host": game.host,
             "players": [p.to_dict() for p in game.players]
@@ -106,11 +113,11 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
             if msg_type == "start_round":
                 if player.name == game.host:
-                    await game_manager.start_round(lobby_id)
+                    await game_manager.start_round(normalized_lobby_id)
 
             elif msg_type == "answer":
                 await game_manager.submit_answer(
-                    lobby_id,
+                    normalized_lobby_id,
                     player,
                     data.get("title_answer"),
                     data.get("artist_answer"),
@@ -119,7 +126,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
             elif msg_type == "finish_song":
                 if player.name == game.host:
-                    await game_manager.finish_song(lobby_id)
+                    await game_manager.finish_song(normalized_lobby_id)
 
     except ValueError as e:
         await websocket.send_json({
@@ -129,10 +136,10 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
         await websocket.close()
 
     except WebSocketDisconnect:
-        updated_lobby = lobby_manager.remove_player(lobby_id, player_name)
+        updated_lobby = lobby_manager.remove_player(normalized_lobby_id, player_name)
 
         if updated_lobby:
-            await lobby_manager.broadcast(lobby_id, {
+            await lobby_manager.broadcast(normalized_lobby_id, {
                 "type": "lobby_update",
                 "host": updated_lobby.host,
                 "players": [p.to_dict() for p in updated_lobby.players]
@@ -141,13 +148,13 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
         print(f"{player_name} disconnected")
 
     except Exception as e:
-        print(f"WebSocket error for {player_name} in lobby {lobby_id}: {e}")
+        print(f"WebSocket error for {player_name} in lobby {normalized_lobby_id}: {e}")
 
-        updated_lobby = lobby_manager.remove_player(lobby_id, player_name)
+        updated_lobby = lobby_manager.remove_player(normalized_lobby_id, player_name)
 
         if updated_lobby:
             try:
-                await lobby_manager.broadcast(lobby_id, {
+                await lobby_manager.broadcast(normalized_lobby_id, {
                     "type": "lobby_update",
                     "host": updated_lobby.host,
                     "players": [p.to_dict() for p in updated_lobby.players]

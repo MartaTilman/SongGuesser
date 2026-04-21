@@ -11,6 +11,7 @@ class GameManager:
     def __init__(self, lobby_manager):
         self.lobby_manager = lobby_manager
         self.round_tasks = {}
+        self.round_countdown_seconds = 3
 
     def get_round_duration(self, round_number):
         durations = {
@@ -83,6 +84,9 @@ class GameManager:
     async def start_round(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
 
+        if not hasattr(game, "used_song_keys"):
+            game.used_song_keys = set()
+
         if game.current_round > game.total_rounds:
             await self.lobby_manager.broadcast(lobby_id, {
                 "type": "game_finished",
@@ -112,7 +116,8 @@ class GameManager:
             found_song = song_cache.get_song(
                 decade=decade,
                 used_songs=game.used_songs,
-                last_artist=game.last_artist
+                last_artist=game.last_artist,
+                used_song_keys=game.used_song_keys
             )
 
             if found_song is not None:
@@ -136,6 +141,9 @@ class GameManager:
             return
 
         game.used_songs.add(song["youtube_id"])
+        game.used_song_keys.add(
+            f"{self.normalize_text(song.get('artist'))}|{self.normalize_text(song.get('title'))}|{song.get('year')}"
+        )
         game.last_artist = song["artist"]
 
         game.current_song = song
@@ -144,11 +152,12 @@ class GameManager:
 
         clip_duration = self.get_round_duration(game.current_round)
         answer_window = 15
+        countdown_seconds = self.round_countdown_seconds
 
         now = time.time()
-        game.clip_started_at = now
-        game.answer_phase_started_at = now
-        game.round_ends_at = now + clip_duration + answer_window
+        game.clip_started_at = now + countdown_seconds
+        game.answer_phase_started_at = game.clip_started_at
+        game.round_ends_at = game.clip_started_at + clip_duration + answer_window
 
         year_options = self.generate_year_options(song["year"])
 
@@ -158,6 +167,7 @@ class GameManager:
             "start_time": song["start_time"],
             "clip_duration": clip_duration,
             "answer_window": answer_window,
+            "countdown_seconds": countdown_seconds,
             "total_duration": clip_duration + answer_window,
             "decade": chosen_decade,
             "round": game.current_round,
@@ -178,7 +188,7 @@ class GameManager:
             self.round_tasks[lobby_id].cancel()
 
         self.round_tasks[lobby_id] = asyncio.create_task(
-            self.auto_finish_round(lobby_id, clip_duration + answer_window)
+            self.auto_finish_round(lobby_id, countdown_seconds + clip_duration + answer_window)
         )
 
     async def auto_finish_round(self, lobby_id, delay):

@@ -1,7 +1,12 @@
 <template>
   <div class="page">
     <div class="container">
-      <h1>Lobby: {{ store.lobbyId }}</h1>
+      <h1>Lobby</h1>
+      <div class="lobby-code-card">
+        <span class="code-label">Kod za dijeljenje</span>
+        <strong class="code-value">{{ store.lobbyId }}</strong>
+      </div>
+
       <p>Igrač: {{ store.playerName }}</p>
       <p v-if="store.connected" class="ok">Spojeno na server</p>
       <p v-else class="warn">Spajanje...</p>
@@ -16,9 +21,15 @@
           </button>
           <p v-else>Čekanje hosta da pokrene igru...</p>
 
+          <button class="secondary" type="button" @click="copyLobbyCode">
+            Kopiraj kod
+          </button>
+
           <button class="secondary" type="button" @click="goBlockchain">
             Pregled blockchaina
           </button>
+
+          <p v-if="copyMessage" class="copy-message">{{ copyMessage }}</p>
         </div>
       </div>
 
@@ -30,7 +41,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import PlayerList from "../components/PlayerList.vue";
@@ -38,6 +49,7 @@ import PlayerList from "../components/PlayerList.vue";
 const router = useRouter();
 const route = useRoute();
 const store = useGameStore();
+const copyMessage = ref("");
 
 onMounted(async () => {
   if (!store.lobbyId || !store.playerName) {
@@ -68,6 +80,15 @@ async function goBlockchain() {
     await router.replace({ name: "blockchain" });
   }
 }
+
+async function copyLobbyCode() {
+  try {
+    await navigator.clipboard.writeText(store.lobbyId);
+    copyMessage.value = "Kod je kopiran.";
+  } catch (error) {
+    copyMessage.value = "Ne mogu kopirati kod.";
+  }
+}
 </script>
 
 <style scoped>
@@ -79,6 +100,27 @@ async function goBlockchain() {
 .container {
   max-width: 1000px;
   margin: 0 auto;
+}
+
+.lobby-code-card {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0 18px;
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 14px;
+  padding: 14px 18px;
+}
+
+.code-label {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.code-value {
+  font-size: 28px;
+  letter-spacing: 0.14em;
 }
 
 .grid {
@@ -112,6 +154,11 @@ button {
 
 .warn {
   color: #facc15;
+}
+
+.copy-message {
+  margin-top: 12px;
+  color: #93c5fd;
 }
 
 .error-box {
