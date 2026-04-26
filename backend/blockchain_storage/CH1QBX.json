@@ -1,0 +1,91 @@
+{
+  "lobby_id": "CH1QBX",
+  "block_count": 6,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1777198357.548227,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "CH1QBX"
+      },
+      "previous_hash": "0",
+      "hash": "f02a11315b134221a03a5cd4e7947bc8f44d3f9b3b6085d3afd69f209432bf9d"
+    },
+    {
+      "index": 1,
+      "timestamp": 1777198357.5504014,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "CH1QBX"
+      },
+      "previous_hash": "f02a11315b134221a03a5cd4e7947bc8f44d3f9b3b6085d3afd69f209432bf9d",
+      "hash": "8516473abd684700d7e91165cd88c482a49ff54712554f66ce2f9599a747ed10"
+    },
+    {
+      "index": 2,
+      "timestamp": 1777198357.5615785,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "8516473abd684700d7e91165cd88c482a49ff54712554f66ce2f9599a747ed10",
+      "hash": "6c37d158f9539a94f649202bd120791408d5eb11d15e3de3ac30c5aeb64addaa"
+    },
+    {
+      "index": 3,
+      "timestamp": 1777198357.5624487,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "6c37d158f9539a94f649202bd120791408d5eb11d15e3de3ac30c5aeb64addaa",
+      "hash": "263bc465db82b44b88de1ed3407529909d6dbf41dfd7973408c0cb4fee27b35c"
+    },
+    {
+      "index": 4,
+      "timestamp": 1777198360.2662058,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2005,
+        "decade": "2000s"
+      },
+      "previous_hash": "263bc465db82b44b88de1ed3407529909d6dbf41dfd7973408c0cb4fee27b35c",
+      "hash": "9b32ad9aae1e7e671318ea0d36959fd7b7ac3428cda36f515915b0c94da64734"
+    },
+    {
+      "index": 5,
+      "timestamp": 1777198379.8618321,
+      "data": {
+        "type": "song_result",
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2005,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2002,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "9b32ad9aae1e7e671318ea0d36959fd7b7ac3428cda36f515915b0c94da64734",
+      "hash": "74c4c749e5501649cd568cd9f7c6093ef7cecf83df0451664c3b4fedbf3a9522"
+    }
+  ]
+}

@@ -37,8 +37,9 @@
           :start-time="store.roundData.start_time"
           :clip-duration="store.roundData.clip_duration"
           :clip-started-at="store.roundData.clip_started_at"
-          :play-audio="store.roundData.is_host_turn"
+          :play-audio="true"
           :countdown-active="showCountdown"
+          :initially-muted="!store.roundData.is_host_turn"
         />
       </div>
 
@@ -46,6 +47,7 @@
         <RoundAnswerForm
           :key="`${store.roundData.round}-${store.roundData.song_number}`"
           :can-answer="canAnswer"
+          :round-ends-at="store.roundData.round_ends_at"
           :year-options="store.roundData.year_options || []"
           @submit-answer="submitAnswer"
         />
@@ -66,12 +68,18 @@ const route = useRoute();
 const store = useGameStore();
 
 const now = ref(Date.now() / 1000);
+const lastPlayedCountdownNumber = ref(null);
+
 let intervalId = null;
+let audioContext = null;
+let removeAudioUnlockListeners = null;
 
 onMounted(async () => {
   intervalId = setInterval(() => {
     now.value = Date.now() / 1000;
   }, 250);
+
+  setupAudioUnlock();
 
   if (!store.roundData && route.name !== "lobby") {
     await router.replace({ name: "lobby" });
@@ -83,6 +91,12 @@ onBeforeUnmount(() => {
     clearInterval(intervalId);
     intervalId = null;
   }
+
+  if (audioContext?.state !== "closed") {
+    audioContext?.close?.();
+  }
+
+  removeAudioUnlockListeners?.();
 });
 
 const clipStart = computed(() => store.roundData?.clip_started_at ?? 0);
@@ -94,7 +108,11 @@ const countdownRemaining = computed(() => {
 });
 
 const countdownValue = computed(() => {
-  return Math.max(1, Math.ceil(countdownRemaining.value));
+  if (!showCountdown.value) {
+    return 0;
+  }
+
+  return Math.min(3, Math.max(1, Math.ceil(countdownRemaining.value) - 1));
 });
 
 const showCountdown = computed(() => {
@@ -128,6 +146,83 @@ const phaseLabel = computed(() => {
   return "čekanje rezultata";
 });
 
+function ensureAudioContext() {
+  if (typeof window === "undefined") return null;
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+
+  if (!audioContext || audioContext.state === "closed") {
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+
+  return audioContext;
+}
+
+function setupAudioUnlock() {
+  if (typeof window === "undefined") return;
+
+  const unlockAudio = () => {
+    const context = ensureAudioContext();
+    if (!context) return;
+
+    const buffer = context.createBuffer(1, 1, 22050);
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.start(0);
+
+    if (context.state === "running") {
+      removeAudioUnlockListeners?.();
+      removeAudioUnlockListeners = null;
+    }
+  };
+
+  const events = ["pointerdown", "touchstart", "keydown"];
+
+  events.forEach((eventName) => {
+    window.addEventListener(eventName, unlockAudio, { passive: true });
+  });
+
+  removeAudioUnlockListeners = () => {
+    events.forEach((eventName) => {
+      window.removeEventListener(eventName, unlockAudio);
+    });
+  };
+}
+
+function playCountdownBeep(number) {
+  const context = ensureAudioContext();
+  if (!context) return;
+
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  const nowTime = context.currentTime;
+
+  const frequencyMap = {
+    3: 620,
+    2: 620,
+    1: 920
+  };
+
+  oscillator.type = number === 1 ? "sawtooth" : "square";
+  oscillator.frequency.setValueAtTime(frequencyMap[number] || 620, nowTime);
+
+  gainNode.gain.setValueAtTime(0.0001, nowTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.16, nowTime + 0.02);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, nowTime + (number === 1 ? 0.42 : 0.22));
+
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+
+  oscillator.start(nowTime);
+  oscillator.stop(nowTime + (number === 1 ? 0.45 : 0.25));
+}
+
 function submitAnswer(payload) {
   store.submitAnswer(payload);
 }
@@ -144,6 +239,26 @@ watch(
     }
   },
   { flush: "post" }
+);
+
+watch(
+  () => store.roundData?.clip_started_at,
+  () => {
+    lastPlayedCountdownNumber.value = null;
+  }
+);
+
+watch(
+  () => countdownValue.value,
+  (value) => {
+    if (!showCountdown.value) return;
+    if (![1, 2, 3].includes(value)) return;
+    if (lastPlayedCountdownNumber.value === value) return;
+
+    playCountdownBeep(value);
+    lastPlayedCountdownNumber.value = value;
+  },
+  { immediate: true }
 );
 </script>
 

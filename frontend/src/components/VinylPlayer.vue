@@ -3,8 +3,20 @@
     <h3>Player</h3>
 
     <div class="vinyl-wrap">
-      <div class="vinyl" :class="{ spinning: isPlaying }">
-        <div class="vinyl-inner"></div>
+      <div class="vinyl-stack">
+        <button
+          v-if="playAudio"
+          type="button"
+          class="sound-toggle"
+          :title="isMuted ? 'Uključi zvuk' : 'Ugasi zvuk'"
+          @click="toggleMute"
+        >
+          {{ isMuted ? "🔇" : "🔊" }}
+        </button>
+
+        <div class="vinyl" :class="{ spinning: isPlaying }">
+          <div class="vinyl-inner"></div>
+        </div>
       </div>
     </div>
 
@@ -12,7 +24,7 @@
       {{ statusText }}
     </p>
     <p v-else class="status muted">
-      Samo host reproducira zvuk.
+      Reprodukcija trenutno nije dostupna.
     </p>
 
     <button
@@ -55,11 +67,16 @@ const props = defineProps({
   countdownActive: {
     type: Boolean,
     default: false
+  },
+  initiallyMuted: {
+    type: Boolean,
+    default: false
   }
 });
 
 const player = ref(null);
 const isPlaying = ref(false);
+const isMuted = ref(props.initiallyMuted);
 const autoStarted = ref(false);
 const playerElementId = `youtube-player-${Math.random().toString(36).slice(2)}`;
 
@@ -85,7 +102,13 @@ const statusText = computed(() => {
     return "Priprema reprodukcije...";
   }
 
-  return isPlaying.value ? "Reproducira se isječak..." : "Ako autoplay ne krene, klikni Play";
+  if (isPlaying.value) {
+    return isMuted.value ? "Pjesma svira bez zvuka" : "Reproducira se isječak...";
+  }
+
+  return isMuted.value
+    ? "Zvuk je ugašen. Klikni ikonu zvučnika za uključivanje."
+    : "Ako autoplay ne krene, klikni Play";
 });
 
 function clearStopTimeout() {
@@ -99,6 +122,17 @@ function clearAutoStartInterval() {
   if (autoStartInterval) {
     clearInterval(autoStartInterval);
     autoStartInterval = null;
+  }
+}
+
+function syncMuteState() {
+  if (!player.value) return;
+
+  if (isMuted.value) {
+    player.value.mute?.();
+  } else {
+    player.value.unMute?.();
+    player.value.setVolume?.(100);
   }
 }
 
@@ -143,6 +177,8 @@ function startPlayback() {
   }
 
   setTimeout(() => {
+    syncMuteState();
+
     if (player.value?.playVideo) {
       player.value.playVideo();
       isPlaying.value = true;
@@ -170,6 +206,11 @@ function startAutoPlaybackWatcher() {
   }, 150);
 }
 
+function toggleMute() {
+  isMuted.value = !isMuted.value;
+  syncMuteState();
+}
+
 function createPlayer() {
   if (!window.YT?.Player) return;
 
@@ -188,6 +229,7 @@ function createPlayer() {
     events: {
       onReady: () => {
         console.log("YouTube player ready");
+        syncMuteState();
         startAutoPlaybackWatcher();
       },
       onStateChange: (event) => {
@@ -195,6 +237,7 @@ function createPlayer() {
 
         if (event.data === window.YT.PlayerState.PLAYING) {
           isPlaying.value = true;
+          syncMuteState();
         }
 
         if (
@@ -237,11 +280,22 @@ function loadYouTubeApi() {
 }
 
 watch(
+  () => props.initiallyMuted,
+  (value) => {
+    isMuted.value = value;
+    syncMuteState();
+  }
+);
+
+watch(
   () => [props.youtubeId, props.startTime, props.clipDuration, props.clipStartedAt, props.playAudio],
   () => {
     autoStarted.value = false;
+    isMuted.value = props.initiallyMuted;
 
     if (!player.value) return;
+
+    syncMuteState();
 
     if (!props.playAudio) {
       stopPlayback();
@@ -285,6 +339,29 @@ onBeforeUnmount(() => {
   justify-content: center;
   align-items: center;
   margin: 24px 0;
+}
+
+.vinyl-stack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-toggle {
+  position: absolute;
+  top: -12px;
+  right: -14px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 999px;
+  background: #111827;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  z-index: 2;
 }
 
 .vinyl {

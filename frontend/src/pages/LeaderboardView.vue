@@ -83,7 +83,6 @@
         >
           Next
         </button>
-        <button type="button" @click="goBlockchain">Blockchain</button>
         <button v-if="store.phase === 'finished'" type="button" @click="goHome">Početna</button>
       </div>
     </div>
@@ -91,7 +90,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import LeaderboardTable from "../components/LeaderboardTable.vue";
@@ -99,6 +98,8 @@ import LeaderboardTable from "../components/LeaderboardTable.vue";
 const router = useRouter();
 const store = useGameStore();
 const showFullFinalLeaderboard = ref(false);
+
+let audioContext = null;
 
 const roundBoard = computed(() => {
   return [...store.leaderboard].sort((a, b) => b.score - a.score);
@@ -121,14 +122,57 @@ function nextSong() {
   router.push("/game");
 }
 
-function goBlockchain() {
-  router.push("/blockchain");
-}
-
 function goHome() {
   store.clearAll();
   router.push("/");
 }
+
+function ensureAudioContext() {
+  if (typeof window === "undefined") return null;
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+
+  if (!audioContext || audioContext.state === "closed") {
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+
+  return audioContext;
+}
+
+function playLeaderboardSound() {
+  const context = ensureAudioContext();
+  if (!context) return;
+
+  const nowTime = context.currentTime;
+  const gainNode = context.createGain();
+  gainNode.connect(context.destination);
+
+  gainNode.gain.setValueAtTime(0.0001, nowTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.16, nowTime + 0.02);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, nowTime + 0.8);
+
+  const notes = [523.25, 659.25, 783.99];
+
+  notes.forEach((frequency, index) => {
+    const oscillator = context.createOscillator();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(frequency, nowTime + index * 0.14);
+    oscillator.connect(gainNode);
+    oscillator.start(nowTime + index * 0.14);
+    oscillator.stop(nowTime + index * 0.14 + 0.22);
+  });
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    playLeaderboardSound();
+  }, 80);
+});
 
 watch(
   () => store.phase,

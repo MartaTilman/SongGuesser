@@ -25,10 +25,6 @@
             Kopiraj kod
           </button>
 
-          <button class="secondary" type="button" @click="goBlockchain">
-            Pregled blockchaina
-          </button>
-
           <p v-if="copyMessage" class="copy-message">{{ copyMessage }}</p>
         </div>
       </div>
@@ -74,12 +70,6 @@ watch(
   },
   { flush: "post" }
 );
-
-async function goBlockchain() {
-  if (route.name !== "blockchain") {
-    await router.replace({ name: "blockchain" });
-  }
-}
 
 async function copyLobbyCode() {
   try {

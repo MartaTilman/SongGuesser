@@ -1,0 +1,107 @@
+{
+  "lobby_id": "LH4JRK",
+  "block_count": 7,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1777198995.3021724,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "LH4JRK"
+      },
+      "previous_hash": "0",
+      "hash": "84b91e5b8f814283ae91e64553b12ee74ecde8ea9c61d08ef0fbe4957e330f91"
+    },
+    {
+      "index": 1,
+      "timestamp": 1777198995.3033314,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "LH4JRK"
+      },
+      "previous_hash": "84b91e5b8f814283ae91e64553b12ee74ecde8ea9c61d08ef0fbe4957e330f91",
+      "hash": "d934740743444d13021983e27b35209c15036be59e416d0dd67df0016417258e"
+    },
+    {
+      "index": 2,
+      "timestamp": 1777198995.3115494,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "d934740743444d13021983e27b35209c15036be59e416d0dd67df0016417258e",
+      "hash": "2884a17b4251f7dad53628a3716aad9049847b0921f7f73121e192dbda1db28f"
+    },
+    {
+      "index": 3,
+      "timestamp": 1777198995.3125486,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "2884a17b4251f7dad53628a3716aad9049847b0921f7f73121e192dbda1db28f",
+      "hash": "0bbbc7ac0589faaba37fb2958b160a1f6372bacfc4a5ecba165f0f7da7f202fe"
+    },
+    {
+      "index": 4,
+      "timestamp": 1777198997.5262628,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "Earth Angel",
+        "artist": "The Penguins",
+        "year": 1954,
+        "decade": "50s"
+      },
+      "previous_hash": "0bbbc7ac0589faaba37fb2958b160a1f6372bacfc4a5ecba165f0f7da7f202fe",
+      "hash": "06d8c36588d17d1075908b0b7c1996bdf997c5b6d8ad5a8e6455dd81a47b27fb"
+    },
+    {
+      "index": 5,
+      "timestamp": 1777199030.5379312,
+      "data": {
+        "type": "song_result",
+        "song_title": "Earth Angel",
+        "artist": "The Penguins",
+        "year": 1954,
+        "decade": "50s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": []
+      },
+      "previous_hash": "06d8c36588d17d1075908b0b7c1996bdf997c5b6d8ad5a8e6455dd81a47b27fb",
+      "hash": "09cb3adfd1ed20306f6c65cc8e9d8805bb35bd2204d114991a30e9222053ac2e"
+    },
+    {
+      "index": 6,
+      "timestamp": 1777199030.5398493,
+      "data": {
+        "type": "song_result",
+        "song_title": "Earth Angel",
+        "artist": "The Penguins",
+        "year": 1954,
+        "decade": "50s",
+        "round": 1,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "adjfhauh",
+            "artist_answer": "jfjaf",
+            "year_answer": 1951,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "09cb3adfd1ed20306f6c65cc8e9d8805bb35bd2204d114991a30e9222053ac2e",
+      "hash": "f1d75fb8d6f8f83d4f9fe4905a5389fed6715ac869067577bd0aabda1142a192"
+    }
+  ]
+}

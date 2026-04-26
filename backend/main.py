@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
+from blockchain.blockchain import list_saved_blockchains, load_saved_blockchain
 from game_manager import GameManager, song_cache
 from lobby_manager import LobbyManager
 from models.player import Player
@@ -81,13 +82,35 @@ def get_lobby_info(lobby_id: str):
 def get_blockchain(lobby_id: str):
     lobby = lobby_manager.lobbies.get(lobby_id.upper())
 
-    if not lobby:
+    if lobby:
+        return {
+            "valid": lobby.blockchain.is_valid(),
+            "chain": lobby.blockchain.to_list()
+        }
+
+    saved_chain = load_saved_blockchain(lobby_id)
+    if saved_chain is None:
         raise HTTPException(status_code=404, detail="Lobby not found")
 
     return {
-        "valid": lobby.blockchain.is_valid(),
-        "chain": lobby.blockchain.to_list()
+        "valid": saved_chain.get("valid", False),
+        "chain": saved_chain.get("chain", [])
     }
+
+
+@app.get("/blockchain/history")
+def get_blockchain_history():
+    return {"games": list_saved_blockchains()}
+
+
+@app.get("/blockchain/history/{lobby_id}")
+def get_blockchain_history_entry(lobby_id: str):
+    saved_chain = load_saved_blockchain(lobby_id)
+
+    if saved_chain is None:
+        raise HTTPException(status_code=404, detail="Saved blockchain not found")
+
+    return saved_chain
 
 
 @app.websocket("/ws/{lobby_id}/{player_name}")

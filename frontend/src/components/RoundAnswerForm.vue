@@ -38,6 +38,7 @@
 
     <button
       class="submit-btn"
+      type="button"
       :disabled="submitted || !canAnswer"
       @click="submit"
     >
@@ -47,10 +48,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { onBeforeUnmount, ref, watch } from "vue";
 
 const props = defineProps({
   canAnswer: Boolean,
+  roundEndsAt: {
+    type: Number,
+    default: 0
+  },
   yearOptions: {
     type: Array,
     default: () => []
@@ -64,6 +69,15 @@ const artistAnswer = ref("");
 const yearAnswer = ref(null);
 const submitted = ref(false);
 
+let autoSubmitTimeout = null;
+
+function clearAutoSubmitTimeout() {
+  if (autoSubmitTimeout) {
+    clearTimeout(autoSubmitTimeout);
+    autoSubmitTimeout = null;
+  }
+}
+
 function submit() {
   if (submitted.value) return;
 
@@ -74,6 +88,20 @@ function submit() {
   });
 
   submitted.value = true;
+  clearAutoSubmitTimeout();
+}
+
+function scheduleAutoSubmit() {
+  clearAutoSubmitTimeout();
+
+  if (!props.roundEndsAt || submitted.value) {
+    return;
+  }
+
+  const delayMs = Math.max(0, Math.ceil((props.roundEndsAt - Date.now() / 1000) * 1000));
+  autoSubmitTimeout = setTimeout(() => {
+    submit();
+  }, delayMs);
 }
 
 watch(
@@ -84,6 +112,18 @@ watch(
     }
   }
 );
+
+watch(
+  () => props.roundEndsAt,
+  () => {
+    scheduleAutoSubmit();
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(() => {
+  clearAutoSubmitTimeout();
+});
 </script>
 
 <style scoped>

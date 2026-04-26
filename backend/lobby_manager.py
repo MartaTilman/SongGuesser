@@ -21,7 +21,7 @@ class Lobby:
         self.total_rounds = 4
         self.answer_phase_started_at = None
         self.clip_started_at = None
-        self.blockchain = Blockchain()
+        self.blockchain = Blockchain(lobby_id)
 
 
 class LobbyManager:
@@ -43,6 +43,7 @@ class LobbyManager:
         lobby_id = self.generate_lobby_id()
         lobby = Lobby(lobby_id, "")
         self.lobbies[lobby_id] = lobby
+        lobby.blockchain.add_lobby_created()
         return lobby
 
     def join_lobby(self, lobby_id, player):
@@ -82,7 +83,9 @@ class LobbyManager:
             return None
 
         if lobby.host == player_name:
+            previous_host = lobby.host
             lobby.host = lobby.players[0].name
+            lobby.blockchain.add_host_changed(previous_host, lobby.host)
 
         lobby.blockchain.add_auth_event(player_name, "disconnect")
 
