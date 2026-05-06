@@ -19,11 +19,12 @@ class GameManager:
     def get_round_duration(self, round_number):
         durations = {
             1: 15,
-            2: 10,
-            3: 5,
-            4: 3
+            2: 12,
+            3: 9,
+            4: 9,
+            5: 6
         }
-        return durations.get(round_number, 3)
+        return durations.get(round_number, 6)
 
     def generate_year_options(self, correct_year):
         candidates = [

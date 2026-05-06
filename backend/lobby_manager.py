@@ -18,7 +18,7 @@ class Lobby:
         self.current_round = 1
         self.current_song_in_round = 1
         self.songs_per_round = 5
-        self.total_rounds = 4
+        self.total_rounds = 5
         self.answer_phase_started_at = None
         self.clip_started_at = None
         self.blockchain = Blockchain(lobby_id)

@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import threading
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,8 +13,16 @@ from models.player import Player
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        song_cache.fill_cache(min_songs_per_decade=5)
-        print("Song cache refreshed with YouTube discovery.")
+        song_cache.load_from_metadata_cache()
+        print("Song cache loaded from local metadata cache.")
+
+        background_fill_thread = threading.Thread(
+            target=song_cache.fill_cache,
+            kwargs={"min_songs_per_decade": 5},
+            daemon=True
+        )
+        background_fill_thread.start()
+        print("Song cache background fill started.")
     except Exception as e:
         print(f"Song cache loading failed: {e}")
 
@@ -36,7 +45,10 @@ game_manager = GameManager(lobby_manager)
 
 @app.get("/")
 def root():
-    return {"status": "backend running"}
+    return {
+        "status": "backend running",
+        "cache_background_fill_running": song_cache.background_fill_running
+    }
 
 
 @app.post("/lobbies")

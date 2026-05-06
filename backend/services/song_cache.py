@@ -1,4 +1,5 @@
 import random
+import threading
 
 from services.metadata_cache import load_metadata_cache, save_metadata_cache
 from services.song_discovery import discover_songs_for_decade
@@ -17,7 +18,19 @@ class SongCache:
             "2010s": [],
             "2020s": []
         }
+        self.decade_priority = {
+            "2020s": 0,
+            "2010s": 1,
+            "2000s": 2,
+            "90s": 3,
+            "80s": 4,
+            "70s": 5,
+            "60s": 6,
+            "50s": 7
+        }
         self.youtube_quota_exceeded = False
+        self.cache_lock = threading.RLock()
+        self.background_fill_running = False
 
     def generate_start_time(self, duration_seconds):
         if duration_seconds <= 140:
@@ -31,68 +44,108 @@ class SongCache:
     def load_from_metadata_cache(self):
         metadata_cache = load_metadata_cache()
 
-        for decade in self.cache.keys():
-            self.cache[decade] = []
+        with self.cache_lock:
+            for decade in self.cache.keys():
+                self.cache[decade] = []
 
-        for song in metadata_cache.values():
-            decade = song.get("decade")
-            if decade in self.cache:
-                self.cache[decade].append(song)
+            for song in metadata_cache.values():
+                decade = song.get("decade")
+                if decade in self.cache:
+                    self.cache[decade].append(song)
 
     def get_decades_sorted_by_priority(self):
-        return sorted(
-            self.cache.keys(),
-            key=lambda decade: len(self.cache[decade])
-        )
-
-    def fill_cache(self, min_songs_per_decade=5):
-        print("Checking song cache...")
-
-        self.load_from_metadata_cache()
-        priority_decades = self.get_decades_sorted_by_priority()
-
-        for decade in priority_decades:
-            current_count = len(self.cache[decade])
-
-            if current_count >= min_songs_per_decade:
-                print(f"{decade}: already has {current_count} songs")
-                continue
-
-            if self.youtube_quota_exceeded:
-                print(f"{decade}: skipping discovery because YouTube quota is exceeded")
-                break
-
-            print(f"Loading songs for {decade}... current={current_count}, target={min_songs_per_decade}")
-
-            try:
-                discovered = discover_songs_for_decade(
-                    decade=decade,
-                    target_count=min_songs_per_decade,
-                    max_results_per_query=12
+        with self.cache_lock:
+            return sorted(
+                self.cache.keys(),
+                key=lambda decade: (
+                    len(self.cache[decade]),
+                    self.decade_priority.get(decade, 999)
                 )
-                self.cache[decade] = discovered
-                print(f"{decade}: total {len(self.cache[decade])} songs in cache")
+            )
 
-            except Exception as e:
-                error_text = str(e).lower()
+    def fill_cache(self, min_songs_per_decade=5, batch_size=5):
+        if self.background_fill_running:
+            print("Song cache fill already running in background.")
+            return
 
-                if "quota" in error_text or "quotaexceeded" in error_text:
-                    self.youtube_quota_exceeded = True
-                    print("YouTube quota exceeded. Stopping further discovery attempts.")
+        self.background_fill_running = True
+        print("Checking song cache...")
+        try:
+            self.load_from_metadata_cache()
+            while not self.youtube_quota_exceeded:
+                priority_decades = self.get_decades_sorted_by_priority()
+
+                print(
+                    "Priority order: "
+                    + ", ".join(
+                        f"{decade}({len(self.cache[decade])})"
+                        for decade in priority_decades
+                    )
+                )
+
+                added_any_song = False
+
+                for decade in priority_decades:
+                    if self.youtube_quota_exceeded:
+                        print(f"{decade}: skipping discovery because YouTube quota is exceeded")
+                        break
+
+                    with self.cache_lock:
+                        current_count = len(self.cache[decade])
+
+                    target_count = max(min_songs_per_decade, current_count + batch_size)
+
+                    print(
+                        f"Loading songs for {decade}... "
+                        f"current={current_count}, target={target_count}"
+                    )
+
+                    try:
+                        discovered = discover_songs_for_decade(
+                            decade=decade,
+                            target_count=target_count,
+                            max_results_per_query=12
+                        )
+                        with self.cache_lock:
+                            self.cache[decade] = discovered
+
+                        new_count = len(discovered)
+                        if new_count > current_count:
+                            added_any_song = True
+
+                        print(f"{decade}: total {new_count} songs in cache")
+
+                    except Exception as e:
+                        error_text = str(e).lower()
+
+                        if "quota" in error_text or "quotaexceeded" in error_text:
+                            self.youtube_quota_exceeded = True
+                            print("YouTube quota exceeded. Stopping further discovery attempts.")
+                            break
+                        else:
+                            print(f"Discovery failed for {decade}: {e}")
+
+                if not added_any_song:
+                    print("No new songs added in this pass. Stopping background fill.")
                     break
-                else:
-                    print(f"Discovery failed for {decade}: {e}")
 
-        print("Song cache ready!")
+            print("Song cache ready!")
+        finally:
+            self.background_fill_running = False
 
     def refill_decade_if_needed(self, decade, min_count=5):
-        current_count = len(self.cache.get(decade, []))
+        with self.cache_lock:
+            current_count = len(self.cache.get(decade, []))
 
         if current_count >= min_count:
             return
 
         if self.youtube_quota_exceeded:
             print(f"Skipping refill for {decade} because YouTube quota is exceeded")
+            return
+
+        if self.background_fill_running:
+            print(f"Skipping immediate refill for {decade} because background fill is running")
             return
 
         print(f"Refilling decade {decade} because only {current_count} songs are available...")
@@ -103,7 +156,8 @@ class SongCache:
                 target_count=max(min_count, 5),
                 max_results_per_query=12
             )
-            self.cache[decade] = discovered
+            with self.cache_lock:
+                self.cache[decade] = discovered
             print(f"{decade}: total {len(self.cache[decade])} songs after refill")
         except Exception as e:
             error_text = str(e).lower()
@@ -117,7 +171,13 @@ class SongCache:
     def get_available_decades(self, min_ready_count=5):
         ready = []
 
-        for decade, songs in self.cache.items():
+        with self.cache_lock:
+            cache_snapshot = {
+                decade: list(songs)
+                for decade, songs in self.cache.items()
+            }
+
+        for decade, songs in cache_snapshot.items():
             valid_count = len([
                 song for song in songs
                 if song.get("youtube_id")
@@ -217,8 +277,11 @@ class SongCache:
         used_song_keys = used_song_keys or set()
         self.refill_decade_if_needed(decade, min_count=5)
 
+        with self.cache_lock:
+            songs_for_decade = list(self.cache[decade])
+
         available = [
-            song for song in self.cache[decade]
+            song for song in songs_for_decade
             if song.get("youtube_id") not in used_songs
             and song.get("artist") != last_artist
             and song.get("year") is not None
@@ -229,7 +292,7 @@ class SongCache:
 
         if not available:
             available = [
-                song for song in self.cache[decade]
+                song for song in songs_for_decade
                 if song.get("youtube_id") not in used_songs
                 and song.get("year") is not None
                 and song.get("title")
