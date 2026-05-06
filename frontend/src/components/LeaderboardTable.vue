@@ -1,25 +1,17 @@
 <template>
   <div class="card">
-    <h3>{{ title }}</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Igrač</th>
-          <th>Bodovi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(player, index) in sortedLeaderboard" :key="player.name">
-          <td>{{ index + 1 }}</td>
-          <td class="player-cell">
-            <span class="avatar">{{ player.avatar || "🎵" }}</span>
-            <span>{{ player.name }}</span>
-          </td>
-          <td>{{ player.score }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <h3 v-if="title">{{ title }}</h3>
+
+    <div class="rows">
+      <div v-for="(player, index) in sortedLeaderboard" :key="player.name" class="row">
+        <div class="left">
+          <span class="rank">{{ index + 1 }}.</span>
+          <span class="avatar">{{ player.avatar || "🎵" }}</span>
+          <span class="name">{{ player.name }}</span>
+        </div>
+        <div class="score">{{ player.score }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,7 +25,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "Leaderboard"
+    default: ""
   }
 });
 
@@ -44,30 +36,57 @@ const sortedLeaderboard = computed(() => {
 
 <style scoped>
 .card {
-  background: #1f2937;
-  padding: 20px;
+  padding: 14px 14px 18px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
+}
+
+h3 {
+  margin: 0 0 14px 8px;
+  color: var(--text-blue);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.rows {
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 58px;
+  padding: 10px 20px;
+  background: rgba(214, 226, 255, 0.9);
   border-radius: 16px;
+  color: var(--text-blue);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 800;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  text-align: left;
-  padding: 10px;
-  border-bottom: 1px solid #374151;
-}
-
-.player-cell {
+.left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.rank {
+  min-width: 24px;
+}
+
 .avatar {
-  font-size: 20px;
+  font-size: 23px;
+}
+
+.score {
+  color: var(--text-magenta);
+  font-size: 18px;
 }
 </style>

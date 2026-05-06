@@ -1,14 +1,12 @@
 <template>
-  <div class="card player-card">
-    <h3>Player</h3>
-
+  <div class="player-card">
     <div class="vinyl-wrap">
       <div class="vinyl-stack">
         <button
           v-if="playAudio"
           type="button"
           class="sound-toggle"
-          :title="isMuted ? 'Uključi zvuk' : 'Ugasi zvuk'"
+          :title="isMuted ? 'Ukljuci zvuk' : 'Ugasi zvuk'"
           @click="toggleMute"
         >
           {{ isMuted ? "🔇" : "🔊" }}
@@ -103,11 +101,11 @@ const statusText = computed(() => {
   }
 
   if (isPlaying.value) {
-    return isMuted.value ? "Pjesma svira bez zvuka" : "Reproducira se isječak...";
+    return isMuted.value ? "Pjesma svira bez zvuka" : "Pjesma svira";
   }
 
   return isMuted.value
-    ? "Zvuk je ugašen. Klikni ikonu zvučnika za uključivanje."
+    ? "Zvuk je ugasen. Ukljuci ga ikonom."
     : "Ako autoplay ne krene, klikni Play";
 });
 
@@ -228,7 +226,6 @@ function createPlayer() {
     },
     events: {
       onReady: () => {
-        console.log("YouTube player ready");
         syncMuteState();
         startAutoPlaybackWatcher();
       },
@@ -324,21 +321,15 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.card {
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 16px;
-}
-
 .player-card {
-  min-height: 320px;
+  position: relative;
+  text-align: center;
 }
 
 .vinyl-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 24px 0;
 }
 
 .vinyl-stack {
@@ -350,28 +341,30 @@ onBeforeUnmount(() => {
 
 .sound-toggle {
   position: absolute;
-  top: -12px;
-  right: -14px;
+  left: 18px;
+  top: 118px;
   width: 42px;
   height: 42px;
-  border: none;
-  border-radius: 999px;
-  background: #111827;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
-  z-index: 2;
+  border: 1px solid rgba(176, 219, 255, 0.2);
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(66, 114, 201, 0.38), rgba(14, 36, 78, 0.48));
+  font-size: 20px;
+  line-height: 1;
+  color: #9ddcff;
+  box-shadow: 0 0 20px rgba(76, 175, 255, 0.16);
 }
 
 .vinyl {
-  width: 180px;
-  height: 180px;
+  width: 196px;
+  height: 196px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, #111 0 18px, #d1d5db 19px 22px, #111 23px 100%),
-    repeating-radial-gradient(circle at center, #111 0 6px, #1f2937 7px 10px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    radial-gradient(circle at center, #e98e2b 0 12px, #0b1b2e 13px 18px, #e98e2b 19px 32px, #0c0f18 33px 100%),
+    repeating-radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0 2px, rgba(0, 0, 0, 0.18) 3px 8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 18px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 8px rgba(8, 20, 44, 0.3);
 }
 
 .vinyl.spinning {
@@ -385,24 +378,29 @@ onBeforeUnmount(() => {
 }
 
 .status {
-  text-align: center;
-  color: #e5e7eb;
+  min-height: 22px;
+  margin: 18px 0 0;
+  color: var(--xp-text-soft);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .status.muted {
-  color: #9ca3af;
+  opacity: 0.85;
 }
 
 .play-btn {
-  display: block;
-  margin: 12px auto 0;
-  padding: 10px 18px;
-  border: none;
+  margin-top: 12px;
+  padding: 12px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 10px;
-  background: #16a34a;
+  background: linear-gradient(180deg, #4d99ff, #2f5fb9);
   color: white;
+  font-size: 14px;
   font-weight: 700;
-  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .youtube-player {
@@ -418,6 +416,13 @@ onBeforeUnmount(() => {
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .sound-toggle {
+    left: 6px;
+    top: 128px;
   }
 }
 </style>

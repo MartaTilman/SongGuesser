@@ -1,56 +1,73 @@
 <template>
   <div class="page">
     <div v-if="store.roundData" class="container">
-      <h1>Runda {{ store.roundData.round }}</h1>
-
-      <div class="grid">
-        <div class="card">
-          <p>Pjesma: {{ store.roundData.song_number }} / {{ store.roundData.songs_per_round }}</p>
-          <p>Vrijeme: {{ remainingSeconds }} s</p>
-          <p>Faza: {{ phaseLabel }}</p>
-
-          <p v-if="store.roundData.is_host_turn" class="host-note">
-            Ti si host, zvuk ide samo kod tebe.
-          </p>
-          <p v-else class="listener-note">
-            Slušaj pjesmu i upiši odgovore ovdje.
-          </p>
-
-          <div v-if="showCountdown" class="countdown-box">
-            <span class="countdown-label">Runda počinje za</span>
-            <strong class="countdown-number">{{ countdownValue }}</strong>
-          </div>
-
-          <div v-if="showFinishFallback" class="fallback-box">
-            <button type="button" class="finish-btn" @click="finishRoundNow">
-              Završi rundu
-            </button>
-          </div>
-
-          <p v-else-if="waitingForResults" class="waiting-note">
-            Čekanje rezultata...
-          </p>
+      <div class="player-header">
+        <div class="track-meta">
+          <span class="section-label">Now Playing</span>
+          <h1>Round {{ store.roundData.round }}</h1>
+          <p>Song {{ store.roundData.song_number }}/{{ store.roundData.songs_per_round }}</p>
         </div>
 
-        <VinylPlayer
-          :youtube-id="store.roundData.youtube_id"
-          :start-time="store.roundData.start_time"
-          :clip-duration="store.roundData.clip_duration"
-          :clip-started-at="store.roundData.clip_started_at"
-          :play-audio="true"
-          :countdown-active="showCountdown"
-          :initially-muted="!store.roundData.is_host_turn"
-        />
+        <div class="track-stats">
+          <div class="stat-box">
+            <span>Lobby</span>
+            <strong>{{ store.lobbyId }}</strong>
+          </div>
+          <div class="stat-box">
+            <span>Time left</span>
+            <strong>{{ remainingSeconds }}s</strong>
+          </div>
+        </div>
       </div>
 
-      <div class="section">
-        <RoundAnswerForm
-          :key="`${store.roundData.round}-${store.roundData.song_number}`"
-          :can-answer="canAnswer"
-          :round-ends-at="store.roundData.round_ends_at"
-          :year-options="store.roundData.year_options || []"
-          @submit-answer="submitAnswer"
-        />
+      <div class="game-shell">
+        <div class="visualizer-panel">
+          <div class="visualizer-grid" aria-hidden="true">
+            <span v-for="bar in 22" :key="bar" :style="{ animationDelay: `${bar * 0.08}s` }"></span>
+          </div>
+
+          <div class="player-area">
+            <div class="side-status">
+              <span class="status-pill">{{ store.roundData.is_host_turn ? "HOST AUDIO" : "LISTEN MODE" }}</span>
+              <span class="status-pill secondary">{{ showCountdown ? "COUNTDOWN" : "LIVE TRACK" }}</span>
+            </div>
+
+            <VinylPlayer
+              :youtube-id="store.roundData.youtube_id"
+              :start-time="store.roundData.start_time"
+              :clip-duration="store.roundData.clip_duration"
+              :clip-started-at="store.roundData.clip_started_at"
+              :play-audio="true"
+              :countdown-active="showCountdown"
+              :initially-muted="!store.roundData.is_host_turn"
+            />
+
+            <div v-if="showCountdown" class="countdown-box">
+              <span class="countdown-label">Track starts in</span>
+              <span class="countdown-number">{{ countdownValue }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section answer-section">
+          <RoundAnswerForm
+            :key="`${store.roundData.round}-${store.roundData.song_number}`"
+            :can-answer="canAnswer"
+            :round-ends-at="store.roundData.round_ends_at"
+            :year-options="store.roundData.year_options || []"
+            @submit-answer="submitAnswer"
+          />
+        </div>
+
+        <div v-if="showFinishFallback" class="fallback-box">
+          <button type="button" class="finish-btn" @click="finishRoundNow">
+            End track
+          </button>
+        </div>
+
+        <p v-else-if="waitingForResults" class="waiting-note">
+          Processing track results...
+        </p>
       </div>
     </div>
   </div>
@@ -100,7 +117,6 @@ onBeforeUnmount(() => {
 });
 
 const clipStart = computed(() => store.roundData?.clip_started_at ?? 0);
-const clipEnd = computed(() => clipStart.value + (store.roundData?.clip_duration ?? 0));
 const roundEnd = computed(() => store.roundData?.round_ends_at ?? 0);
 
 const countdownRemaining = computed(() => {
@@ -137,13 +153,6 @@ const showFinishFallback = computed(() => {
     store.phase === "round" &&
     store.roundData?.is_host_turn
   );
-});
-
-const phaseLabel = computed(() => {
-  if (showCountdown.value) return "odbrojavanje";
-  if (now.value <= clipEnd.value) return "slušanje + odgovaranje";
-  if (now.value <= roundEnd.value) return "zadnjih sekundi za odgovore";
-  return "čekanje rezultata";
 });
 
 function ensureAudioContext() {
@@ -264,80 +273,197 @@ watch(
 
 <style scoped>
 .page {
-  min-height: 100vh;
-  padding: 30px;
+  min-height: 100%;
 }
 
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
 }
 
-.grid {
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.track-meta h1 {
+  margin: 4px 0;
+  color: var(--xp-text-bright);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.track-meta p,
+.section-label {
+  margin: 0;
+  color: var(--xp-text-soft);
+}
+
+.section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.track-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.stat-box {
+  min-width: 126px;
+  padding: 10px 12px;
+  border: 1px solid rgba(164, 212, 255, 0.18);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(59, 108, 191, 0.35), rgba(16, 32, 66, 0.32));
+}
+
+.stat-box span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--xp-text-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.stat-box strong {
+  color: var(--xp-text-bright);
+  font-size: 18px;
+}
+
+.game-shell {
+  padding: 18px;
+  border: 1px solid rgba(177, 221, 255, 0.16);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(11, 24, 56, 0.9), rgba(9, 17, 40, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.visualizer-panel {
+  position: relative;
+  overflow: hidden;
+  min-height: 328px;
+  padding: 24px 20px;
+  border: 1px solid rgba(150, 212, 255, 0.18);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(86, 123, 255, 0.22), transparent 22%),
+    linear-gradient(180deg, rgba(14, 32, 70, 0.96), rgba(6, 15, 38, 0.94));
+}
+
+.visualizer-grid {
+  position: absolute;
+  inset: auto 20px 18px 20px;
+  height: 84px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(22, 1fr);
+  gap: 6px;
+  align-items: end;
+  opacity: 0.7;
 }
 
-.section {
-  margin-top: 20px;
+.visualizer-grid span {
+  border-radius: 999px 999px 2px 2px;
+  background:
+    linear-gradient(180deg, #d44cff 0%, #45c8ff 55%, #65f0b5 100%);
+  animation: equalize 1.2s ease-in-out infinite alternate;
+  box-shadow: 0 0 14px rgba(86, 214, 255, 0.35);
 }
 
-.card {
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 16px;
+.player-area {
+  position: relative;
+  z-index: 1;
 }
 
-.host-note {
-  margin-top: 10px;
-  color: #86efac;
+.side-status {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.listener-note {
-  margin-top: 10px;
-  color: #d1d5db;
+.status-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(82, 124, 201, 0.28);
+  border: 1px solid rgba(156, 219, 255, 0.16);
+  color: #bfe4ff;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.status-pill.secondary {
+  color: #ffe8a0;
 }
 
 .countdown-box {
-  margin-top: 18px;
-  background: #111827;
-  border: 1px solid #374151;
-  border-radius: 14px;
-  padding: 18px;
+  margin-top: 8px;
   text-align: center;
 }
 
 .countdown-label {
   display: block;
-  color: #9ca3af;
-  margin-bottom: 8px;
+  color: var(--xp-text-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .countdown-number {
   display: block;
-  font-size: 56px;
-  line-height: 1;
-  color: #facc15;
+  margin-top: 4px;
+  color: #ffffff;
+  font-size: 76px;
+  font-weight: 700;
+  text-shadow: 0 0 20px rgba(77, 176, 255, 0.6);
+}
+
+.answer-section {
+  margin-top: 18px;
 }
 
 .waiting-note {
-  margin-top: 16px;
-  color: #facc15;
-  font-weight: 600;
+  margin: 18px 0 0;
+  text-align: center;
+  color: var(--xp-text-soft);
 }
 
 .fallback-box {
-  margin-top: 16px;
+  margin-top: 18px;
+  text-align: center;
 }
 
 .finish-btn {
-  padding: 12px 18px;
-  border: none;
+  min-width: 170px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 10px;
-  background: #dc2626;
-  color: white;
+  background: linear-gradient(180deg, #4d99ff, #2f5fb9);
+  color: #fff;
   font-weight: 700;
-  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+@keyframes equalize {
+  from {
+    height: 12px;
+  }
+
+  to {
+    height: 82px;
+  }
+}
+
+@media (max-width: 900px) {
+  .player-header {
+    flex-direction: column;
+  }
+
+  .track-stats {
+    flex-wrap: wrap;
+  }
 }
 </style>

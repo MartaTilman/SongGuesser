@@ -1,0 +1,349 @@
+{
+  "lobby_id": "WXLJ06",
+  "block_count": 18,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1778063799.8673959,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "WXLJ06"
+      },
+      "previous_hash": "0",
+      "hash": "5cd9a0cb525089df922477341edfa157d8378e66bc7e9e035aeb2428a2118b06"
+    },
+    {
+      "index": 1,
+      "timestamp": 1778063799.8693628,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "WXLJ06"
+      },
+      "previous_hash": "5cd9a0cb525089df922477341edfa157d8378e66bc7e9e035aeb2428a2118b06",
+      "hash": "bdc4fe8cc6d8aa9aec47e6c4b76e44b3723b242963798a58d89b479413a33b1a"
+    },
+    {
+      "index": 2,
+      "timestamp": 1778063799.8811533,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "bdc4fe8cc6d8aa9aec47e6c4b76e44b3723b242963798a58d89b479413a33b1a",
+      "hash": "e1cc172f50be0bcb3e4f8f5a0fe4307d948eea4806c29dcff35c708b802f0214"
+    },
+    {
+      "index": 3,
+      "timestamp": 1778063799.883742,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "e1cc172f50be0bcb3e4f8f5a0fe4307d948eea4806c29dcff35c708b802f0214",
+      "hash": "04f79ee6c6176c5469fb2b99a5d0a0440d3429668216c6e64586814c16911f58"
+    },
+    {
+      "index": 4,
+      "timestamp": 1778063810.2122045,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "Jailhouse Rock",
+        "artist": "Elvis Presley",
+        "year": 1957,
+        "decade": "50s"
+      },
+      "previous_hash": "04f79ee6c6176c5469fb2b99a5d0a0440d3429668216c6e64586814c16911f58",
+      "hash": "41c5f4d71861c77d8e04804b7d4df41f5376c10a29bee83910071db7939867b0"
+    },
+    {
+      "index": 5,
+      "timestamp": 1778063833.0066676,
+      "data": {
+        "type": "song_result",
+        "song_title": "Jailhouse Rock",
+        "artist": "Elvis Presley",
+        "year": 1957,
+        "decade": "50s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1960,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "41c5f4d71861c77d8e04804b7d4df41f5376c10a29bee83910071db7939867b0",
+      "hash": "f71d2e9f82db75dd51e70b0dcf08b767f5b4fb67b8c522eaeee86063682319dd"
+    },
+    {
+      "index": 6,
+      "timestamp": 1778063838.8104186,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 2,
+        "song_title": "Soul Provider",
+        "artist": "Michael Bolton",
+        "year": 1989,
+        "decade": "80s"
+      },
+      "previous_hash": "f71d2e9f82db75dd51e70b0dcf08b767f5b4fb67b8c522eaeee86063682319dd",
+      "hash": "3f3786db2201fd6b55460b4bfd3809482ad55b210c80360488178bb495260494"
+    },
+    {
+      "index": 7,
+      "timestamp": 1778063860.3562572,
+      "data": {
+        "type": "song_result",
+        "song_title": "Soul Provider",
+        "artist": "Michael Bolton",
+        "year": 1989,
+        "decade": "80s",
+        "round": 1,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1991,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "3f3786db2201fd6b55460b4bfd3809482ad55b210c80360488178bb495260494",
+      "hash": "8901a1c7d80ebbc2f1552b1eb91276293c50224082c5916b433c6ee684010932"
+    },
+    {
+      "index": 8,
+      "timestamp": 1778063868.7539105,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 3,
+        "song_title": "Peggy Sue",
+        "artist": "Buddy Holly",
+        "year": 1957,
+        "decade": "50s"
+      },
+      "previous_hash": "8901a1c7d80ebbc2f1552b1eb91276293c50224082c5916b433c6ee684010932",
+      "hash": "01c5e1fc942b2efe2214ab792496841d4d4e9afe455a158209f001ea3c790f91"
+    },
+    {
+      "index": 9,
+      "timestamp": 1778063881.6092975,
+      "data": {
+        "type": "song_result",
+        "song_title": "Peggy Sue",
+        "artist": "Buddy Holly",
+        "year": 1957,
+        "decade": "50s",
+        "round": 1,
+        "song_number": 3,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1959,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "01c5e1fc942b2efe2214ab792496841d4d4e9afe455a158209f001ea3c790f91",
+      "hash": "fd795629778ad8469549161a059a280cf19a09e17d5c6f48336e37456a68c094"
+    },
+    {
+      "index": 10,
+      "timestamp": 1778063883.997643,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 4,
+        "song_title": "Earth Angel",
+        "artist": "The Penguins",
+        "year": 1954,
+        "decade": "50s"
+      },
+      "previous_hash": "fd795629778ad8469549161a059a280cf19a09e17d5c6f48336e37456a68c094",
+      "hash": "5e7deb4bc462e9b6616ee02176bd7e05941066da3a11529560d821c3e2c3aca6"
+    },
+    {
+      "index": 11,
+      "timestamp": 1778063896.7687492,
+      "data": {
+        "type": "song_result",
+        "song_title": "Earth Angel",
+        "artist": "The Penguins",
+        "year": 1954,
+        "decade": "50s",
+        "round": 1,
+        "song_number": 4,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1954,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 795,
+            "total_score": 795
+          }
+        ]
+      },
+      "previous_hash": "5e7deb4bc462e9b6616ee02176bd7e05941066da3a11529560d821c3e2c3aca6",
+      "hash": "4773e8d4a24725b7f20446b4086421e7512fba6e17fd813483b6beaa392d9773"
+    },
+    {
+      "index": 12,
+      "timestamp": 1778063912.2962902,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 5,
+        "song_title": "The Rhythm of the Night",
+        "artist": "Corona",
+        "year": 1994,
+        "decade": "90s"
+      },
+      "previous_hash": "4773e8d4a24725b7f20446b4086421e7512fba6e17fd813483b6beaa392d9773",
+      "hash": "2c793150e8c561076d8e2d16e8c62a22d6de06dbb0f7093aaa49181418daa870"
+    },
+    {
+      "index": 13,
+      "timestamp": 1778063922.2002912,
+      "data": {
+        "type": "song_result",
+        "song_title": "The Rhythm of the Night",
+        "artist": "Corona",
+        "year": 1994,
+        "decade": "90s",
+        "round": 1,
+        "song_number": 5,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1995,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 795
+          }
+        ]
+      },
+      "previous_hash": "2c793150e8c561076d8e2d16e8c62a22d6de06dbb0f7093aaa49181418daa870",
+      "hash": "aa8a63dd8d8a9b8a0b371bdd2e66a12bc53cf680a96498c5c7ff4c33f90bdcd5"
+    },
+    {
+      "index": 14,
+      "timestamp": 1778063926.4801254,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 1,
+        "song_title": "Twisted",
+        "artist": "Keith Sweat",
+        "year": 1995,
+        "decade": "90s"
+      },
+      "previous_hash": "aa8a63dd8d8a9b8a0b371bdd2e66a12bc53cf680a96498c5c7ff4c33f90bdcd5",
+      "hash": "b0569b055cf08c00caa18cb5f37365de7222564bcacf349d2adf7a472692c57d"
+    },
+    {
+      "index": 15,
+      "timestamp": 1778063940.4047241,
+      "data": {
+        "type": "song_result",
+        "song_title": "Twisted",
+        "artist": "Keith Sweat",
+        "year": 1995,
+        "decade": "90s",
+        "round": 2,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2000,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 795
+          }
+        ]
+      },
+      "previous_hash": "b0569b055cf08c00caa18cb5f37365de7222564bcacf349d2adf7a472692c57d",
+      "hash": "a1ba2c70497564ce74f7127d6e9c51bf56f361d3e28e297e20346ce4400e8d5e"
+    },
+    {
+      "index": 16,
+      "timestamp": 1778063947.359191,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 2,
+        "song_title": "Time",
+        "artist": "Culture Club",
+        "year": 1984,
+        "decade": "80s"
+      },
+      "previous_hash": "a1ba2c70497564ce74f7127d6e9c51bf56f361d3e28e297e20346ce4400e8d5e",
+      "hash": "fd2eebd1a855c722f5fdd85934520d018cb12a4e4507d46813c23fbfd293a4bf"
+    },
+    {
+      "index": 17,
+      "timestamp": 1778063960.1309428,
+      "data": {
+        "type": "song_result",
+        "song_title": "Time",
+        "artist": "Culture Club",
+        "year": 1984,
+        "decade": "80s",
+        "round": 2,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 795
+          }
+        ]
+      },
+      "previous_hash": "fd2eebd1a855c722f5fdd85934520d018cb12a4e4507d46813c23fbfd293a4bf",
+      "hash": "f7af712fb2f519c55abed641b8b6e6f47a0334918d0c64335673cc111c12bd90"
+    }
+  ]
+}

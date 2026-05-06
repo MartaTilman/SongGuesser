@@ -1,35 +1,36 @@
 <template>
   <div class="page">
     <div class="container">
-      <h1>Lobby</h1>
-      <div class="lobby-code-card">
-        <span class="code-label">Kod za dijeljenje</span>
-        <strong class="code-value">{{ store.lobbyId }}</strong>
+      <div class="lobby-header">
+        <div class="lobby-code-card">
+          <span class="code-label">Lobby ID</span>
+          <strong class="code-value">{{ store.lobbyId }}</strong>
+        </div>
+
+        <button class="copy-btn" type="button" @click="copyLobbyCode">Copy code</button>
       </div>
 
-      <p>Igrač: {{ store.playerName }}</p>
-      <p v-if="store.connected" class="ok">Spojeno na server</p>
-      <p v-else class="warn">Spajanje...</p>
-
-      <div class="grid">
+      <div class="content-grid">
         <PlayerList :players="store.players" :host="store.host" />
 
-        <div class="card">
-          <h3>Kontrole</h3>
-          <button v-if="store.isHost" type="button" @click="store.startRound()">
-            Pokreni rundu
-          </button>
-          <p v-else>Čekanje hosta da pokrene igru...</p>
+        <div class="side-panel">
+          <div class="task-card">
+            <h3>Lobby status</h3>
+            <p>{{ store.isHost ? "You are the host of this session." : "Host is preparing the next game." }}</p>
+          </div>
 
-          <button class="secondary" type="button" @click="copyLobbyCode">
-            Kopiraj kod
-          </button>
+          <div class="task-card controls-card">
+            <button v-if="store.isHost" type="button" @click="store.startRound()">
+              Start the game
+            </button>
+            <p v-else class="waiting-text">Waiting for host to start the game...</p>
 
-          <p v-if="copyMessage" class="copy-message">{{ copyMessage }}</p>
+            <p v-if="copyMessage" class="copy-message">{{ copyMessage }}</p>
+          </div>
         </div>
       </div>
 
-      <div v-if="store.error" class="card error-box">
+      <div v-if="store.error" class="error-box">
         {{ store.error }}
       </div>
     </div>
@@ -74,85 +75,130 @@ watch(
 async function copyLobbyCode() {
   try {
     await navigator.clipboard.writeText(store.lobbyId);
-    copyMessage.value = "Kod je kopiran.";
+    copyMessage.value = "Code copied.";
   } catch (error) {
-    copyMessage.value = "Ne mogu kopirati kod.";
+    copyMessage.value = "Copy failed.";
   }
 }
 </script>
 
 <style scoped>
 .page {
-  min-height: 100vh;
-  padding: 30px;
+  min-height: 100%;
 }
 
 .container {
-  max-width: 1000px;
-  margin: 0 auto;
+  color: #123f8d;
+}
+
+.lobby-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
 .lobby-code-card {
   display: inline-flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 12px 0 18px;
-  background: #111827;
-  border: 1px solid #374151;
-  border-radius: 14px;
-  padding: 14px 18px;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid #8daee0;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(216, 231, 255, 0.94));
 }
 
 .code-label {
-  color: #9ca3af;
-  font-size: 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #4c6cae;
 }
 
 .code-value {
-  font-size: 28px;
-  letter-spacing: 0.14em;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
-.grid {
+.copy-btn,
+.controls-card button {
+  padding: 10px 16px;
+  border: 1px solid #2959b7;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f8fbff 0%, #cfe1fb 15%, #84b5ff 52%, #5f8fed 100%);
+  color: #123f92;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 18px;
 }
 
-.card {
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 16px;
+.side-panel {
+  display: grid;
+  gap: 14px;
 }
 
-button {
-  padding: 12px 18px;
-  border: none;
+.task-card {
+  padding: 16px;
+  border: 1px solid #97b4e0;
   border-radius: 10px;
-  background: #16a34a;
-  color: white;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(224, 235, 255, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-.secondary {
-  margin-top: 12px;
-  background: #374151;
+.task-card h3 {
+  margin: 0 0 8px;
+  color: #18458f;
+  font-size: 16px;
 }
 
-.ok {
-  color: #4ade80;
+.task-card p {
+  margin: 0;
+  line-height: 1.4;
 }
 
-.warn {
-  color: #facc15;
+.controls-card {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.waiting-text {
+  text-align: center;
 }
 
 .copy-message {
-  margin-top: 12px;
-  color: #93c5fd;
+  color: #2f5db3;
+  font-weight: 700;
 }
 
 .error-box {
-  margin-top: 20px;
-  color: #f87171;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid #c97e7e;
+  border-radius: 8px;
+  background: #ffe1e1;
+  color: #aa2e2e;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lobby-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

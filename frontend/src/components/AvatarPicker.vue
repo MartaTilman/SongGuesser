@@ -1,6 +1,5 @@
 <template>
   <div class="avatar-picker">
-    <label>Odaberi avatar</label>
     <div class="avatars">
       <button
         v-for="avatar in avatars"
@@ -22,32 +21,33 @@ defineProps({
 
 defineEmits(["update:modelValue"]);
 
-const avatars = ["🎵", "🎤", "🎸", "🥁", "🎧", "🔥"];
+const avatars = ["🎻", "🎸", "🎷", "🥁", "🎺"];
 </script>
 
 <style scoped>
 .avatar-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .avatars {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
 }
 
 button {
-  padding: 10px 14px;
-  border: none;
-  border-radius: 10px;
-  background: #1f2937;
-  color: white;
+  width: 46px;
+  height: 36px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(245, 248, 255, 0.88);
+  color: var(--text-blue);
   font-size: 20px;
+  box-shadow: 0 6px 14px rgba(125, 163, 255, 0.14);
 }
 
 button.active {
-  background: #2563eb;
+  background: #84a8ff;
+  color: white;
 }
 </style>

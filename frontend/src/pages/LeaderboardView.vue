@@ -1,89 +1,96 @@
 <template>
   <div class="page">
     <div class="container">
-      <h1 v-if="store.phase === 'finished' && !showFullFinalLeaderboard">Pobjednici</h1>
-      <h1 v-else-if="store.phase === 'finished'">Konačni leaderboard</h1>
-      <h1 v-else>Rezultati runde</h1>
+      <div class="top-code">
+        <span class="top-code-label">LOBBY ID</span>
+        <strong class="top-code-value">{{ store.lobbyId }}</strong>
+      </div>
 
-      <div v-if="store.phase !== 'finished'">
-        <LeaderboardTable :leaderboard="roundBoard" title="Poredak nakon runde" />
+      <div v-if="store.phase !== 'finished'" class="panel">
+        <div v-if="store.awardedPoints.length" class="answers-card">
+          <div class="answers-header">
+            <span></span>
+            <span>Your answer</span>
+          </div>
 
-        <div class="card answer-card">
-          <h3>Točni odgovori</h3>
-          <div class="answer-grid">
-            <div class="answer-item">
-              <span class="label">Naziv pjesme</span>
-              <strong>{{ store.roundData?.correct_title }}</strong>
+          <div v-for="item in sortedAwardedPoints" :key="item.name" class="answer-player">
+            <div class="answer-grid">
+              <div class="answer-label">Song title was "{{ store.roundData?.correct_title }}"</div>
+              <div class="answer-value">
+                <span>{{ item.title_answer || "-" }}</span>
+                <strong :class="item.title_correct ? 'gain' : 'zero'">+{{ item.title_correct ? Math.round(item.gained_points / (item.year_correct + item.artist_correct + item.title_correct || 1)) : 0 }}</strong>
+              </div>
+              <div class="answer-label">Artist was "{{ store.roundData?.correct_artist }}"</div>
+              <div class="answer-value">
+                <span>{{ item.artist_answer || "-" }}</span>
+                <strong :class="item.artist_correct ? 'gain' : 'zero'">+{{ item.artist_correct ? Math.round(item.gained_points / (item.year_correct + item.artist_correct + item.title_correct || 1)) : 0 }}</strong>
+              </div>
+              <div class="answer-label">Year was "{{ store.roundData?.correct_year }}"</div>
+              <div class="answer-value">
+                <span>{{ item.year_answer || "-" }}</span>
+                <strong :class="item.year_correct ? 'gain' : 'zero'">+{{ item.year_correct ? Math.round(item.gained_points / (item.year_correct + item.artist_correct + item.title_correct || 1)) : 0 }}</strong>
+              </div>
             </div>
-            <div class="answer-item">
-              <span class="label">Izvođač</span>
-              <strong>{{ store.roundData?.correct_artist }}</strong>
-            </div>
-            <div class="answer-item">
-              <span class="label">Godina</span>
-              <strong>{{ store.roundData?.correct_year }}</strong>
+
+            <div class="player-total">
+              <div class="player-total-left">
+                <span class="player-avatar">{{ findAvatar(item.name) }}</span>
+                <span>{{ item.name }}</span>
+              </div>
+              <strong>{{ item.total_score }}</strong>
             </div>
           </div>
         </div>
 
-        <div class="card" v-if="store.awardedPoints.length">
-          <h3>Gdje su igrači pogodili ili pogriješili</h3>
-          <div class="result-list">
-            <div v-for="item in sortedAwardedPoints" :key="item.name" class="result-row">
-              <div class="result-header">
-                <strong>{{ item.name }}</strong>
-                <span class="points">+{{ item.gained_points }}</span>
-              </div>
-              <div class="result-statuses">
-                <span :class="item.title_correct ? 'ok' : 'bad'">
-                  Naziv: {{ item.title_correct ? "točno" : "netočno" }}
-                </span>
-                <span :class="item.artist_correct ? 'ok' : 'bad'">
-                  Izvođač: {{ item.artist_correct ? "točno" : "netočno" }}
-                </span>
-                <span :class="item.year_correct ? 'ok' : 'bad'">
-                  Godina: {{ item.year_correct ? "točno" : "netočno" }}
-                </span>
-              </div>
-            </div>
-          </div>
+        <LeaderboardTable :leaderboard="roundBoard" :title="''" />
+
+        <div class="actions">
+          <button v-if="store.isHost" type="button" @click="nextSong">Next</button>
+          <p v-else class="waiting-text">Waiting for host...</p>
         </div>
       </div>
 
-      <div v-else>
+      <div v-else class="panel final-panel">
         <div v-if="!showFullFinalLeaderboard" class="podium">
-          <div
-            v-for="(player, index) in topThree"
-            :key="player.name"
-            class="podium-card"
-            :class="`place-${index + 1}`"
-          >
-            <div class="place">#{{ index + 1 }}</div>
-            <div class="avatar">{{ player.avatar || "🎵" }}</div>
-            <strong>{{ player.name }}</strong>
-            <span>{{ player.score }} bodova</span>
+          <div class="place-label second-label">#2</div>
+          <div class="place-label first-label">#1</div>
+          <div class="place-label third-label">#3</div>
+
+          <div v-if="topThree[1]" class="podium-card second">
+            <div class="podium-avatar">{{ topThree[1].avatar || "🎵" }}</div>
+            <div class="podium-name">{{ topThree[1].name }}</div>
+          </div>
+
+          <div v-if="topThree[0]" class="podium-card first">
+            <div class="podium-avatar">{{ topThree[0].avatar || "🎵" }}</div>
+            <div class="podium-name">{{ topThree[0].name }}</div>
+          </div>
+
+          <div v-if="topThree[2]" class="podium-card third">
+            <div class="podium-avatar">{{ topThree[2].avatar || "🎵" }}</div>
+            <div class="podium-name">{{ topThree[2].name }}</div>
           </div>
         </div>
 
         <LeaderboardTable
           v-else
           :leaderboard="finalBoard"
-          title="Konačni poredak"
+          :title="''"
         />
-      </div>
 
-      <div class="actions">
-        <button v-if="store.phase !== 'finished' && store.isHost" type="button" @click="nextSong">
-          Next
-        </button>
-        <button
-          v-if="store.phase === 'finished' && !showFullFinalLeaderboard"
-          type="button"
-          @click="showFullFinalLeaderboard = true"
-        >
-          Next
-        </button>
-        <button v-if="store.phase === 'finished'" type="button" @click="goHome">Početna</button>
+        <div class="actions final-actions">
+          <button
+            v-if="!showFullFinalLeaderboard"
+            type="button"
+            @click="showFullFinalLeaderboard = true"
+          >
+            Next
+          </button>
+          <template v-else>
+            <button type="button" @click="goLobby">Lobby</button>
+            <button type="button" @click="goHome">Exit</button>
+          </template>
+        </div>
       </div>
     </div>
   </div>
@@ -117,9 +124,18 @@ const sortedAwardedPoints = computed(() => {
   return [...store.awardedPoints].sort((a, b) => b.total_score - a.total_score);
 });
 
+function findAvatar(name) {
+  return store.players.find((player) => player.name === name)?.avatar || "🎵";
+}
+
 function nextSong() {
   store.startRound();
   router.push("/game");
+}
+
+function goLobby() {
+  store.resetGame();
+  router.push("/lobby");
 }
 
 function goHome() {
@@ -191,131 +207,244 @@ watch(
 <style scoped>
 .page {
   min-height: 100vh;
-  padding: 30px;
+  padding: 28px 10px 20px;
 }
 
 .container {
-  max-width: 1000px;
+  width: min(100%, 690px);
   margin: 0 auto;
 }
 
-.card {
-  margin-top: 20px;
-  background: #1f2937;
-  padding: 20px;
-  border-radius: 16px;
+.top-code {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 18px;
+  align-items: center;
+  width: min(100%, 260px);
+  padding: 14px 22px;
+  border-radius: 18px;
+  background: rgba(224, 235, 255, 0.92);
+  color: var(--text-blue);
+  font-style: italic;
+  font-weight: 800;
 }
 
-.answer-card {
-  margin-top: 20px;
+.top-code-label {
+  font-size: 14px;
+}
+
+.top-code-value {
+  font-size: 17px;
+}
+
+.panel {
+  margin-top: 10px;
+  padding: 18px 18px 24px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
+}
+
+.answers-card {
+  margin-bottom: 18px;
+}
+
+.answers-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 8px 12px;
+  color: var(--text-blue);
+  font-size: 17px;
+  font-style: italic;
+  text-align: center;
+}
+
+.answer-player + .answer-player {
+  margin-top: 14px;
 }
 
 .answer-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 12px;
 }
 
-.answer-item {
-  background: #111827;
-  border-radius: 12px;
-  padding: 14px;
+.answer-label,
+.answer-value,
+.player-total {
+  min-height: 44px;
+  padding: 11px 18px;
+  background: rgba(214, 226, 255, 0.9);
+  border-radius: 14px;
+  color: var(--text-blue-strong);
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 800;
 }
 
-.label {
-  display: block;
-  margin-bottom: 8px;
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.result-list {
-  display: grid;
-  gap: 12px;
-}
-
-.result-row {
-  background: #111827;
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.result-header {
+.answer-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
-.result-statuses {
+.gain {
+  color: var(--text-green);
+}
+
+.zero {
+  color: var(--text-red);
+}
+
+.player-total {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
 }
 
-.points {
-  color: #facc15;
-  font-weight: 700;
-}
-
-.ok {
-  color: #4ade80;
-}
-
-.bad {
-  color: #f87171;
-}
-
-.podium {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.podium-card {
-  background: #1f2937;
-  border-radius: 16px;
-  padding: 24px;
-  text-align: center;
+.player-total-left {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
-.place-1 {
-  border: 2px solid #facc15;
-}
-
-.place-2 {
-  border: 2px solid #d1d5db;
-}
-
-.place-3 {
-  border: 2px solid #d97706;
-}
-
-.place {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.avatar {
-  font-size: 42px;
+.player-avatar {
+  font-size: 22px;
 }
 
 .actions {
-  margin-top: 20px;
+  margin-top: 18px;
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.final-actions {
+  justify-content: space-between;
 }
 
 button {
-  padding: 12px 18px;
-  border: none;
-  border-radius: 10px;
-  background: #2563eb;
+  min-width: 138px;
+  padding: 15px 24px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #83a8ff 0%, #6f96fd 100%);
   color: white;
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 800;
+}
+
+.waiting-text {
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  color: var(--text-blue);
+  font-size: 18px;
+  font-style: italic;
+}
+
+.final-panel {
+  min-height: 460px;
+}
+
+.podium {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 18px;
+  min-height: 330px;
+  padding: 48px 36px 10px;
+}
+
+.place-label {
+  position: absolute;
+  color: var(--text-blue-strong);
+  font-size: 58px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.first-label {
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.second-label {
+  top: 104px;
+  left: 82px;
+}
+
+.third-label {
+  top: 154px;
+  right: 86px;
+}
+
+.podium-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 14px 0 0;
+  color: white;
+  text-align: center;
+  box-shadow: inset 0 -40px 55px rgba(255, 255, 255, 0.32);
+}
+
+.podium-card.first {
+  height: 240px;
+  background: linear-gradient(180deg, #c12be5 0%, #e05cc8 100%);
+}
+
+.podium-card.second {
+  height: 170px;
+  background: linear-gradient(180deg, #ffe179 0%, #ffd767 100%);
+}
+
+.podium-card.third {
+  height: 120px;
+  background: linear-gradient(180deg, #ff3ba9 0%, #ff4fa1 100%);
+}
+
+.podium-avatar {
+  font-size: 44px;
+}
+
+.podium-name {
+  margin-top: 10px;
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .panel {
+    padding: 14px 12px 18px;
+  }
+
+  .answer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .podium {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: auto;
+    padding: 18px 8px 10px;
+  }
+
+  .place-label {
+    display: none;
+  }
+
+  .podium-card {
+    border-radius: 16px;
+    height: 140px !important;
+  }
 }
 </style>
