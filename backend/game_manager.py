@@ -259,7 +259,9 @@ class GameManager:
 
         game.current_song = song
         game.current_decade = chosen_decade
+        game.finishing_song = False
         game.answers = []
+        game.last_result_payload = None
 
         game.blockchain.add_round_started(
             round_number=game.current_round,
@@ -323,6 +325,9 @@ class GameManager:
     async def submit_answer(self, lobby_id, player, title_answer, artist_answer, year_answer):
         game = self.lobby_manager.lobbies[lobby_id]
 
+        if not game.current_song or game.finishing_song:
+            return
+
         already_answered = any(entry["player"].name == player.name for entry in game.answers)
         if already_answered:
             return
@@ -341,107 +346,138 @@ class GameManager:
     async def finish_song(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
 
-        if not game.current_song:
+        if not game.current_song or game.finishing_song:
             return
 
-        if lobby_id in self.round_tasks:
-            self.round_tasks[lobby_id].cancel()
-            del self.round_tasks[lobby_id]
+        game.finishing_song = True
 
-        correct_title = self.normalize_text(game.current_song["title"])
-        correct_artist = self.normalize_text(game.current_song["artist"])
-        correct_year = game.current_song["year"]
+        try:
+            round_task = self.round_tasks.get(lobby_id)
+            if round_task is not None:
+                if round_task is not asyncio.current_task():
+                    round_task.cancel()
+                del self.round_tasks[lobby_id]
 
-        max_time = game.round_ends_at - game.clip_started_at
+            correct_title = self.normalize_text(game.current_song["title"])
+            correct_artist = self.normalize_text(game.current_song["artist"])
+            correct_year = game.current_song["year"]
 
-        sorted_answers = sorted(game.answers, key=lambda x: x["time"])
-        awarded_points = []
+            max_time = game.round_ends_at - game.clip_started_at
 
-        for entry in sorted_answers:
-            player = entry["player"]
-            submitted_at = entry["time"]
+            sorted_answers = sorted(game.answers, key=lambda x: x["time"])
+            awarded_points = []
+            answered_player_names = set()
 
-            title_answer = self.normalize_text(entry.get("title_answer"))
-            artist_answer = self.normalize_text(entry.get("artist_answer"))
+            for entry in sorted_answers:
+                player = entry["player"]
+                answered_player_names.add(player.name)
+                submitted_at = entry["time"]
 
-            try:
-                year_answer = int(entry.get("year_answer"))
-            except Exception:
-                year_answer = None
+                title_answer = self.normalize_text(entry.get("title_answer"))
+                artist_answer = self.normalize_text(entry.get("artist_answer"))
 
-            title_correct = self.text_matches(title_answer, correct_title, mode="title")
-            artist_correct = self.text_matches(artist_answer, correct_artist, mode="artist")
-            year_correct = year_answer == correct_year
+                try:
+                    year_answer = int(entry.get("year_answer"))
+                except Exception:
+                    year_answer = None
 
-            title_points = self.calculate_points(
-                submitted_at, game.answer_phase_started_at, max_time, title_correct
+                title_correct = self.text_matches(title_answer, correct_title, mode="title")
+                artist_correct = self.text_matches(artist_answer, correct_artist, mode="artist")
+                year_correct = year_answer == correct_year
+
+                title_points = self.calculate_points(
+                    submitted_at, game.answer_phase_started_at, max_time, title_correct
+                )
+                artist_points = self.calculate_points(
+                    submitted_at, game.answer_phase_started_at, max_time, artist_correct
+                )
+                year_points = self.calculate_points(
+                    submitted_at, game.answer_phase_started_at, max_time, year_correct
+                )
+
+                gained_points = title_points + artist_points + year_points
+                player.score += gained_points
+
+                awarded_points.append({
+                    "name": player.name,
+                    "title_answer": entry.get("title_answer"),
+                    "artist_answer": entry.get("artist_answer"),
+                    "year_answer": entry.get("year_answer"),
+                    "title_correct": title_correct,
+                    "artist_correct": artist_correct,
+                    "year_correct": year_correct,
+                    "gained_points": gained_points,
+                    "total_score": player.score
+                })
+
+            for player in game.players:
+                if player.name in answered_player_names:
+                    continue
+
+                awarded_points.append({
+                    "name": player.name,
+                    "title_answer": "",
+                    "artist_answer": "",
+                    "year_answer": None,
+                    "title_correct": False,
+                    "artist_correct": False,
+                    "year_correct": False,
+                    "gained_points": 0,
+                    "total_score": player.score
+                })
+
+            leaderboard = [
+                {"name": p.name, "avatar": p.avatar, "score": p.score}
+                for p in game.players
+            ]
+            leaderboard.sort(key=lambda x: x["score"], reverse=True)
+
+            game.blockchain.add_song_result(
+                song_title=game.current_song["title"],
+                artist=game.current_song["artist"],
+                year=game.current_song.get("year"),
+                decade=game.current_decade,
+                round_number=game.current_round,
+                song_number=game.current_song_in_round,
+                awarded_points=awarded_points
             )
-            artist_points = self.calculate_points(
-                submitted_at, game.answer_phase_started_at, max_time, artist_correct
-            )
-            year_points = self.calculate_points(
-                submitted_at, game.answer_phase_started_at, max_time, year_correct
-            )
 
-            gained_points = title_points + artist_points + year_points
-            player.score += gained_points
+            result_payload = {
+                "type": "leaderboard",
+                "data": leaderboard,
+                "round": game.current_round,
+                "song_number": game.current_song_in_round,
+                "awarded_points": awarded_points,
+                "correct_title": game.current_song["title"],
+                "correct_artist": game.current_song["artist"],
+                "correct_year": game.current_song.get("year"),
+                "correct_decade": game.current_decade
+            }
+            game.last_result_payload = result_payload
 
-            awarded_points.append({
-                "name": player.name,
-                "title_answer": entry.get("title_answer"),
-                "artist_answer": entry.get("artist_answer"),
-                "year_answer": entry.get("year_answer"),
-                "title_correct": title_correct,
-                "artist_correct": artist_correct,
-                "year_correct": year_correct,
-                "gained_points": gained_points,
-                "total_score": player.score
-            })
+            await self.lobby_manager.broadcast(lobby_id, result_payload)
 
-        leaderboard = [
-            {"name": p.name, "avatar": p.avatar, "score": p.score}
-            for p in game.players
-        ]
-        leaderboard.sort(key=lambda x: x["score"], reverse=True)
+            if game.current_song_in_round < game.songs_per_round:
+                game.current_song_in_round += 1
+            else:
+                game.current_song_in_round = 1
+                game.current_round += 1
 
-        game.blockchain.add_song_result(
-            song_title=game.current_song["title"],
-            artist=game.current_song["artist"],
-            year=game.current_song.get("year"),
-            decade=game.current_decade,
-            round_number=game.current_round,
-            song_number=game.current_song_in_round,
-            awarded_points=awarded_points
-        )
+            game.current_song = None
+            game.current_decade = None
 
-        await self.lobby_manager.broadcast(lobby_id, {
-            "type": "leaderboard",
-            "data": leaderboard,
-            "round": game.current_round,
-            "song_number": game.current_song_in_round,
-            "awarded_points": awarded_points,
-            "correct_title": game.current_song["title"],
-            "correct_artist": game.current_song["artist"],
-            "correct_year": game.current_song.get("year"),
-            "correct_decade": game.current_decade
-        })
+            if game.current_round > game.total_rounds:
+                game.blockchain.add_game_finished(leaderboard)
 
-        if game.current_song_in_round < game.songs_per_round:
-            game.current_song_in_round += 1
-        else:
-            game.current_song_in_round = 1
-            game.current_round += 1
-
-        if game.current_round > game.total_rounds:
-            game.blockchain.add_game_finished(leaderboard)
-
-            await self.lobby_manager.broadcast(lobby_id, {
-                "type": "game_finished",
-                "leaderboard": leaderboard
-            })
-        else:
-            await self.lobby_manager.broadcast(lobby_id, {
-                "type": "next_song_ready",
-                "next_round": game.current_round,
-                "next_song_number": game.current_song_in_round
-            })
+                await self.lobby_manager.broadcast(lobby_id, {
+                    "type": "game_finished",
+                    "leaderboard": leaderboard
+                })
+            else:
+                await self.lobby_manager.broadcast(lobby_id, {
+                    "type": "next_song_ready",
+                    "next_round": game.current_round,
+                    "next_song_number": game.current_song_in_round
+                })
+        finally:
+            game.finishing_song = False

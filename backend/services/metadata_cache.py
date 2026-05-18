@@ -1,7 +1,12 @@
 import json
 import os
+import shutil
+from pathlib import Path
 
-CACHE_FILE = "song_metadata_cache.json"
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+CACHE_FILE = BACKEND_DIR / "song_metadata_cache.json"
+BACKUP_FILE = BACKEND_DIR / "song_metadata_cache.json.bak"
 
 
 def load_metadata_cache():
@@ -18,16 +23,28 @@ def load_metadata_cache():
             return {}
 
     except Exception as e:
-        print(f"Greška pri učitavanju cachea: {e}")
+        print(f"Greska pri ucitavanju cachea: {e}")
         return {}
 
 
-def save_metadata_cache(cache):
+def save_metadata_cache(cache, allow_deletions=False):
     try:
+        cache_to_save = cache
+
+        if not allow_deletions:
+            existing_cache = load_metadata_cache()
+            cache_to_save = {
+                **existing_cache,
+                **cache
+            }
+
+        if os.path.exists(CACHE_FILE):
+            shutil.copy2(CACHE_FILE, BACKUP_FILE)
+
         with open(CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(cache, f, ensure_ascii=False, indent=2)
+            json.dump(cache_to_save, f, ensure_ascii=False, indent=2)
     except Exception as e:
-        print(f"Greška pri spremanju cachea: {e}")
+        print(f"Greska pri spremanju cachea: {e}")
 
 
 def normalize_text(value):

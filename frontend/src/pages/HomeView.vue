@@ -113,10 +113,18 @@ async function runSubmit(selectedMode) {
     store.connect();
     await router.push("/lobby");
   } catch (err) {
-    error.value =
-      err?.response?.data?.detail ||
-      err?.message ||
-      "Neuspjesno spajanje na lobby.";
+    if (
+      err?.code === "ECONNABORTED" ||
+      err?.message?.includes("timeout") ||
+      err?.message === "Network Error"
+    ) {
+      error.value = "Ne mogu se spojiti na backend. Provjeri je li server pokrenut.";
+    } else {
+      error.value =
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Neuspjesno spajanje na lobby.";
+    }
   } finally {
     loading.value = false;
   }

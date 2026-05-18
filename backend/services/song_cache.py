@@ -1,9 +1,13 @@
+import os
 import random
 import threading
 
 from services.metadata_cache import load_metadata_cache, save_metadata_cache
 from services.song_discovery import discover_songs_for_decade
 from services.youtube_service import find_replacement_video_for_song, is_video_embeddable
+
+
+DEFAULT_DISCOVERY_ATTEMPT_BUDGET = 8
 
 
 class SongCache:
@@ -63,16 +67,44 @@ class SongCache:
                 )
             )
 
-    def fill_cache(self, min_songs_per_decade=5, batch_size=5):
+    def get_discovery_attempt_budget(self, discovery_attempt_budget=None):
+        if discovery_attempt_budget is not None:
+            return max(0, int(discovery_attempt_budget))
+
+        raw_budget = os.getenv("YOUTUBE_DISCOVERY_ATTEMPT_BUDGET")
+        if raw_budget:
+            try:
+                return max(0, int(raw_budget))
+            except ValueError:
+                print(
+                    "Invalid YOUTUBE_DISCOVERY_ATTEMPT_BUDGET value. "
+                    f"Using default={DEFAULT_DISCOVERY_ATTEMPT_BUDGET}"
+                )
+
+        return DEFAULT_DISCOVERY_ATTEMPT_BUDGET
+
+    def fill_cache(
+        self,
+        min_songs_per_decade=5,
+        discovery_attempt_budget=None,
+        max_results_per_query=12
+    ):
         if self.background_fill_running:
             print("Song cache fill already running in background.")
             return
 
+        attempt_budget = self.get_discovery_attempt_budget(discovery_attempt_budget)
+        if attempt_budget <= 0:
+            print("Song cache fill skipped because discovery attempt budget is 0.")
+            return
+
         self.background_fill_running = True
-        print("Checking song cache...")
+        print(f"Checking song cache... discovery_attempt_budget={attempt_budget}")
         try:
             self.load_from_metadata_cache()
-            while not self.youtube_quota_exceeded:
+            attempts_used = 0
+
+            while attempts_used < attempt_budget and not self.youtube_quota_exceeded:
                 priority_decades = self.get_decades_sorted_by_priority()
 
                 print(
@@ -83,9 +115,13 @@ class SongCache:
                     )
                 )
 
-                added_any_song = False
+                added_this_cycle = False
 
                 for decade in priority_decades:
+                    if attempts_used >= attempt_budget:
+                        print("Discovery attempt budget reached. Stopping background fill.")
+                        break
+
                     if self.youtube_quota_exceeded:
                         print(f"{decade}: skipping discovery because YouTube quota is exceeded")
                         break
@@ -93,25 +129,27 @@ class SongCache:
                     with self.cache_lock:
                         current_count = len(self.cache[decade])
 
-                    target_count = max(min_songs_per_decade, current_count + batch_size)
+                    target_count = current_count + 1
 
                     print(
                         f"Loading songs for {decade}... "
-                        f"current={current_count}, target={target_count}"
+                        f"current={current_count}, target={target_count}, "
+                        f"attempt={attempts_used + 1}/{attempt_budget}"
                     )
 
                     try:
+                        attempts_used += 1
                         discovered = discover_songs_for_decade(
                             decade=decade,
                             target_count=target_count,
-                            max_results_per_query=12
+                            max_results_per_query=max_results_per_query
                         )
                         with self.cache_lock:
                             self.cache[decade] = discovered
 
                         new_count = len(discovered)
                         if new_count > current_count:
-                            added_any_song = True
+                            added_this_cycle = True
 
                         print(f"{decade}: total {new_count} songs in cache")
 
@@ -125,7 +163,7 @@ class SongCache:
                         else:
                             print(f"Discovery failed for {decade}: {e}")
 
-                if not added_any_song:
+                if not added_this_cycle:
                     print("No new songs added in this pass. Stopping background fill.")
                     break
 
@@ -215,7 +253,7 @@ class SongCache:
         else:
             cache[new_youtube_id] = song.copy()
 
-        save_metadata_cache(cache)
+        save_metadata_cache(cache, allow_deletions=True)
         return True
 
     def ensure_song_embeddable(self, song, decade):
@@ -275,7 +313,6 @@ class SongCache:
             return None
 
         used_song_keys = used_song_keys or set()
-        self.refill_decade_if_needed(decade, min_count=5)
 
         with self.cache_lock:
             songs_for_decade = list(self.cache[decade])
@@ -305,8 +342,4 @@ class SongCache:
 
         random.shuffle(available)
 
-        for song in available:
-            if self.ensure_song_embeddable(song, decade):
-                return song
-
-        return None
+        return available[0]

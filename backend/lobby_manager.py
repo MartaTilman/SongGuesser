@@ -13,6 +13,8 @@ class Lobby:
         self.answers = []
         self.current_song = None
         self.current_decade = None
+        self.finishing_song = False
+        self.last_result_payload = None
         self.used_songs = set()
         self.last_artist = None
         self.current_round = 1

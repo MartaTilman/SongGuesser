@@ -67,6 +67,46 @@ GOOD_CHANNEL_HINTS = [
     "entertainment"
 ]
 
+GLOBAL_2020S_ARTIST_HINTS = [
+    "adele",
+    "ariana grande",
+    "bad bunny",
+    "benson boone",
+    "billie eilish",
+    "blackpink",
+    "bruno mars",
+    "bts",
+    "chappell roan",
+    "coldplay",
+    "doja cat",
+    "drake",
+    "dua lipa",
+    "ed sheeran",
+    "future",
+    "harry styles",
+    "jack harlow",
+    "justin bieber",
+    "karol g",
+    "kendrick lamar",
+    "lady gaga",
+    "lil nas x",
+    "maneskin",
+    "metro boomin",
+    "miley cyrus",
+    "morgan wallen",
+    "olivia rodrigo",
+    "post malone",
+    "rihanna",
+    "rosalia",
+    "sabrina carpenter",
+    "shakira",
+    "sza",
+    "tate mcrae",
+    "taylor swift",
+    "the weeknd",
+    "tyla"
+]
+
 DECADE_TEXT_PATTERNS = {
     "50s": ["1950", "1950s", "50s", "50's"],
     "60s": ["1960", "1960s", "60s", "60's"],
@@ -109,6 +149,43 @@ def channel_quality_score(channel_title):
             score += 1
 
     return score
+
+
+def has_global_2020s_artist_hint(candidate):
+    haystack = " ".join([
+        normalize_text(candidate.get("raw_title", "")),
+        normalize_text(candidate.get("channel_title", "")),
+        normalize_text(candidate.get("description", "")),
+        normalize_text(candidate.get("source_query", ""))
+    ])
+
+    return any(artist in haystack for artist in GLOBAL_2020S_ARTIST_HINTS)
+
+
+def global_2020s_recognition_score(candidate):
+    view_count = candidate.get("view_count", 0)
+    score = 0
+
+    if view_count >= 1_000_000_000:
+        score += 45
+    elif view_count >= 500_000_000:
+        score += 35
+    elif view_count >= 250_000_000:
+        score += 25
+    elif view_count >= 150_000_000:
+        score += 15
+
+    if has_global_2020s_artist_hint(candidate):
+        score += 30
+
+    if channel_quality_score(candidate.get("channel_title", "")) >= 1:
+        score += 10
+
+    return score
+
+
+def is_global_2020s_candidate(candidate):
+    return global_2020s_recognition_score(candidate) >= 40
 
 
 def looks_like_song_title(title):
@@ -216,11 +293,18 @@ def build_search_queries(decade):
         ]
 
     return [
-        '"2020s" official music video',
-        '"2020s" official audio',
-        '"2020s" topic song',
-        '"2020s pop" official audio',
-        '"viral 2020s song"'
+        '"Dua Lipa" "Levitating" official video',
+        '"The Weeknd" "Save Your Tears" official video',
+        '"BTS" "Dynamite" official video',
+        '"Olivia Rodrigo" "drivers license" official video',
+        '"Lil Nas X" "MONTERO" official video',
+        '"Harry Styles" "As It Was" official video',
+        '"Taylor Swift" "Anti-Hero" official video',
+        '"Miley Cyrus" "Flowers" official video',
+        '"Sabrina Carpenter" "Espresso" official video',
+        '"Billie Eilish" "BIRDS OF A FEATHER" official video',
+        '"Benson Boone" "Beautiful Things" official video',
+        '"Lady Gaga" "Bruno Mars" "Die With A Smile" official video'
     ]
 
 
@@ -385,10 +469,13 @@ def passes_basic_filters(candidate, decade):
         "90s": 250000,
         "2000s": 400000,
         "2010s": 500000,
-        "2020s": 20000
+        "2020s": 100000000
     }
 
     if view_count < min_views_by_decade.get(decade, 300000):
+        return False
+
+    if decade == "2020s" and not is_global_2020s_candidate(candidate):
         return False
 
     lowered_title = normalize_text(raw_title)

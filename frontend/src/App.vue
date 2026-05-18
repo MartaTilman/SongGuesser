@@ -1,9 +1,6 @@
 <template>
   <div class="app-shell" :class="layoutMode">
     <div class="desktop-bg" aria-hidden="true">
-      <video v-if="showVisualizerBg" class="desktop-video" autoplay muted loop playsinline>
-        <source src="/lava-lamp.mp4" type="video/mp4" />
-      </video>
       <div class="desktop-overlay" :class="{ soft: !showVisualizerBg }"></div>
     </div>
 
@@ -111,9 +108,7 @@ const layoutMode = computed(() => {
   return "player";
 });
 
-const showVisualizerBg = computed(() => {
-  return layoutMode.value === "player";
-});
+const showVisualizerBg = computed(() => false);
 
 const currentTitle = computed(() => {
   const titleMap = {
@@ -157,7 +152,7 @@ body {
   margin: 0;
   font-family: Tahoma, Verdana, Arial, sans-serif;
   color: var(--xp-text);
-  background: linear-gradient(180deg, #204a87 0%, #3f7ed7 100%);
+  background: #204a87;
   overflow-x: hidden;
 }
 
@@ -177,34 +172,20 @@ input {
   z-index: 0;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(31, 81, 150, 0.2), rgba(11, 37, 84, 0.5)),
-    linear-gradient(180deg, #315fa8 0%, #4d88dd 100%);
-}
-
-.desktop-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.6;
-  filter: saturate(1.15) brightness(0.52);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 32, 84, 0.1)),
+    url("/pozadina-livada.jpg") center center / cover no-repeat;
 }
 
 .desktop-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 30% 20%, rgba(92, 173, 255, 0.16), transparent 24%),
-    radial-gradient(circle at 70% 70%, rgba(255, 66, 196, 0.12), transparent 20%),
-    linear-gradient(180deg, rgba(6, 18, 50, 0.18), rgba(6, 18, 50, 0.35)),
-    rgba(255, 255, 255, 0.08);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 37, 91, 0.14));
 }
 
 .desktop-overlay.soft {
   background:
-    radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.18), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 28, 88, 0.14));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 37, 91, 0.14));
 }
 
 .desktop-layer {

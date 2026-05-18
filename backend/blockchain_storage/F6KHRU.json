@@ -1,0 +1,48 @@
+{
+  "lobby_id": "F6KHRU",
+  "block_count": 4,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1778239242.7922888,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "F6KHRU"
+      },
+      "previous_hash": "0",
+      "hash": "fef383a76e2d214f53669b76fada03762ddb5ab40417df3ed3221d6252780323"
+    },
+    {
+      "index": 1,
+      "timestamp": 1778239242.7938287,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "F6KHRU"
+      },
+      "previous_hash": "fef383a76e2d214f53669b76fada03762ddb5ab40417df3ed3221d6252780323",
+      "hash": "f6b435b16044744c36c7ec5b506e1e28ba078aedbc9f1395229a65f6314176ad"
+    },
+    {
+      "index": 2,
+      "timestamp": 1778239242.8033488,
+      "data": {
+        "type": "player_join",
+        "player": "Marta"
+      },
+      "previous_hash": "f6b435b16044744c36c7ec5b506e1e28ba078aedbc9f1395229a65f6314176ad",
+      "hash": "7304784e9b7d47775d44d1ef669d35b4bcb66ddb4942bab6f03b33de2e055dbf"
+    },
+    {
+      "index": 3,
+      "timestamp": 1778239242.8047936,
+      "data": {
+        "type": "auth_event",
+        "player": "Marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "7304784e9b7d47775d44d1ef669d35b4bcb66ddb4942bab6f03b33de2e055dbf",
+      "hash": "9dc242e7a31e3c38ea4b026031998438b2e8869ee16466c13f5a93c8f1a24f30"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import threading
+import time
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -90,6 +91,44 @@ def get_lobby_info(lobby_id: str):
     }
 
 
+@app.get("/lobby/{lobby_id}/state")
+async def get_lobby_state(lobby_id: str):
+    normalized_lobby_id = lobby_id.upper()
+    lobby = lobby_manager.lobbies.get(normalized_lobby_id)
+
+    if not lobby:
+        raise HTTPException(status_code=404, detail="Lobby not found")
+
+    if lobby.last_result_payload is not None:
+        return {
+            "phase": "leaderboard",
+            "message": lobby.last_result_payload
+        }
+
+    if lobby.current_song is not None and time.time() >= lobby.round_ends_at:
+        await game_manager.finish_song(normalized_lobby_id)
+
+        if lobby.last_result_payload is not None:
+            return {
+                "phase": "leaderboard",
+                "message": lobby.last_result_payload
+            }
+
+    if lobby.current_song is not None:
+        return {
+            "phase": "round",
+            "round": lobby.current_round,
+            "song_number": lobby.current_song_in_round,
+            "round_ends_at": lobby.round_ends_at
+        }
+
+    return {
+        "phase": "lobby",
+        "round": lobby.current_round,
+        "song_number": lobby.current_song_in_round
+    }
+
+
 @app.get("/lobby/{lobby_id}/blockchain")
 def get_blockchain(lobby_id: str):
     lobby = lobby_manager.lobbies.get(lobby_id.upper())
@@ -161,6 +200,12 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
             elif msg_type == "finish_song":
                 if player.name == game.host:
+                    await game_manager.finish_song(normalized_lobby_id)
+
+            elif msg_type == "sync_state":
+                if game.last_result_payload is not None:
+                    await websocket.send_json(game.last_result_payload)
+                elif game.current_song is not None and time.time() >= game.round_ends_at:
                     await game_manager.finish_song(normalized_lobby_id)
 
     except ValueError as e:

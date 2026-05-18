@@ -1,0 +1,607 @@
+{
+  "lobby_id": "9C7VDZ",
+  "block_count": 30,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779100434.6974776,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "9C7VDZ"
+      },
+      "previous_hash": "0",
+      "hash": "fde12cf6ca0c9d62e3ea8e1a27ad26a9845d0c18305bd199bab905c22611f135"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779100434.6990802,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "9C7VDZ"
+      },
+      "previous_hash": "fde12cf6ca0c9d62e3ea8e1a27ad26a9845d0c18305bd199bab905c22611f135",
+      "hash": "4cbc8c9394b098c6f99be543e9ad352215066e2a82683f9b46815972805d6fe6"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779100434.7091937,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "4cbc8c9394b098c6f99be543e9ad352215066e2a82683f9b46815972805d6fe6",
+      "hash": "f517c428bd696b9672f5edc9f6918860cab4b1e94e9e4855b4f6b24738894bdf"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779100434.7101216,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "f517c428bd696b9672f5edc9f6918860cab4b1e94e9e4855b4f6b24738894bdf",
+      "hash": "ee13a76a00271bbb7b28502d22d22048d6475229338269732f4b7aa2432885d9"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779100436.0891132,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "You're My Heart, You're My Soul",
+        "artist": "Modern Talking",
+        "year": 1989,
+        "decade": "80s"
+      },
+      "previous_hash": "ee13a76a00271bbb7b28502d22d22048d6475229338269732f4b7aa2432885d9",
+      "hash": "97ed118b33844b52ee2b5e216a7ac79f80db25116af8ed795ca8bfc78892c05c"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779100454.418136,
+      "data": {
+        "type": "song_result",
+        "song_title": "You're My Heart, You're My Soul",
+        "artist": "Modern Talking",
+        "year": 1989,
+        "decade": "80s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1989,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 665,
+            "total_score": 665
+          }
+        ]
+      },
+      "previous_hash": "97ed118b33844b52ee2b5e216a7ac79f80db25116af8ed795ca8bfc78892c05c",
+      "hash": "cb5a5db0fcf896801bd55a41a4abdd868d2fab56155e445ca6652b85b640d249"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779100457.9697833,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 2,
+        "song_title": "Cruel Summer",
+        "artist": "Bananarama",
+        "year": 1983,
+        "decade": "80s"
+      },
+      "previous_hash": "cb5a5db0fcf896801bd55a41a4abdd868d2fab56155e445ca6652b85b640d249",
+      "hash": "18593fff6902a96b06195603c323284616fa2b1c27f1f6142b88547b68ec1ac4"
+    },
+    {
+      "index": 7,
+      "timestamp": 1779100472.647383,
+      "data": {
+        "type": "song_result",
+        "song_title": "Cruel Summer",
+        "artist": "Bananarama",
+        "year": 1983,
+        "decade": "80s",
+        "round": 1,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1982,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 665
+          }
+        ]
+      },
+      "previous_hash": "18593fff6902a96b06195603c323284616fa2b1c27f1f6142b88547b68ec1ac4",
+      "hash": "432b649a63c913990f41bddfbf67fb54ed76754b2b13d458ad307907b4aacfb4"
+    },
+    {
+      "index": 8,
+      "timestamp": 1779100474.8197417,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 3,
+        "song_title": "Ice Ice Baby",
+        "artist": "Vanilla Ice",
+        "year": 1999,
+        "decade": "90s"
+      },
+      "previous_hash": "432b649a63c913990f41bddfbf67fb54ed76754b2b13d458ad307907b4aacfb4",
+      "hash": "0fc2445b808ca09384ac8f446e6c29b6afffef4c7783603828732bb6c0639911"
+    },
+    {
+      "index": 9,
+      "timestamp": 1779100488.9968138,
+      "data": {
+        "type": "song_result",
+        "song_title": "Ice Ice Baby",
+        "artist": "Vanilla Ice",
+        "year": 1999,
+        "decade": "90s",
+        "round": 1,
+        "song_number": 3,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "ice",
+            "artist_answer": "",
+            "year_answer": 2000,
+            "title_correct": true,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 762,
+            "total_score": 1427
+          }
+        ]
+      },
+      "previous_hash": "0fc2445b808ca09384ac8f446e6c29b6afffef4c7783603828732bb6c0639911",
+      "hash": "5c6d16b08c306400aaf4578264fc0ee8755b5c5f1c57c91f1884675340038d1a"
+    },
+    {
+      "index": 10,
+      "timestamp": 1779100493.0347805,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 4,
+        "song_title": "Die With A Smile",
+        "artist": "Lady Gaga, Bruno Mars",
+        "year": 2024,
+        "decade": "2020s"
+      },
+      "previous_hash": "5c6d16b08c306400aaf4578264fc0ee8755b5c5f1c57c91f1884675340038d1a",
+      "hash": "44a746d5943a95463be8cef58a5c987db4d4bacea76ac37c2261e63ee8328025"
+    },
+    {
+      "index": 11,
+      "timestamp": 1779100508.6567178,
+      "data": {
+        "type": "song_result",
+        "song_title": "Die With A Smile",
+        "artist": "Lady Gaga, Bruno Mars",
+        "year": 2024,
+        "decade": "2020s",
+        "round": 1,
+        "song_number": 4,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "bruno mars",
+            "year_answer": 2022,
+            "title_correct": false,
+            "artist_correct": true,
+            "year_correct": false,
+            "gained_points": 728,
+            "total_score": 2155
+          }
+        ]
+      },
+      "previous_hash": "44a746d5943a95463be8cef58a5c987db4d4bacea76ac37c2261e63ee8328025",
+      "hash": "a1f55cd43f586beb312406a6987d1ce814c22a96cc4d82972d0e1c684b129505"
+    },
+    {
+      "index": 12,
+      "timestamp": 1779100511.8782535,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 5,
+        "song_title": "Year 3000",
+        "artist": "Busted",
+        "year": 2002,
+        "decade": "2000s"
+      },
+      "previous_hash": "a1f55cd43f586beb312406a6987d1ce814c22a96cc4d82972d0e1c684b129505",
+      "hash": "a4885124707eefd8d974c73dda64128d3838c10ec1b135d29f5bba2de5b2c842"
+    },
+    {
+      "index": 13,
+      "timestamp": 1779100522.3893285,
+      "data": {
+        "type": "song_result",
+        "song_title": "Year 3000",
+        "artist": "Busted",
+        "year": 2002,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 5,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2002,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 848,
+            "total_score": 3003
+          }
+        ]
+      },
+      "previous_hash": "a4885124707eefd8d974c73dda64128d3838c10ec1b135d29f5bba2de5b2c842",
+      "hash": "923a57a6253e0d0b6d30c955db846a3dc23ff92d903f107c6caca0aeeb3ccb99"
+    },
+    {
+      "index": 14,
+      "timestamp": 1779100523.6381583,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 1,
+        "song_title": "Save Your Tears",
+        "artist": "The Weeknd",
+        "year": 2021,
+        "decade": "2020s"
+      },
+      "previous_hash": "923a57a6253e0d0b6d30c955db846a3dc23ff92d903f107c6caca0aeeb3ccb99",
+      "hash": "22027fdd33b599762670bc0e07a167ca7e958eceb6ada0b16bc4840d3494e105"
+    },
+    {
+      "index": 15,
+      "timestamp": 1779100543.7676032,
+      "data": {
+        "type": "song_result",
+        "song_title": "Save Your Tears",
+        "artist": "The Weeknd",
+        "year": 2021,
+        "decade": "2020s",
+        "round": 2,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "weekend",
+            "artist_answer": "",
+            "year_answer": 2021,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 581,
+            "total_score": 3584
+          }
+        ]
+      },
+      "previous_hash": "22027fdd33b599762670bc0e07a167ca7e958eceb6ada0b16bc4840d3494e105",
+      "hash": "0af52bc74584bd5f260fc8c86219b726823ca21c46681a5d90a6efe16cf34153"
+    },
+    {
+      "index": 16,
+      "timestamp": 1779100548.7263877,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 2,
+        "song_title": "Chattahoochee",
+        "artist": "Alan Jackson",
+        "year": 1997,
+        "decade": "90s"
+      },
+      "previous_hash": "0af52bc74584bd5f260fc8c86219b726823ca21c46681a5d90a6efe16cf34153",
+      "hash": "3d2679d4fdfec47027da8532062875fb0a1b97e000080bc4249a4394621a5b57"
+    },
+    {
+      "index": 17,
+      "timestamp": 1779100561.5585063,
+      "data": {
+        "type": "song_result",
+        "song_title": "Chattahoochee",
+        "artist": "Alan Jackson",
+        "year": 1997,
+        "decade": "90s",
+        "round": 2,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2002,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 3584
+          }
+        ]
+      },
+      "previous_hash": "3d2679d4fdfec47027da8532062875fb0a1b97e000080bc4249a4394621a5b57",
+      "hash": "4f15b55ce89422444c41f73fad6f31c42e4df815a415baecdb43edb549c35fae"
+    },
+    {
+      "index": 18,
+      "timestamp": 1779100563.3965702,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 3,
+        "song_title": "All I Want",
+        "artist": "Olivia Rodrigo",
+        "year": 2020,
+        "decade": "2020s"
+      },
+      "previous_hash": "4f15b55ce89422444c41f73fad6f31c42e4df815a415baecdb43edb549c35fae",
+      "hash": "de99b1a37e4eec0c4303adc147e44b44e0e3de7734b8d167e13c7e4c9da111ef"
+    },
+    {
+      "index": 19,
+      "timestamp": 1779100581.4064598,
+      "data": {
+        "type": "song_result",
+        "song_title": "All I Want",
+        "artist": "Olivia Rodrigo",
+        "year": 2020,
+        "decade": "2020s",
+        "round": 2,
+        "song_number": 3,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2025,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 3584
+          }
+        ]
+      },
+      "previous_hash": "de99b1a37e4eec0c4303adc147e44b44e0e3de7734b8d167e13c7e4c9da111ef",
+      "hash": "3dc4de983da09099d21bb3de03a64940122581508b949eab647f94d0a72c3288"
+    },
+    {
+      "index": 20,
+      "timestamp": 1779100583.86513,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 4,
+        "song_title": "Grenade",
+        "artist": "Bruno Mars",
+        "year": 2011,
+        "decade": "2010s"
+      },
+      "previous_hash": "3dc4de983da09099d21bb3de03a64940122581508b949eab647f94d0a72c3288",
+      "hash": "4b9639d034bf641a9afbd81132d0c78d4d8990e2141cf0f34b280f7320ef7992"
+    },
+    {
+      "index": 21,
+      "timestamp": 1779100601.217178,
+      "data": {
+        "type": "song_result",
+        "song_title": "Grenade",
+        "artist": "Bruno Mars",
+        "year": 2011,
+        "decade": "2010s",
+        "round": 2,
+        "song_number": 4,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "granade",
+            "artist_answer": "bruno mars",
+            "year_answer": 2011,
+            "title_correct": true,
+            "artist_correct": true,
+            "year_correct": true,
+            "gained_points": 1959,
+            "total_score": 5543
+          }
+        ]
+      },
+      "previous_hash": "4b9639d034bf641a9afbd81132d0c78d4d8990e2141cf0f34b280f7320ef7992",
+      "hash": "f792d8f9b07816bcf621ff8cf3c128c3cb7d257069776b8cd5a7bdb9d98c8ea1"
+    },
+    {
+      "index": 22,
+      "timestamp": 1779100605.0658617,
+      "data": {
+        "type": "round_started",
+        "round": 2,
+        "song_number": 5,
+        "song_title": "Teenage Dirtbag",
+        "artist": "Wheatus",
+        "year": 2003,
+        "decade": "2000s"
+      },
+      "previous_hash": "f792d8f9b07816bcf621ff8cf3c128c3cb7d257069776b8cd5a7bdb9d98c8ea1",
+      "hash": "659a35c4880b3f18c7044b473a5ee8f85e67075b37f7e2d07c4de13c00c340b9"
+    },
+    {
+      "index": 23,
+      "timestamp": 1779100623.9272256,
+      "data": {
+        "type": "song_result",
+        "song_title": "Teenage Dirtbag",
+        "artist": "Wheatus",
+        "year": 2003,
+        "decade": "2000s",
+        "round": 2,
+        "song_number": 5,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "teenage dirtbag",
+            "artist_answer": "",
+            "year_answer": 2000,
+            "title_correct": true,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 614,
+            "total_score": 6157
+          }
+        ]
+      },
+      "previous_hash": "659a35c4880b3f18c7044b473a5ee8f85e67075b37f7e2d07c4de13c00c340b9",
+      "hash": "6581e43c3cc08ba53220f4c3e88ca34cd9ef2cb2949a7895960f15775fe24626"
+    },
+    {
+      "index": 24,
+      "timestamp": 1779100626.3037143,
+      "data": {
+        "type": "round_started",
+        "round": 3,
+        "song_number": 1,
+        "song_title": "Hot Legs",
+        "artist": "Rod Stewart",
+        "year": 1979,
+        "decade": "70s"
+      },
+      "previous_hash": "6581e43c3cc08ba53220f4c3e88ca34cd9ef2cb2949a7895960f15775fe24626",
+      "hash": "2026077695064c1c6db53bd29fa412e7bb691dd8a53381f3f5623a4c49f616ef"
+    },
+    {
+      "index": 25,
+      "timestamp": 1779100643.4738839,
+      "data": {
+        "type": "song_result",
+        "song_title": "Hot Legs",
+        "artist": "Rod Stewart",
+        "year": 1979,
+        "decade": "70s",
+        "round": 3,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1982,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 6157
+          }
+        ]
+      },
+      "previous_hash": "2026077695064c1c6db53bd29fa412e7bb691dd8a53381f3f5623a4c49f616ef",
+      "hash": "4e23cc9ad3e6e5a2f508faff2bfbf5a927a2cbc91dbe64ee6fea2ca7c565c63e"
+    },
+    {
+      "index": 26,
+      "timestamp": 1779100644.6600094,
+      "data": {
+        "type": "round_started",
+        "round": 3,
+        "song_number": 2,
+        "song_title": "Ma Baker",
+        "artist": "Boney M.",
+        "year": 1977,
+        "decade": "70s"
+      },
+      "previous_hash": "4e23cc9ad3e6e5a2f508faff2bfbf5a927a2cbc91dbe64ee6fea2ca7c565c63e",
+      "hash": "a79f76a991a77468de59ab3d1bb5c1b1c0e909ffb54f181d4f7c2c52f8ac18d5"
+    },
+    {
+      "index": 27,
+      "timestamp": 1779100655.0096152,
+      "data": {
+        "type": "song_result",
+        "song_title": "Ma Baker",
+        "artist": "Boney M.",
+        "year": 1977,
+        "decade": "70s",
+        "round": 3,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1980,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 6157
+          }
+        ]
+      },
+      "previous_hash": "a79f76a991a77468de59ab3d1bb5c1b1c0e909ffb54f181d4f7c2c52f8ac18d5",
+      "hash": "949818fd99bc1b1c4dca85b5bde9b05bc6e90a092ade8f981c12401001bb21c1"
+    },
+    {
+      "index": 28,
+      "timestamp": 1779100656.6995573,
+      "data": {
+        "type": "round_started",
+        "round": 3,
+        "song_number": 3,
+        "song_title": "Just The Way You Are",
+        "artist": "Bruno Mars",
+        "year": 2014,
+        "decade": "2010s"
+      },
+      "previous_hash": "949818fd99bc1b1c4dca85b5bde9b05bc6e90a092ade8f981c12401001bb21c1",
+      "hash": "7a0fc6b727cd4cd659daa4b6362e8de5122b668118f4ca0071c6f9864f66ece6"
+    },
+    {
+      "index": 29,
+      "timestamp": 1779100671.1507528,
+      "data": {
+        "type": "song_result",
+        "song_title": "Just The Way You Are",
+        "artist": "Bruno Mars",
+        "year": 2014,
+        "decade": "2010s",
+        "round": 3,
+        "song_number": 3,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "bruno mars",
+            "year_answer": 2009,
+            "title_correct": false,
+            "artist_correct": true,
+            "year_correct": false,
+            "gained_points": 695,
+            "total_score": 6852
+          }
+        ]
+      },
+      "previous_hash": "7a0fc6b727cd4cd659daa4b6362e8de5122b668118f4ca0071c6f9864f66ece6",
+      "hash": "3a096952f6a08598117d9726d8f6c3a1a8d20949d5db41c90830e4574f14b372"
+    }
+  ]
+}

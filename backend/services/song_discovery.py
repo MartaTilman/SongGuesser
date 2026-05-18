@@ -8,7 +8,10 @@ from services.metadata_cache import (
 )
 from services.song_parser import parse_song_from_title
 from services.song_year_service import validate_song_year_for_decade
-from services.youtube_service import fetch_youtube_candidates_for_decade
+from services.youtube_service import (
+    fetch_youtube_candidates_for_decade,
+    is_global_2020s_candidate,
+)
 
 
 MIN_PARSE_CONFIDENCE = 75
@@ -90,6 +93,9 @@ def build_fallback_year_result(candidate, target_decade):
     # This fallback is intentionally limited to modern songs where
     # upload year is often a useful proxy for original release year.
     if target_decade != "2020s":
+        return None
+
+    if not is_global_2020s_candidate(candidate):
         return None
 
     return {

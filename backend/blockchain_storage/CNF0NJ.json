@@ -1,0 +1,48 @@
+{
+  "lobby_id": "CNF0NJ",
+  "block_count": 4,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779099391.4866858,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "CNF0NJ"
+      },
+      "previous_hash": "0",
+      "hash": "3252af8ac59a8da859212603afe09c3de809977a517d4d7395b7e3deaa58a932"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779099391.487926,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "CNF0NJ"
+      },
+      "previous_hash": "3252af8ac59a8da859212603afe09c3de809977a517d4d7395b7e3deaa58a932",
+      "hash": "2d2b52060dba895ae25a5bb4c0838317aa3beab7a639314db679f4fb29837b20"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779099391.4966176,
+      "data": {
+        "type": "player_join",
+        "player": "dsfs"
+      },
+      "previous_hash": "2d2b52060dba895ae25a5bb4c0838317aa3beab7a639314db679f4fb29837b20",
+      "hash": "c221ac4558c377d0444f94ceba39c9fceaad7f94fc4e2ead41874de128e8c3d8"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779099391.4976163,
+      "data": {
+        "type": "auth_event",
+        "player": "dsfs",
+        "action": "join_lobby"
+      },
+      "previous_hash": "c221ac4558c377d0444f94ceba39c9fceaad7f94fc4e2ead41874de128e8c3d8",
+      "hash": "200fa7d3132019d814439ce61a8c379af3a159cdf2d38a77bfe2aa54f3a88619"
+    }
+  ]
+}

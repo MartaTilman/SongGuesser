@@ -138,6 +138,18 @@ export const useGameStore = defineStore("game", {
       this.players = res.data.players || [];
     },
 
+    async fetchLobbyState() {
+      if (!this.lobbyId) return null;
+
+      const res = await api.get(`/lobby/${this.lobbyId}/state`);
+
+      if (res.data?.message) {
+        this.handleMessage(res.data.message);
+      }
+
+      return res.data;
+    },
+
     async fetchBlockchain() {
       const res = await api.get(`/lobby/${this.lobbyId}/blockchain`);
       this.blockchain = res.data.chain || [];
@@ -159,6 +171,10 @@ export const useGameStore = defineStore("game", {
 
     finishSong() {
       sendWebSocketMessage({ type: "finish_song" });
+    },
+
+    syncState() {
+      sendWebSocketMessage({ type: "sync_state" });
     },
 
     resetGame() {

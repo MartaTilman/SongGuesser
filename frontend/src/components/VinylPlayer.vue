@@ -2,14 +2,26 @@
   <div class="player-card">
     <div class="vinyl-wrap">
       <div class="vinyl-stack">
+        <div class="wmp-burst" aria-hidden="true">
+          <span class="burst-core"></span>
+          <span class="burst-ring"></span>
+          <span class="burst-line line-one"></span>
+          <span class="burst-line line-two"></span>
+          <span class="burst-line line-three"></span>
+        </div>
+
         <button
           v-if="playAudio"
           type="button"
           class="sound-toggle"
+          :aria-label="isMuted ? 'Ukljuci zvuk' : 'Ugasi zvuk'"
           :title="isMuted ? 'Ukljuci zvuk' : 'Ugasi zvuk'"
+          :class="{ muted: isMuted }"
           @click="toggleMute"
         >
-          {{ isMuted ? "🔇" : "🔊" }}
+          <span class="speaker-shape"></span>
+          <span class="speaker-wave wave-one"></span>
+          <span class="speaker-wave wave-two"></span>
         </button>
 
         <div class="vinyl" :class="{ spinning: isPlaying }">
@@ -330,6 +342,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 252px;
 }
 
 .vinyl-stack {
@@ -337,24 +350,190 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: min(100%, 430px);
+  min-height: 252px;
+  overflow: hidden;
+  border: 1px solid rgba(251, 214, 230, 0.34);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.18), transparent 20%),
+    linear-gradient(180deg, rgba(48, 0, 18, 0.52), rgba(12, 0, 8, 0.34));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 34px rgba(255, 27, 89, 0.18),
+    0 18px 34px rgba(0, 0, 0, 0.24);
+}
+
+.wmp-burst {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 50%, #fff5f8 0 3%, #ffb8c8 4% 8%, rgba(203, 0, 45, 0.96) 9% 18%, transparent 19%),
+    repeating-conic-gradient(from 18deg at 50% 50%, rgba(255, 255, 255, 0.92) 0deg 4deg, rgba(255, 72, 109, 0.72) 5deg 12deg, rgba(129, 0, 38, 0.95) 13deg 21deg),
+    radial-gradient(circle at center, #faedf1 0 7%, #c90032 28%, #6e001e 66%, #16000a 100%);
+  filter: saturate(1.18) contrast(1.08);
+  animation: burstPulse 2.4s ease-in-out infinite alternate;
+}
+
+.wmp-burst::before,
+.wmp-burst::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  background:
+    repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 16deg, rgba(255, 255, 255, 0.32) 17deg 18deg, transparent 19deg 34deg);
+  opacity: 0.8;
+  mix-blend-mode: screen;
+}
+
+.wmp-burst::before {
+  animation: burstSpin 8s linear infinite;
+}
+
+.wmp-burst::after {
+  animation: burstSpin 12s linear infinite reverse;
+  opacity: 0.46;
+}
+
+.burst-core,
+.burst-ring,
+.burst-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.burst-core {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0 24%, #ff8ba8 25% 55%, rgba(163, 0, 43, 0) 70%);
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.95),
+    0 0 56px rgba(255, 43, 95, 0.82);
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.burst-ring {
+  width: 150px;
+  height: 150px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 48% 52% 46% 54%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.72));
+  z-index: 1;
+}
+
+.burst-line {
+  width: 174px;
+  height: 72px;
+  border-top: 2px solid rgba(255, 255, 255, 0.78);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  z-index: 1;
+}
+
+.line-one {
+  transform: translate(-50%, -50%) rotate(18deg);
+}
+
+.line-two {
+  width: 128px;
+  transform: translate(-50%, -50%) rotate(96deg);
+}
+
+.line-three {
+  width: 208px;
+  transform: translate(-50%, -50%) rotate(-34deg);
 }
 
 .sound-toggle {
   position: absolute;
-  left: 18px;
-  top: 118px;
-  width: 42px;
-  height: 42px;
-  border: 1px solid rgba(176, 219, 255, 0.2);
+  right: 16px;
+  bottom: 16px;
+  z-index: 4;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
-  background: linear-gradient(180deg, rgba(66, 114, 201, 0.38), rgba(14, 36, 78, 0.48));
-  font-size: 20px;
+  background:
+    radial-gradient(circle at 35% 25%, #ffffff 0 12%, #dcecff 34%, #5d9be8 100%);
+  font-size: 0;
   line-height: 1;
-  color: #9ddcff;
-  box-shadow: 0 0 20px rgba(76, 175, 255, 0.16);
+  color: #134084;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.speaker-shape {
+  position: absolute;
+  left: 9px;
+  top: 13px;
+  width: 8px;
+  height: 12px;
+  background: #123e82;
+  border-radius: 2px;
+}
+
+.speaker-shape::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: -3px;
+  width: 0;
+  height: 0;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 11px solid #123e82;
+}
+
+.speaker-wave {
+  position: absolute;
+  top: 11px;
+  border: 2px solid #123e82;
+  border-left: 0;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 0 999px 999px 0;
+}
+
+.wave-one {
+  left: 23px;
+  width: 7px;
+  height: 16px;
+}
+
+.wave-two {
+  left: 27px;
+  top: 8px;
+  width: 10px;
+  height: 22px;
+}
+
+.sound-toggle.muted .speaker-wave {
+  display: none;
+}
+
+.sound-toggle.muted::after {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 18px;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: #bd1f35;
+  transform: rotate(-38deg);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .vinyl {
+  position: relative;
+  z-index: 2;
   width: 196px;
   height: 196px;
   border-radius: 50%;
@@ -363,8 +542,9 @@ onBeforeUnmount(() => {
     repeating-radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0 2px, rgba(0, 0, 0, 0.18) 3px 8px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
-    0 18px 32px rgba(0, 0, 0, 0.35),
-    0 0 0 8px rgba(8, 20, 44, 0.3);
+    0 18px 32px rgba(0, 0, 0, 0.42),
+    0 0 0 8px rgba(8, 20, 44, 0.3),
+    0 0 48px rgba(255, 255, 255, 0.2);
 }
 
 .vinyl.spinning {
@@ -419,10 +599,34 @@ onBeforeUnmount(() => {
   }
 }
 
+@keyframes burstSpin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+
+  to {
+    transform: rotate(360deg) scale(1.08);
+  }
+}
+
+@keyframes burstPulse {
+  from {
+    filter: saturate(1.08) contrast(1) brightness(0.94);
+  }
+
+  to {
+    filter: saturate(1.28) contrast(1.12) brightness(1.1);
+  }
+}
+
 @media (max-width: 720px) {
+  .vinyl-stack {
+    min-height: 236px;
+  }
+
   .sound-toggle {
-    left: 6px;
-    top: 128px;
+    right: 12px;
+    bottom: 12px;
   }
 }
 </style>
