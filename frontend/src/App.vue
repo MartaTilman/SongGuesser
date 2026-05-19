@@ -89,18 +89,36 @@
         </div>
         <div class="status-right">
           <span>128 kbps</span>
-          <span>stereo</span>
-        </div>
-      </footer>
+        <span>stereo</span>
+      </div>
+    </footer>
+  </div>
+
+    <div v-if="layoutMode !== 'desktop'" class="xp-taskbar" aria-hidden="true">
+      <div class="start-button"></div>
+      <div class="taskbar-divider"></div>
+      <div class="taskbar-item">
+        <span class="taskbar-icon"></span>
+        <span>{{ taskbarTitle }}</span>
+      </div>
+      <div class="taskbar-spacer"></div>
+      <div class="taskbar-tray">
+        <span class="tray-dot green"></span>
+        <span class="tray-dot blue"></span>
+        <span>{{ currentTime }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+const now = ref(new Date());
+
+let clockInterval = null;
 
 const layoutMode = computed(() => {
   if (route.name === "home") return "desktop";
@@ -117,6 +135,36 @@ const currentTitle = computed(() => {
   };
 
   return titleMap[route.name] || "Now playing";
+});
+
+const taskbarTitle = computed(() => {
+  const titleMap = {
+    lobby: "SongGuesser Lobby",
+    game: "SongGuesser Media Player",
+    leaderboard: "SongGuesser Results"
+  };
+
+  return titleMap[route.name] || "SongGuesser";
+});
+
+const currentTime = computed(() => {
+  return now.value.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+});
+
+onMounted(() => {
+  clockInterval = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
+
+onBeforeUnmount(() => {
+  if (clockInterval) {
+    clearInterval(clockInterval);
+    clockInterval = null;
+  }
 });
 </script>
 
@@ -164,6 +212,11 @@ input {
 .app-shell {
   position: relative;
   min-height: 100vh;
+  padding-bottom: 34px;
+}
+
+.app-shell.desktop {
+  padding-bottom: 0;
 }
 
 .desktop-bg {
@@ -246,10 +299,8 @@ input {
 .app-icon {
   width: 24px;
   height: 24px;
-  border-radius: 6px;
-  background:
-    radial-gradient(circle at 35% 35%, #fff 0 12%, transparent 13%),
-    linear-gradient(145deg, #ffd84f, #ff9d2f);
+  border-radius: 50%;
+  background: url("/logo-clean.png") center center / cover no-repeat;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
@@ -379,6 +430,100 @@ input {
   border-radius: 50%;
   background: #6bff82;
   box-shadow: 0 0 10px rgba(107, 255, 130, 0.8);
+}
+
+.xp-taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 8px 0 0;
+  background: linear-gradient(180deg, #2a83f4 0%, #1b61d1 42%, #0f4cb5 100%);
+  border-top: 1px solid rgba(171, 215, 255, 0.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 -2px 10px rgba(0, 25, 86, 0.22);
+}
+
+.start-button {
+  width: 91px;
+  height: 34px;
+  flex: 0 0 91px;
+  background: url("/Start_button_29.webp") left center / 91px 34px no-repeat;
+  filter: drop-shadow(1px 0 1px rgba(0, 0, 0, 0.28));
+}
+
+.taskbar-divider {
+  width: 1px;
+  height: 24px;
+  margin: 0 8px 0 6px;
+  background: rgba(142, 190, 255, 0.58);
+  box-shadow: 1px 0 0 rgba(0, 34, 115, 0.38);
+}
+
+.taskbar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 178px;
+  max-width: 260px;
+  height: 26px;
+  padding: 0 12px 0 9px;
+  border: 1px solid rgba(13, 56, 151, 0.7);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3d91ff 0%, #1d65d4 45%, #1552b9 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.26),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.taskbar-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border-radius: 50%;
+  background: url("/logo-clean.png") center center / cover no-repeat;
+}
+
+.taskbar-spacer {
+  flex: 1;
+}
+
+.taskbar-tray {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  min-width: 92px;
+  padding: 0 10px;
+  border-left: 1px solid rgba(164, 222, 255, 0.55);
+  background: linear-gradient(180deg, #18a4ed 0%, #0d80d8 100%);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.tray-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.tray-dot.green {
+  background: #78ff68;
+}
+
+.tray-dot.blue {
+  background: #b4e8ff;
 }
 
 @media (max-width: 980px) {

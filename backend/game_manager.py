@@ -5,6 +5,7 @@ import time
 import unicodedata
 from difflib import SequenceMatcher
 
+from blockchain.blockchain import create_song_commitment
 from services.song_cache import SongCache
 
 song_cache = SongCache()
@@ -266,10 +267,13 @@ class GameManager:
         game.blockchain.add_round_started(
             round_number=game.current_round,
             song_number=game.current_song_in_round,
-            song_title=song["title"],
-            artist=song["artist"],
-            year=song.get("year"),
-            decade=chosen_decade
+            decade=chosen_decade,
+            song_commitment=create_song_commitment(
+                lobby_id,
+                game.current_round,
+                game.current_song_in_round,
+                song
+            )
         )
 
         clip_duration = self.get_round_duration(game.current_round)
@@ -439,7 +443,13 @@ class GameManager:
                 decade=game.current_decade,
                 round_number=game.current_round,
                 song_number=game.current_song_in_round,
-                awarded_points=awarded_points
+                awarded_points=awarded_points,
+                song_commitment=create_song_commitment(
+                    lobby_id,
+                    game.current_round,
+                    game.current_song_in_round,
+                    game.current_song
+                )
             )
 
             result_payload = {

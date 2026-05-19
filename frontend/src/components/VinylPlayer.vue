@@ -2,12 +2,23 @@
   <div class="player-card">
     <div class="vinyl-wrap">
       <div class="vinyl-stack">
-        <div class="wmp-burst" aria-hidden="true">
-          <span class="burst-core"></span>
-          <span class="burst-ring"></span>
-          <span class="burst-line line-one"></span>
-          <span class="burst-line line-two"></span>
-          <span class="burst-line line-three"></span>
+        <div class="xp-visualizer" :class="{ active: isPlaying }" aria-hidden="true">
+          <div class="viz-scope">
+            <span class="scope-beam beam-one"></span>
+            <span class="scope-beam beam-two"></span>
+            <span class="scope-beam beam-three"></span>
+            <span class="scope-beam beam-four"></span>
+          </div>
+
+          <div class="viz-bars">
+            <span v-for="bar in 42" :key="bar" :style="{ '--bar': bar }"></span>
+          </div>
+
+          <div class="viz-ribbons">
+            <span class="ribbon ribbon-one"></span>
+            <span class="ribbon ribbon-two"></span>
+            <span class="ribbon ribbon-three"></span>
+          </div>
         </div>
 
         <button
@@ -19,14 +30,14 @@
           :class="{ muted: isMuted }"
           @click="toggleMute"
         >
-          <span class="speaker-shape"></span>
-          <span class="speaker-wave wave-one"></span>
-          <span class="speaker-wave wave-two"></span>
+          <img
+            class="sound-icon"
+            :src="isMuted ? '/no_sound.png' : '/sound.png'"
+            alt=""
+            aria-hidden="true"
+          />
         </button>
 
-        <div class="vinyl" :class="{ spinning: isPlaying }">
-          <div class="vinyl-inner"></div>
-        </div>
       </div>
     </div>
 
@@ -353,101 +364,157 @@ onBeforeUnmount(() => {
   width: min(100%, 430px);
   min-height: 252px;
   overflow: hidden;
-  border: 1px solid rgba(251, 214, 230, 0.34);
+  border: 1px solid rgba(198, 230, 255, 0.44);
   border-radius: 8px;
   background:
-    radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.18), transparent 20%),
-    linear-gradient(180deg, rgba(48, 0, 18, 0.52), rgba(12, 0, 8, 0.34));
+    linear-gradient(180deg, rgba(4, 13, 33, 0.52), rgba(0, 0, 0, 0.2)),
+    radial-gradient(circle at 50% 58%, rgba(20, 138, 255, 0.24), transparent 28%),
+    linear-gradient(180deg, #02060e 0%, #07152f 50%, #010307 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    inset 0 0 34px rgba(255, 27, 89, 0.18),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.78),
+    inset 0 0 34px rgba(47, 139, 255, 0.22),
     0 18px 34px rgba(0, 0, 0, 0.24);
 }
 
-.wmp-burst {
+.xp-visualizer {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 50%, #fff5f8 0 3%, #ffb8c8 4% 8%, rgba(203, 0, 45, 0.96) 9% 18%, transparent 19%),
-    repeating-conic-gradient(from 18deg at 50% 50%, rgba(255, 255, 255, 0.92) 0deg 4deg, rgba(255, 72, 109, 0.72) 5deg 12deg, rgba(129, 0, 38, 0.95) 13deg 21deg),
-    radial-gradient(circle at center, #faedf1 0 7%, #c90032 28%, #6e001e 66%, #16000a 100%);
-  filter: saturate(1.18) contrast(1.08);
-  animation: burstPulse 2.4s ease-in-out infinite alternate;
 }
 
-.wmp-burst::before,
-.wmp-burst::after {
+.xp-visualizer::before {
   content: "";
   position: absolute;
-  inset: -18%;
+  inset: 0;
+  z-index: 4;
   background:
-    repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 16deg, rgba(255, 255, 255, 0.32) 17deg 18deg, transparent 19deg 34deg);
-  opacity: 0.8;
-  mix-blend-mode: screen;
-}
-
-.wmp-burst::before {
-  animation: burstSpin 8s linear infinite;
-}
-
-.wmp-burst::after {
-  animation: burstSpin 12s linear infinite reverse;
-  opacity: 0.46;
-}
-
-.burst-core,
-.burst-ring,
-.burst-line {
-  position: absolute;
-  left: 50%;
-  top: 50%;
+    linear-gradient(120deg, rgba(255, 255, 255, 0.11), transparent 34%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px);
   pointer-events: none;
 }
 
-.burst-core {
-  width: 46px;
-  height: 46px;
+.xp-visualizer::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  height: 34px;
   border-radius: 50%;
-  background: radial-gradient(circle, #ffffff 0 24%, #ff8ba8 25% 55%, rgba(163, 0, 43, 0) 70%);
-  box-shadow:
-    0 0 20px rgba(255, 255, 255, 0.95),
-    0 0 56px rgba(255, 43, 95, 0.82);
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  background: radial-gradient(ellipse at center, rgba(31, 201, 255, 0.34), transparent 70%);
+  filter: blur(2px);
 }
 
-.burst-ring {
+.viz-bars {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 32px;
+  z-index: 2;
+  height: 145px;
+  display: grid;
+  grid-template-columns: repeat(42, 1fr);
+  gap: 3px;
+  align-items: end;
+}
+
+.viz-bars span {
+  min-height: 12px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #fff56a 0%, #8dff6a 30%, #22d5ff 62%, #2f55ff 100%);
+  box-shadow:
+    0 0 8px rgba(56, 222, 255, 0.58),
+    0 0 17px rgba(57, 93, 255, 0.32);
+  animation: xpBar 0.72s ease-in-out infinite alternate;
+  animation-delay: calc(var(--bar) * -0.045s);
+}
+
+.viz-bars span:nth-child(3n) {
+  background: linear-gradient(180deg, #ff78d7 0%, #8dfbff 44%, #2b77ff 100%);
+  animation-duration: 0.95s;
+}
+
+.viz-bars span:nth-child(5n) {
+  background: linear-gradient(180deg, #fff59c 0%, #b6ff63 44%, #22a9ff 100%);
+  animation-duration: 1.18s;
+}
+
+.viz-scope,
+.viz-ribbons {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.scope-beam,
+.ribbon {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px rgba(84, 220, 255, 0.75));
+  opacity: 0.82;
+}
+
+.scope-beam {
+  height: 86px;
+  border-top: 2px solid rgba(118, 239, 255, 0.52);
+}
+
+.beam-one {
+  bottom: 92px;
+  transform: rotate(-4deg);
+  animation: xpWave 3.5s ease-in-out infinite alternate;
+}
+
+.beam-two {
+  bottom: 68px;
+  border-color: rgba(255, 126, 214, 0.44);
+  transform: rotate(5deg);
+  animation: xpWave 3.1s ease-in-out infinite alternate-reverse;
+}
+
+.beam-three {
+  bottom: 118px;
+  border-color: rgba(255, 245, 110, 0.34);
+  transform: rotate(2deg);
+  animation: xpWave 4.4s ease-in-out infinite alternate;
+}
+
+.beam-four {
+  bottom: 42px;
+  border-color: rgba(111, 255, 155, 0.32);
+  transform: rotate(-7deg);
+  animation: xpWave 3.8s ease-in-out infinite alternate-reverse;
+}
+
+.ribbon {
   width: 150px;
   height: 150px;
-  border: 2px solid rgba(255, 255, 255, 0.72);
-  border-radius: 48% 52% 46% 54%;
-  transform: translate(-50%, -50%) rotate(-14deg);
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.72));
-  z-index: 1;
+  border: 2px solid rgba(139, 227, 255, 0.32);
+  left: 50%;
+  top: 46%;
+  right: auto;
+  transform: translate(-50%, -50%) rotate(-18deg);
 }
 
-.burst-line {
-  width: 174px;
-  height: 72px;
-  border-top: 2px solid rgba(255, 255, 255, 0.78);
-  border-radius: 50%;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-  z-index: 1;
+.ribbon-one {
+  animation: xpRibbon 8s linear infinite;
 }
 
-.line-one {
-  transform: translate(-50%, -50%) rotate(18deg);
+.ribbon-two {
+  width: 230px;
+  height: 82px;
+  border-color: rgba(255, 116, 218, 0.28);
+  animation: xpRibbon 10s linear infinite reverse;
 }
 
-.line-two {
-  width: 128px;
-  transform: translate(-50%, -50%) rotate(96deg);
-}
-
-.line-three {
-  width: 208px;
-  transform: translate(-50%, -50%) rotate(-34deg);
+.ribbon-three {
+  width: 92px;
+  height: 210px;
+  border-color: rgba(255, 242, 110, 0.24);
+  animation: xpRibbon 12s linear infinite;
 }
 
 .sound-toggle {
@@ -469,92 +536,11 @@ onBeforeUnmount(() => {
     0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
-.speaker-shape {
-  position: absolute;
-  left: 9px;
-  top: 13px;
-  width: 8px;
-  height: 12px;
-  background: #123e82;
-  border-radius: 2px;
-}
-
-.speaker-shape::after {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: -3px;
-  width: 0;
-  height: 0;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 11px solid #123e82;
-}
-
-.speaker-wave {
-  position: absolute;
-  top: 11px;
-  border: 2px solid #123e82;
-  border-left: 0;
-  border-top-color: transparent;
-  border-bottom-color: transparent;
-  border-radius: 0 999px 999px 0;
-}
-
-.wave-one {
-  left: 23px;
-  width: 7px;
-  height: 16px;
-}
-
-.wave-two {
-  left: 27px;
-  top: 8px;
-  width: 10px;
-  height: 22px;
-}
-
-.sound-toggle.muted .speaker-wave {
-  display: none;
-}
-
-.sound-toggle.muted::after {
-  content: "";
-  position: absolute;
-  left: 11px;
-  top: 18px;
-  width: 22px;
-  height: 3px;
-  border-radius: 999px;
-  background: #bd1f35;
-  transform: rotate(-38deg);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
-}
-
-.vinyl {
-  position: relative;
-  z-index: 2;
-  width: 196px;
-  height: 196px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at center, #e98e2b 0 12px, #0b1b2e 13px 18px, #e98e2b 19px 32px, #0c0f18 33px 100%),
-    repeating-radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0 2px, rgba(0, 0, 0, 0.18) 3px 8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 18px 32px rgba(0, 0, 0, 0.42),
-    0 0 0 8px rgba(8, 20, 44, 0.3),
-    0 0 48px rgba(255, 255, 255, 0.2);
-}
-
-.vinyl.spinning {
-  animation: spin 2s linear infinite;
-}
-
-.vinyl-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+.sound-icon {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .status {
@@ -589,33 +575,33 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-@keyframes spin {
+@keyframes xpBar {
   from {
-    transform: rotate(0deg);
+    height: 16px;
   }
 
   to {
-    transform: rotate(360deg);
+    height: 142px;
   }
 }
 
-@keyframes burstSpin {
+@keyframes xpWave {
   from {
-    transform: rotate(0deg) scale(1);
+    transform: translateX(-30px) rotate(-5deg) scaleY(0.78);
   }
 
   to {
-    transform: rotate(360deg) scale(1.08);
+    transform: translateX(30px) rotate(5deg) scaleY(1.08);
   }
 }
 
-@keyframes burstPulse {
+@keyframes xpRibbon {
   from {
-    filter: saturate(1.08) contrast(1) brightness(0.94);
+    transform: translate(-50%, -50%) rotate(0deg) scaleX(1);
   }
 
   to {
-    filter: saturate(1.28) contrast(1.12) brightness(1.1);
+    transform: translate(-50%, -50%) rotate(360deg) scaleX(1.08);
   }
 }
 

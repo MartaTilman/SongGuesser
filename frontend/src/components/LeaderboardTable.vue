@@ -63,12 +63,17 @@ h3 {
   align-items: center;
   min-height: 58px;
   padding: 10px 20px;
-  background: rgba(214, 226, 255, 0.9);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(218, 233, 255, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 16px;
-  color: var(--text-blue);
+  color: #0b2563;
   font-size: 17px;
   font-style: italic;
   font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 12px rgba(44, 84, 150, 0.12);
 }
 
 .left {
@@ -86,7 +91,7 @@ h3 {
 }
 
 .score {
-  color: var(--text-magenta);
+  color: #174d9d;
   font-size: 18px;
 }
 </style>

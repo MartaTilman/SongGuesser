@@ -1,0 +1,91 @@
+{
+  "lobby_id": "YAHGJ2",
+  "block_count": 6,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779184463.4132261,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "YAHGJ2"
+      },
+      "previous_hash": "0",
+      "hash": "776ea16db881cbad0732316849c5466b5651bcd71b6860f284f96d3acda04f7c"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779184463.4146895,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "YAHGJ2"
+      },
+      "previous_hash": "776ea16db881cbad0732316849c5466b5651bcd71b6860f284f96d3acda04f7c",
+      "hash": "07eab8d80ea905b373e013ecf80aacb7701b466d5fa8c16b25a860fd0c38c4fc"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779184463.4254806,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "07eab8d80ea905b373e013ecf80aacb7701b466d5fa8c16b25a860fd0c38c4fc",
+      "hash": "879197890c34ab6320e2414b1aae9dd20fdc17c835cdf825e2bcf39e556e0774"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779184463.4270632,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "879197890c34ab6320e2414b1aae9dd20fdc17c835cdf825e2bcf39e556e0774",
+      "hash": "aeb3628992f0b394bf3b234dccf3aa8009f94d0f325e51166709e132827c71d6"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779184465.9424696,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "Year 3000",
+        "artist": "Busted",
+        "year": 2002,
+        "decade": "2000s"
+      },
+      "previous_hash": "aeb3628992f0b394bf3b234dccf3aa8009f94d0f325e51166709e132827c71d6",
+      "hash": "2bafd533f6e9a96c51f7a1febb74d316b2fe11a19cd5f07ed2a01134861f96d8"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779184499.95795,
+      "data": {
+        "type": "song_result",
+        "song_title": "Year 3000",
+        "artist": "Busted",
+        "year": 2002,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "2bafd533f6e9a96c51f7a1febb74d316b2fe11a19cd5f07ed2a01134861f96d8",
+      "hash": "916f86238d1298fdbbfb0a432a739dba0e50f6f71b9e78aa4bde360a4fcc3a98"
+    }
+  ]
+}

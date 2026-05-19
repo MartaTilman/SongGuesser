@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 
 from blockchain.block import Block
@@ -78,19 +79,15 @@ class Blockchain:
         self,
         round_number,
         song_number,
-        song_title,
-        artist,
-        year,
-        decade
+        decade,
+        song_commitment
     ):
         self.add_block({
             "type": "round_started",
             "round": round_number,
             "song_number": song_number,
-            "song_title": song_title,
-            "artist": artist,
-            "year": year,
-            "decade": decade
+            "decade": decade,
+            "song_commitment": song_commitment
         })
 
     def add_song_result(
@@ -101,9 +98,10 @@ class Blockchain:
         decade,
         round_number,
         song_number,
-        awarded_points
+        awarded_points,
+        song_commitment=None
     ):
-        self.add_block({
+        data = {
             "type": "song_result",
             "song_title": song_title,
             "artist": artist,
@@ -112,7 +110,12 @@ class Blockchain:
             "round": round_number,
             "song_number": song_number,
             "awarded_points": awarded_points
-        })
+        }
+
+        if song_commitment:
+            data["song_commitment"] = song_commitment
+
+        self.add_block(data)
 
     def add_game_finished(self, leaderboard):
         self.add_block({
@@ -180,6 +183,21 @@ class Blockchain:
         return [block.to_dict() for block in self.chain]
 
 
+def create_song_commitment(lobby_id, round_number, song_number, song):
+    payload = {
+        "lobby_id": str(lobby_id).upper(),
+        "round": round_number,
+        "song_number": song_number,
+        "youtube_id": song.get("youtube_id"),
+        "artist": song.get("artist"),
+        "title": song.get("title"),
+        "year": song.get("year")
+    }
+
+    payload_string = json.dumps(payload, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(payload_string.encode("utf-8")).hexdigest()
+
+
 def list_saved_blockchains(storage_dir=None):
     target_dir = Path(storage_dir or DEFAULT_STORAGE_DIR)
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -198,7 +216,7 @@ def list_saved_blockchains(storage_dir=None):
             saved.append({
                 "lobby_id": payload.get("lobby_id") or file_path.stem.upper(),
                 "block_count": payload.get("block_count", len(chain)),
-                "valid": payload.get("valid"),
+                "valid": Blockchain(file_path.stem, storage_dir=target_dir).is_valid(),
                 "created_at": first_timestamp,
                 "updated_at": last_timestamp
             })
@@ -216,10 +234,18 @@ def list_saved_blockchains(storage_dir=None):
 
 def load_saved_blockchain(lobby_id, storage_dir=None):
     normalized_lobby_id = str(lobby_id).upper()
-    file_path = Path(storage_dir or DEFAULT_STORAGE_DIR) / f"{normalized_lobby_id}.json"
+    target_dir = Path(storage_dir or DEFAULT_STORAGE_DIR)
+    file_path = target_dir / f"{normalized_lobby_id}.json"
 
     if not file_path.exists():
         return None
 
     with file_path.open("r", encoding="utf-8") as file:
-        return json.load(file)
+        payload = json.load(file)
+
+    payload["valid"] = Blockchain(
+        normalized_lobby_id,
+        storage_dir=target_dir
+    ).is_valid()
+
+    return payload

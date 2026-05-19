@@ -92,6 +92,7 @@ function submit() {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 30px;
   align-items: start;
+  margin-top: 32px;
 }
 
 .field + .field {
@@ -117,12 +118,20 @@ input::placeholder {
 }
 
 .year-title {
-  margin: 0 0 16px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 12px);
+  margin: 0;
   text-align: center;
   color: var(--xp-text-soft);
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.right-side {
+  position: relative;
 }
 
 .year-grid {
@@ -175,7 +184,7 @@ input:disabled {
 @media (max-width: 720px) {
   .answers-layout {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 42px;
   }
 }
 </style>

@@ -24,12 +24,6 @@
         <div class="visualizer-panel">
           <div class="wmp-display" aria-hidden="true">
             <div class="wmp-screen-glass"></div>
-            <div class="visualizer-grid">
-              <span v-for="bar in 36" :key="bar" :style="{ animationDelay: `${bar * 0.045}s` }"></span>
-            </div>
-            <div class="scope-line scope-line-one"></div>
-            <div class="scope-line scope-line-two"></div>
-            <div class="spectrum-floor"></div>
           </div>
 
           <div class="player-area">

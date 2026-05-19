@@ -1,0 +1,134 @@
+{
+  "lobby_id": "03CI2Q",
+  "block_count": 8,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779184546.7896798,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "03CI2Q"
+      },
+      "previous_hash": "0",
+      "hash": "f1f4308a8bcdebdfc937240bd7b87327076becdb9300079c7e5ac95f9b4c5a05"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779184546.794864,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "03CI2Q"
+      },
+      "previous_hash": "f1f4308a8bcdebdfc937240bd7b87327076becdb9300079c7e5ac95f9b4c5a05",
+      "hash": "fd905b40b215a7b9cd98c796d58317e6c7eb2ad48889176374e049003839bc5d"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779184546.8056245,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "fd905b40b215a7b9cd98c796d58317e6c7eb2ad48889176374e049003839bc5d",
+      "hash": "3ea5fb5d8822df28b7e7500bddd0c2157548377713ce254dfa1c4c52db9b7dcc"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779184546.8071313,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "3ea5fb5d8822df28b7e7500bddd0c2157548377713ce254dfa1c4c52db9b7dcc",
+      "hash": "735e62fa15dd76b175cd93b26aa96eb3093a3cdb72e7f7b4226849ca3d790239"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779184548.2144382,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2002,
+        "decade": "2000s"
+      },
+      "previous_hash": "735e62fa15dd76b175cd93b26aa96eb3093a3cdb72e7f7b4226849ca3d790239",
+      "hash": "f1355139fc66982477b9a34e9a54d11af45304544e7f2da2ab3e5c719883f16f"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779184582.2179964,
+      "data": {
+        "type": "song_result",
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2002,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "f1355139fc66982477b9a34e9a54d11af45304544e7f2da2ab3e5c719883f16f",
+      "hash": "41ba98f279ac4ce3423e539d0a6728b3d9bfa4210ce4f6ae491f5a13dce389b2"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779184584.1527905,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 2,
+        "song_title": "Can't Feel My Face",
+        "artist": "The Weeknd",
+        "year": 2023,
+        "decade": "2020s"
+      },
+      "previous_hash": "41ba98f279ac4ce3423e539d0a6728b3d9bfa4210ce4f6ae491f5a13dce389b2",
+      "hash": "9d8b3ecdae5970c752ae7e8cdd4faa6d8aa6e2474a3eaa68b9803a8126f2cffa"
+    },
+    {
+      "index": 7,
+      "timestamp": 1779184589.3010423,
+      "data": {
+        "type": "song_result",
+        "song_title": "Can't Feel My Face",
+        "artist": "The Weeknd",
+        "year": 2023,
+        "decade": "2020s",
+        "round": 1,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ]
+      },
+      "previous_hash": "9d8b3ecdae5970c752ae7e8cdd4faa6d8aa6e2474a3eaa68b9803a8126f2cffa",
+      "hash": "e3bc954a69b045d394ef0357360c186076f96c4e1dadda0ffeb8160d572d968b"
+    }
+  ]
+}

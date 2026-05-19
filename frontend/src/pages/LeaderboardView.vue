@@ -222,11 +222,16 @@ watch(
   align-items: center;
   width: min(100%, 260px);
   padding: 14px 22px;
-  border-radius: 18px;
-  background: rgba(224, 235, 255, 0.92);
-  color: var(--text-blue);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(218, 233, 255, 0.96));
+  color: #0b2563;
   font-style: italic;
   font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 12px rgba(44, 84, 150, 0.12);
 }
 
 .top-code-label {
@@ -276,26 +281,47 @@ watch(
 .player-total {
   min-height: 44px;
   padding: 11px 18px;
-  background: rgba(214, 226, 255, 0.9);
+  background: rgba(238, 245, 255, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 14px;
-  color: var(--text-blue-strong);
+  color: #123a84;
   font-size: 16px;
   font-style: italic;
   font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.player-total {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(218, 233, 255, 0.96));
+  color: #0b2563;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 12px rgba(44, 84, 150, 0.12);
 }
 
 .answer-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(218, 233, 255, 0.96));
+  color: #0b2563;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 12px rgba(44, 84, 150, 0.12);
+}
+
+.answer-value span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .gain {
-  color: var(--text-green);
+  color: #087a2e;
 }
 
 .zero {
-  color: var(--text-red);
+  color: #b42336;
 }
 
 .player-total {
