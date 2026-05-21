@@ -96,9 +96,7 @@ async function copyText(text) {
     try {
       await navigator.clipboard.writeText(text);
       return;
-    } catch (error) {
-      // Some browsers expose the Clipboard API but block it without a permission grant.
-    }
+    } catch (error) {}
   }
 
   const textArea = document.createElement("textarea");

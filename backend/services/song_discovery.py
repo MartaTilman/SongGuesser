@@ -90,8 +90,6 @@ def build_fallback_year_result(candidate, target_decade):
     if year_to_decade(published_year) != target_decade:
         return None
 
-    # This fallback is intentionally limited to modern songs where
-    # upload year is often a useful proxy for original release year.
     if target_decade != "2020s":
         return None
 

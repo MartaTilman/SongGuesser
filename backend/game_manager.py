@@ -130,7 +130,6 @@ class GameManager:
         if submitted_normalized in correct_normalized:
             return True
 
-        # Allow very small typos for longer answers, e.g. one missing/wrong letter.
         length_gap = abs(len(submitted_normalized) - len(correct_normalized))
         similarity = SequenceMatcher(None, submitted_normalized, correct_normalized).ratio()
 
@@ -150,7 +149,6 @@ class GameManager:
         if overlap >= max(1, len(correct_tokens) - 1):
             return True
 
-        # Also allow a one-letter typo per token when almost every token matches.
         fuzzy_token_matches = 0
 
         for submitted_token in submitted_tokens:
