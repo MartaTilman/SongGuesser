@@ -184,6 +184,11 @@ onBeforeUnmount(() => {
   --xp-magenta: #d63aff;
   --xp-green: #7dff9b;
   --xp-red: #ff8b8b;
+  --panel: linear-gradient(180deg, rgba(245, 250, 255, 0.96), rgba(218, 233, 255, 0.92));
+  --shadow-soft: 0 12px 30px rgba(36, 77, 145, 0.16);
+  --text-blue: #17458f;
+  --text-blue-strong: #0b2f75;
+  --badge-yellow: #fff1a8;
 }
 
 * {
@@ -194,6 +199,7 @@ html,
 body,
 #app {
   min-height: 100%;
+  width: 100%;
 }
 
 body {
@@ -251,7 +257,7 @@ input {
 .player-window {
   position: relative;
   z-index: 1;
-  width: min(100%, 1180px);
+  width: min(calc(100% - 24px), 1180px);
   margin: 18px auto;
   border: 1px solid #0e2b63;
   border-radius: 10px;
@@ -349,6 +355,7 @@ input {
 .xp-toolbar,
 .window-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 18px;
   padding: 8px 14px;
   background: linear-gradient(180deg, rgba(220, 236, 255, 0.96), rgba(190, 214, 247, 0.88));
@@ -541,9 +548,28 @@ input {
 }
 
 @media (max-width: 640px) {
+  .app-shell {
+    padding-bottom: 42px;
+  }
+
+  .xp-window,
+  .player-window {
+    width: 100%;
+    min-height: calc(100vh - 42px);
+    margin: 0;
+    border-inline: 0;
+    border-radius: 0;
+  }
+
   .xp-content,
   .window-content {
     padding: 10px;
+  }
+
+  .xp-titlebar,
+  .window-titlebar {
+    min-height: 42px;
+    padding-inline: 10px;
   }
 
   .title-copy span {
@@ -554,6 +580,47 @@ input {
   .window-toolbar {
     gap: 10px;
     font-size: 11px;
+  }
+
+  .titlebar-actions {
+    gap: 5px;
+  }
+
+  .win-btn {
+    width: 18px;
+    height: 18px;
+  }
+
+  .start-button {
+    width: 72px;
+    flex-basis: 72px;
+    background-size: 91px 34px;
+  }
+
+  .taskbar-divider {
+    margin-inline: 5px;
+  }
+
+  .taskbar-item {
+    min-width: 0;
+    max-width: 150px;
+    flex: 1 1 auto;
+  }
+
+  .taskbar-item span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .taskbar-tray {
+    min-width: 74px;
+    padding-inline: 7px;
+  }
+
+  .tray-dot {
+    display: none;
   }
 }
 </style>

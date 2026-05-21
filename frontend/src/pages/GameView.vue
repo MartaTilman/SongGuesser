@@ -379,6 +379,7 @@ watch(
 .track-stats {
   display: flex;
   gap: 12px;
+  min-width: 0;
 }
 
 .stat-box {
@@ -416,7 +417,7 @@ watch(
 .visualizer-panel {
   position: relative;
   overflow: hidden;
-  min-height: 390px;
+  min-height: clamp(330px, 46vw, 390px);
   padding: 16px 16px 76px;
   border: 1px solid rgba(12, 35, 81, 0.88);
   border-radius: 8px;
@@ -758,6 +759,74 @@ watch(
 
   .volume-track {
     display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .track-meta h1 {
+    font-size: 23px;
+  }
+
+  .track-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stat-box {
+    min-width: 0;
+    padding: 9px 10px;
+  }
+
+  .stat-box strong {
+    display: block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: 16px;
+  }
+
+  .game-shell {
+    padding: 9px;
+    border-radius: 8px;
+  }
+
+  .visualizer-panel {
+    min-height: 318px;
+    padding: 10px 10px 66px;
+  }
+
+  .wmp-display {
+    inset: 10px 10px 66px;
+  }
+
+  .player-area {
+    min-height: 236px;
+  }
+
+  .side-status {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .status-pill {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .countdown-number {
+    font-size: 56px;
+  }
+
+  .wmp-controls {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .transport-buttons {
+    justify-content: center;
   }
 }
 </style>

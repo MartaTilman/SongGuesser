@@ -66,6 +66,11 @@ h3 {
   font-size: 24px;
 }
 
+.name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .host-badge {
   padding: 6px 14px;
   border-radius: 999px;

@@ -80,6 +80,7 @@ h3 {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .rank {
@@ -91,7 +92,39 @@ h3 {
 }
 
 .score {
+  flex: 0 0 auto;
   color: #174d9d;
   font-size: 18px;
+}
+
+.name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .card {
+    padding: 12px 10px 14px;
+    border-radius: 18px;
+  }
+
+  .row {
+    min-height: 52px;
+    padding: 10px 12px;
+    gap: 10px;
+    font-size: 15px;
+  }
+
+  .left {
+    gap: 7px;
+  }
+
+  .rank {
+    min-width: 20px;
+  }
+
+  .score {
+    font-size: 16px;
+  }
 }
 </style>

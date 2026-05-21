@@ -255,7 +255,7 @@ onBeforeUnmount(() => {
 .login-window {
   position: relative;
   z-index: 2;
-  width: min(100%, 430px);
+  width: min(calc(100% - 24px), 430px);
   margin: 90px auto 0;
   border: 1px solid #0e2b63;
   border-radius: 10px;
@@ -304,6 +304,7 @@ onBeforeUnmount(() => {
 
 .login-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   padding: 6px 12px;
   background: linear-gradient(180deg, rgba(220, 236, 255, 0.96), rgba(190, 214, 247, 0.88));
@@ -496,20 +497,51 @@ input::placeholder {
 
 @media (max-width: 560px) {
   .desktop-page {
-    padding: 12px;
+    padding: 12px 12px 46px;
   }
 
   .desktop-icon {
     left: 12px;
     top: 14px;
+    width: 82px;
   }
 
   .login-window {
-    margin-top: 76px;
+    width: 100%;
+    margin-top: 78px;
   }
 
   .login-body {
     padding: 18px 14px 18px;
+  }
+
+  .avatars {
+    flex-wrap: wrap;
+  }
+
+  .xp-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .start-button {
+    width: 72px;
+    flex-basis: 72px;
+    background-size: 91px 34px;
+  }
+
+  .taskbar-item {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .taskbar-tray {
+    min-width: 74px;
+    padding-inline: 7px;
+  }
+
+  .tray-dot {
+    display: none;
   }
 }
 </style>

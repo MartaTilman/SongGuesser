@@ -610,13 +610,35 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 720px) {
+  .vinyl-wrap {
+    min-height: 228px;
+  }
+
   .vinyl-stack {
-    min-height: 236px;
+    min-height: 228px;
   }
 
   .sound-toggle {
     right: 12px;
     bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vinyl-wrap,
+  .vinyl-stack {
+    min-height: 206px;
+  }
+
+  .viz-bars {
+    left: 14px;
+    right: 14px;
+    gap: 2px;
+  }
+
+  .status {
+    margin-top: 12px;
+    font-size: 11px;
   }
 }
 </style>

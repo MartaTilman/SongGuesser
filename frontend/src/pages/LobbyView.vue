@@ -140,6 +140,7 @@ async function copyText(text) {
 
 .lobby-code-card {
   display: inline-flex;
+  max-width: 100%;
   gap: 14px;
   align-items: center;
   padding: 10px 14px;
@@ -161,9 +162,12 @@ async function copyText(text) {
 }
 
 .code-value {
+  display: block;
+  max-width: 100%;
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.05em;
+  overflow-wrap: anywhere;
 }
 
 .controls-card button {
@@ -266,6 +270,28 @@ async function copyText(text) {
   .lobby-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 540px) {
+  .lobby-code-card {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .code-copy-row {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .controls-card {
+    min-height: 132px;
+  }
+
+  .controls-card button {
+    width: 100%;
   }
 }
 </style>

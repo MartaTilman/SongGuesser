@@ -390,6 +390,7 @@ watch(
 .answer-label,
 .answer-value,
 .player-total {
+  min-width: 0;
   min-height: 44px;
   padding: 11px 18px;
   background: rgba(238, 245, 255, 0.96);
@@ -446,6 +447,8 @@ watch(
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .player-avatar {
@@ -663,12 +666,34 @@ button {
 }
 
 @media (max-width: 720px) {
+  .page {
+    padding: 12px 0 16px;
+  }
+
   .panel {
     padding: 14px 12px 18px;
+    border-radius: 18px;
   }
 
   .answer-grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .answers-header {
+    display: none;
+  }
+
+  .answer-label,
+  .answer-value,
+  .player-total {
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .answer-value {
+    align-items: flex-start;
   }
 
   .podium {
@@ -687,6 +712,32 @@ button {
     grid-row: auto !important;
     border-radius: 16px;
     height: 140px !important;
+  }
+
+  .actions,
+  .final-actions {
+    justify-content: stretch;
+    gap: 10px;
+  }
+
+  button {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 14px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .top-code {
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 12px 14px;
+  }
+
+  .podium-name {
+    font-size: 18px;
   }
 }
 </style>

@@ -185,6 +185,40 @@ input:disabled {
   .answers-layout {
     grid-template-columns: 1fr;
     gap: 42px;
+    margin-top: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  input {
+    height: 50px;
+    padding-inline: 14px;
+    font-size: 15px;
+  }
+
+  .year-title {
+    position: static;
+    margin: 0 0 10px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .answers-layout {
+    gap: 18px;
+  }
+
+  .year-grid {
+    gap: 10px;
+  }
+
+  .year-grid button {
+    min-height: 46px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 14px;
   }
 }
 </style>
