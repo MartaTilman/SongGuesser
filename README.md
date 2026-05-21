@@ -4,6 +4,11 @@ Song Guesser is a real-time multiplayer music guessing game. Players join a lobb
 
 The app has a retro Windows XP / media player visual style and is responsive for desktop, tablet, and mobile screens.
 
+## Live App
+
+- Frontend: [song-guesser-one.vercel.app](https://song-guesser-one.vercel.app)
+- Backend API: [songguesser.onrender.com](https://songguesser.onrender.com)
+
 ## Features
 
 - Create or join multiplayer lobbies with a short lobby code
@@ -33,7 +38,7 @@ The app has a retro Windows XP / media player visual style and is responsive for
 - FastAPI
 - WebSockets
 - YouTube Data API
-- OpenAI API for song metadata parsing and validation
+- Optional OpenAI API support for song metadata parsing and validation
 
 ## Project Structure
 
@@ -49,7 +54,7 @@ song-guesser/
 - Node.js 20.19+ or 22.12+
 - Python 3.10+
 - YouTube Data API key
-- OpenAI API key, unless `USE_OPENAI=false`
+- OpenAI API key only if `USE_OPENAI=true`
 
 ## Environment Variables
 
@@ -57,14 +62,21 @@ Create a `.env` file in the `backend` folder:
 
 ```env
 YOUTUBE_API_KEY=your_youtube_api_key
-OPENAI_API_KEY=your_openai_api_key
-USE_OPENAI=true
+USE_OPENAI=false
 ```
 
 Optional:
 
 ```env
+OPENAI_API_KEY=your_openai_api_key
 YOUTUBE_DISCOVERY_ATTEMPT_BUDGET=40
+```
+
+For the deployed frontend, set these Vercel environment variables:
+
+```env
+VITE_API_URL=https://songguesser.onrender.com
+VITE_WS_URL=wss://songguesser.onrender.com
 ```
 
 ## Run Locally
@@ -122,6 +134,6 @@ The production build is generated in `frontend/dist`.
 
 ## Notes
 
-- The frontend currently expects the backend at `http://127.0.0.1:8000`.
-- WebSocket connections use the same backend host and port.
+- Locally, the frontend falls back to `http://127.0.0.1:8000` and `ws://127.0.0.1:8000`.
+- In production, the frontend uses the Render backend through `VITE_API_URL` and `VITE_WS_URL`.
 - The backend warms up the song cache when it starts, so the first run can take longer if the cache needs new songs.
