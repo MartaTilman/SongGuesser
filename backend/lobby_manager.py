@@ -21,9 +21,8 @@ class Lobby:
         self.current_game_number = 1
         self.current_round = 1
         self.current_song_in_round = 1
-        # Temporary leaderboard testing mode: original values were 5 songs per round and 5 total rounds.
-        self.songs_per_round = 1
-        self.total_rounds = 1
+        self.songs_per_round = 5
+        self.total_rounds = 5
         self.answer_phase_started_at = None
         self.clip_started_at = None
         self.blockchain = Blockchain(lobby_id)
