@@ -1,6 +1,8 @@
 let socket = null;
 let pendingMessages = [];
 
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
+
 export function connectWebSocket(
   lobbyId,
   playerName,
@@ -16,7 +18,7 @@ export function connectWebSocket(
     return socket;
   }
 
-  const wsUrl = `ws://127.0.0.1:8000/ws/${encodeURIComponent(lobbyId)}/${encodeURIComponent(playerName)}?avatar=${encodeURIComponent(avatar)}`;
+  const wsUrl = `${WS_URL}/ws/${encodeURIComponent(lobbyId)}/${encodeURIComponent(playerName)}?avatar=${encodeURIComponent(avatar)}`;
 
   socket = new WebSocket(wsUrl);
 
