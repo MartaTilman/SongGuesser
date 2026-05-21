@@ -1,0 +1,129 @@
+{
+  "lobby_id": "EA4AZJ",
+  "block_count": 9,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779365299.4723825,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "EA4AZJ"
+      },
+      "previous_hash": "0",
+      "hash": "e7e47f12ab2f77bc1fb3cb128e79f5a9517f708c24a4ba28da859477f1cbf651"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779365299.4730675,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "EA4AZJ"
+      },
+      "previous_hash": "e7e47f12ab2f77bc1fb3cb128e79f5a9517f708c24a4ba28da859477f1cbf651",
+      "hash": "2d83efe04f96aeeac8f3f3175a41af7485076d94caf00604a4ae451c52e9b17d"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779365299.4736164,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "2d83efe04f96aeeac8f3f3175a41af7485076d94caf00604a4ae451c52e9b17d",
+      "hash": "9a2af341f3d73c29cbb0849a3049dd12ab41a1294fa1adc7ecb39d7d16a24416"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779365299.4841087,
+      "data": {
+        "type": "player_join",
+        "player": "dkewdmk"
+      },
+      "previous_hash": "9a2af341f3d73c29cbb0849a3049dd12ab41a1294fa1adc7ecb39d7d16a24416",
+      "hash": "5f11b16603f495fbc2b1021634aaebd9ce2bee07e55468a943fc66925c6baaa6"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779365299.4851809,
+      "data": {
+        "type": "auth_event",
+        "player": "dkewdmk",
+        "action": "join_lobby"
+      },
+      "previous_hash": "5f11b16603f495fbc2b1021634aaebd9ce2bee07e55468a943fc66925c6baaa6",
+      "hash": "fb8d93cb3d9b71e4989c2e6da2ede7b42bc562234663cdb3a335f1061194bdc1"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779365300.2939794,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 1,
+        "decade": "70s",
+        "song_commitment": "a55bf85752747a74f4b04a733cc560aabeea308c1023d73d2882e951d7a002cd"
+      },
+      "previous_hash": "fb8d93cb3d9b71e4989c2e6da2ede7b42bc562234663cdb3a335f1061194bdc1",
+      "hash": "33a5747c200cef8011781e42ea667c52ebc66a0d1a8947b6b671b16db14e5bc0"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779365309.0464852,
+      "data": {
+        "type": "song_result",
+        "game_number": 1,
+        "song_title": "Ma Baker",
+        "artist": "Boney M.",
+        "year": 1977,
+        "decade": "70s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "dkewdmk",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1976,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "a55bf85752747a74f4b04a733cc560aabeea308c1023d73d2882e951d7a002cd"
+      },
+      "previous_hash": "33a5747c200cef8011781e42ea667c52ebc66a0d1a8947b6b671b16db14e5bc0",
+      "hash": "6d1d2f1702546296704dde9a512b6b1b3d333662627e36b15c6e239570c0298c"
+    },
+    {
+      "index": 7,
+      "timestamp": 1779365309.0478482,
+      "data": {
+        "type": "game_finished",
+        "game_number": 1,
+        "leaderboard": [
+          {
+            "name": "dkewdmk",
+            "avatar": "🎷",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "6d1d2f1702546296704dde9a512b6b1b3d333662627e36b15c6e239570c0298c",
+      "hash": "f0458af10ead2f787ced1c22cbc356e7ed7053f0310bc27a48fc98994bd02ca0"
+    },
+    {
+      "index": 8,
+      "timestamp": 1779365316.597825,
+      "data": {
+        "type": "game_started",
+        "game_number": 2
+      },
+      "previous_hash": "f0458af10ead2f787ced1c22cbc356e7ed7053f0310bc27a48fc98994bd02ca0",
+      "hash": "f719736d765f466177cbc9a2bc060db66ba02eb61d75d9edef5176c50c670ef2"
+    }
+  ]
+}

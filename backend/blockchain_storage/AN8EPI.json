@@ -1,0 +1,106 @@
+{
+  "lobby_id": "AN8EPI",
+  "block_count": 7,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779363157.0164628,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "AN8EPI"
+      },
+      "previous_hash": "0",
+      "hash": "a642cdd361173ef8805d3ccb1c80505995d11b89c228b3ae104942b11689c5e4"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779363157.017916,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "AN8EPI"
+      },
+      "previous_hash": "a642cdd361173ef8805d3ccb1c80505995d11b89c228b3ae104942b11689c5e4",
+      "hash": "a107461ea418869eb63f08b4f3b258cbe4a8cadcbc5dddafd21916dfa5064c18"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779363157.029652,
+      "data": {
+        "type": "player_join",
+        "player": "ncnjx"
+      },
+      "previous_hash": "a107461ea418869eb63f08b4f3b258cbe4a8cadcbc5dddafd21916dfa5064c18",
+      "hash": "3ff4df121bd7506aae4f6d6bcc1730ea9fbff746b3486f9e6c8f2ffe89496b8c"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779363157.0308332,
+      "data": {
+        "type": "auth_event",
+        "player": "ncnjx",
+        "action": "join_lobby"
+      },
+      "previous_hash": "3ff4df121bd7506aae4f6d6bcc1730ea9fbff746b3486f9e6c8f2ffe89496b8c",
+      "hash": "76fb00fd5e113e19952f5e483314c7685f403f818cf2ba8d5d16e3e50b79a397"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779363158.3897371,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "decade": "60s",
+        "song_commitment": "da93bd34ec9630d84306711ed487cb305454511be6fa80165cab823eeece38cb"
+      },
+      "previous_hash": "76fb00fd5e113e19952f5e483314c7685f403f818cf2ba8d5d16e3e50b79a397",
+      "hash": "e0b6c3bc123a72464ec44e361381c3a222e2bdbcbf0e6884c40e69fd624787ff"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779363171.335181,
+      "data": {
+        "type": "song_result",
+        "song_title": "These Boots Are Made For Walkin'",
+        "artist": "Nancy Sinatra",
+        "year": 1966,
+        "decade": "60s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "ncnjx",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1966,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 791,
+            "total_score": 791
+          }
+        ],
+        "song_commitment": "da93bd34ec9630d84306711ed487cb305454511be6fa80165cab823eeece38cb"
+      },
+      "previous_hash": "e0b6c3bc123a72464ec44e361381c3a222e2bdbcbf0e6884c40e69fd624787ff",
+      "hash": "d3b3862ae0bf1195a650bd41058d682de0147d35e0c683a1d4f618ef1f7556dc"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779363171.3377755,
+      "data": {
+        "type": "game_finished",
+        "leaderboard": [
+          {
+            "name": "ncnjx",
+            "avatar": "🎻",
+            "score": 791
+          }
+        ]
+      },
+      "previous_hash": "d3b3862ae0bf1195a650bd41058d682de0147d35e0c683a1d4f618ef1f7556dc",
+      "hash": "6194aa9d5309decf23511495eba58f0597b5928348cfc8e7094ab6b7624908fd"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "lobby_id": "KUAYKJ",
+  "block_count": 7,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779363097.3942888,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "KUAYKJ"
+      },
+      "previous_hash": "0",
+      "hash": "89cc609d1ad30c5c9f6f70fb41f7b0fef37efcbc2393294a8c38fb4e332589a0"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779363097.3989108,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "KUAYKJ"
+      },
+      "previous_hash": "89cc609d1ad30c5c9f6f70fb41f7b0fef37efcbc2393294a8c38fb4e332589a0",
+      "hash": "380934b03121f90849c129fac708c28e4c183050aca5cd8fc5b89868f67dba2e"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779363097.4095438,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "380934b03121f90849c129fac708c28e4c183050aca5cd8fc5b89868f67dba2e",
+      "hash": "febe2c75e91bb58668451311d9a6bc6852e9c7a029ca8b6d035ca7442b6584bf"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779363097.4108667,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "febe2c75e91bb58668451311d9a6bc6852e9c7a029ca8b6d035ca7442b6584bf",
+      "hash": "e9c803f9c64ddf435e0d3c3164696e201534e716a988f9a29fbbb591a131381a"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779363099.0658114,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "decade": "2020s",
+        "song_commitment": "e0813d951be26e2528531eb351246dc4db85a93233cddebbb3a29c9697b3dba5"
+      },
+      "previous_hash": "e9c803f9c64ddf435e0d3c3164696e201534e716a988f9a29fbbb591a131381a",
+      "hash": "2a6ba6542b2ca7b32c5c65ac24312c1fef446083325ee9d875691a493ad02078"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779363112.8850982,
+      "data": {
+        "type": "song_result",
+        "song_title": "Die With A Smile",
+        "artist": "Lady Gaga, Bruno Mars",
+        "year": 2024,
+        "decade": "2020s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2021,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "e0813d951be26e2528531eb351246dc4db85a93233cddebbb3a29c9697b3dba5"
+      },
+      "previous_hash": "2a6ba6542b2ca7b32c5c65ac24312c1fef446083325ee9d875691a493ad02078",
+      "hash": "db25246eee4bd8c22851aa78f174276d15ba4035da10082247b1e811561304da"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779363112.8884165,
+      "data": {
+        "type": "game_finished",
+        "leaderboard": [
+          {
+            "name": "marta",
+            "avatar": "🎻",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "db25246eee4bd8c22851aa78f174276d15ba4035da10082247b1e811561304da",
+      "hash": "8665f1d0c3a3b7a2db8d39890f4b0a7fc33e0fcd7adc21860416a06e57639224"
+    }
+  ]
+}

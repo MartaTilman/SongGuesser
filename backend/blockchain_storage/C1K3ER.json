@@ -1,0 +1,90 @@
+{
+  "lobby_id": "C1K3ER",
+  "block_count": 6,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779362863.42479,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "C1K3ER"
+      },
+      "previous_hash": "0",
+      "hash": "161c0a173939390a04cbeca49243ccdfef6c43bb8581c20c007fd5d4f19c402f"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779362863.426068,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "C1K3ER"
+      },
+      "previous_hash": "161c0a173939390a04cbeca49243ccdfef6c43bb8581c20c007fd5d4f19c402f",
+      "hash": "34e7b8f6aba7671a0d4fb89dc333d1cf88fe589c765b7b39ed0e60e21f2788a8"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779362863.4371035,
+      "data": {
+        "type": "player_join",
+        "player": "c bhxb"
+      },
+      "previous_hash": "34e7b8f6aba7671a0d4fb89dc333d1cf88fe589c765b7b39ed0e60e21f2788a8",
+      "hash": "2e1c9040615b00874fbd8e47430bfc5631b6d8bbf6fa32838923968d97a74191"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779362863.4383337,
+      "data": {
+        "type": "auth_event",
+        "player": "c bhxb",
+        "action": "join_lobby"
+      },
+      "previous_hash": "2e1c9040615b00874fbd8e47430bfc5631b6d8bbf6fa32838923968d97a74191",
+      "hash": "143ae9533b9cf32ab93ed544bab6c03d7950b9eea6ef79231473d89f61c97aad"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779362864.8618758,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "decade": "70s",
+        "song_commitment": "423be56927fc272653ac58f0645a29926949a39e89381ddc6d7f17359ed14a41"
+      },
+      "previous_hash": "143ae9533b9cf32ab93ed544bab6c03d7950b9eea6ef79231473d89f61c97aad",
+      "hash": "9aadf5e1be516b4fd6a0614850928960cd43fe144192100e5ed15518a2748c5d"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779362877.202182,
+      "data": {
+        "type": "song_result",
+        "song_title": "Hot Legs",
+        "artist": "Rod Stewart",
+        "year": 1979,
+        "decade": "70s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "c bhxb",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "423be56927fc272653ac58f0645a29926949a39e89381ddc6d7f17359ed14a41"
+      },
+      "previous_hash": "9aadf5e1be516b4fd6a0614850928960cd43fe144192100e5ed15518a2748c5d",
+      "hash": "40ccac8ba37f7d2563ecee6d4bb424113d23898a2ad528bf3843e60d92c9ce23"
+    }
+  ]
+}

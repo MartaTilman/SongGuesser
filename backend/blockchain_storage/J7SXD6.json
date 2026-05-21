@@ -1,0 +1,190 @@
+{
+  "lobby_id": "J7SXD6",
+  "block_count": 12,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779365528.8386285,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "J7SXD6"
+      },
+      "previous_hash": "0",
+      "hash": "00f2fdc26085848df8bd6012542ff8390f98350213135da4aa298f96f99fbf3b"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779365528.8396518,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "J7SXD6"
+      },
+      "previous_hash": "00f2fdc26085848df8bd6012542ff8390f98350213135da4aa298f96f99fbf3b",
+      "hash": "4d193d8e496991a20cd20be45ae999f711f8ce6620db41c968c9f67420f06625"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779365528.8404996,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "4d193d8e496991a20cd20be45ae999f711f8ce6620db41c968c9f67420f06625",
+      "hash": "a71b0a4c81d19fd0d79ce40d4822bd99a5be0855658dbb379e204d0c78b17edb"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779365528.8535476,
+      "data": {
+        "type": "player_join",
+        "player": "jn"
+      },
+      "previous_hash": "a71b0a4c81d19fd0d79ce40d4822bd99a5be0855658dbb379e204d0c78b17edb",
+      "hash": "cbda7e188f35bbecdab5eb46fec4d60cbb1da12e62542f240a704071b6880717"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779365528.8558562,
+      "data": {
+        "type": "auth_event",
+        "player": "jn",
+        "action": "join_lobby"
+      },
+      "previous_hash": "cbda7e188f35bbecdab5eb46fec4d60cbb1da12e62542f240a704071b6880717",
+      "hash": "b307890594fcc05755d3e094bde6522559e99506359fd38ddc19de8068576652"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779365531.59977,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 1,
+        "decade": "70s",
+        "song_commitment": "890764b9a0e4c2e71fcee9ee02e3e61d997b142373e0c297e0fb5f29d4214475"
+      },
+      "previous_hash": "b307890594fcc05755d3e094bde6522559e99506359fd38ddc19de8068576652",
+      "hash": "95de179f1d975cc4d0197dd314b8ff9259f45e812490ca158abe2cc6ec9c7773"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779365537.3771024,
+      "data": {
+        "type": "song_result",
+        "game_number": 1,
+        "song_title": "Ma Baker",
+        "artist": "Boney M.",
+        "year": 1977,
+        "decade": "70s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "jn",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1975,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "890764b9a0e4c2e71fcee9ee02e3e61d997b142373e0c297e0fb5f29d4214475"
+      },
+      "previous_hash": "95de179f1d975cc4d0197dd314b8ff9259f45e812490ca158abe2cc6ec9c7773",
+      "hash": "c1e190a3c4909c27138f9a4cdeb7111039b88745e12c7654c032caaa56f0239e"
+    },
+    {
+      "index": 7,
+      "timestamp": 1779365537.378576,
+      "data": {
+        "type": "game_finished",
+        "game_number": 1,
+        "leaderboard": [
+          {
+            "name": "jn",
+            "avatar": "🎵",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "c1e190a3c4909c27138f9a4cdeb7111039b88745e12c7654c032caaa56f0239e",
+      "hash": "4896399310c53d3bab77bc1bf35a287a347796084f64843284cd844f3bdfaf94"
+    },
+    {
+      "index": 8,
+      "timestamp": 1779365545.4213414,
+      "data": {
+        "type": "game_started",
+        "game_number": 2
+      },
+      "previous_hash": "4896399310c53d3bab77bc1bf35a287a347796084f64843284cd844f3bdfaf94",
+      "hash": "a43aab6e39cefe3d9c99376f684c78e600d97968f9d7738a4cea05000ebdf12d"
+    },
+    {
+      "index": 9,
+      "timestamp": 1779365546.9826005,
+      "data": {
+        "type": "round_started",
+        "game_number": 2,
+        "round": 1,
+        "song_number": 1,
+        "decade": "2020s",
+        "song_commitment": "2a19381302e2d74ee41ba217657b2fd148e14d69f9ebc41b6de2aeb7ec388098"
+      },
+      "previous_hash": "a43aab6e39cefe3d9c99376f684c78e600d97968f9d7738a4cea05000ebdf12d",
+      "hash": "ce586d0f0f5fe766e1c989b5b99ccb000b41cdd44ea240d946e814d1c99fcd5c"
+    },
+    {
+      "index": 10,
+      "timestamp": 1779365553.5868018,
+      "data": {
+        "type": "song_result",
+        "game_number": 2,
+        "song_title": "All I Want",
+        "artist": "Olivia Rodrigo",
+        "year": 2020,
+        "decade": "2020s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "jn",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": null,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "2a19381302e2d74ee41ba217657b2fd148e14d69f9ebc41b6de2aeb7ec388098"
+      },
+      "previous_hash": "ce586d0f0f5fe766e1c989b5b99ccb000b41cdd44ea240d946e814d1c99fcd5c",
+      "hash": "f81718dfbb26988520b68b5bb93188e06cabe8e16dd88906f0180b6856d0fdcb"
+    },
+    {
+      "index": 11,
+      "timestamp": 1779365553.5886,
+      "data": {
+        "type": "game_finished",
+        "game_number": 2,
+        "leaderboard": [
+          {
+            "name": "jn",
+            "avatar": "🎵",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "f81718dfbb26988520b68b5bb93188e06cabe8e16dd88906f0180b6856d0fdcb",
+      "hash": "7285109c0aef092555a206d430f75c8a04e259630cb425881a75e29264e14dd9"
+    }
+  ]
+}

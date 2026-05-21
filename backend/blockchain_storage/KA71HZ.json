@@ -1,0 +1,72 @@
+{
+  "lobby_id": "KA71HZ",
+  "block_count": 6,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779365734.6702735,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "KA71HZ"
+      },
+      "previous_hash": "0",
+      "hash": "0069f807fa855240e2d46280e075778d68285c7886e232fc8bf36d60f1ed03ca"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779365734.6710825,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "KA71HZ"
+      },
+      "previous_hash": "0069f807fa855240e2d46280e075778d68285c7886e232fc8bf36d60f1ed03ca",
+      "hash": "c4f36cc612b89db5f4cbb3707a3ccf03e10d3762a22b48c3dc2890e6e48ea442"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779365734.6725404,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "c4f36cc612b89db5f4cbb3707a3ccf03e10d3762a22b48c3dc2890e6e48ea442",
+      "hash": "b177fd0835ded241b6dc49f1e9b3b4aba60613a0d3e60741a2524b0c084264fc"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779365734.6794028,
+      "data": {
+        "type": "player_join",
+        "player": "fesd"
+      },
+      "previous_hash": "b177fd0835ded241b6dc49f1e9b3b4aba60613a0d3e60741a2524b0c084264fc",
+      "hash": "3bdeb6014b10f4c267da51b655f8c99a79df7f328b62571253aee7738f3d4047"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779365734.6805649,
+      "data": {
+        "type": "auth_event",
+        "player": "fesd",
+        "action": "join_lobby"
+      },
+      "previous_hash": "3bdeb6014b10f4c267da51b655f8c99a79df7f328b62571253aee7738f3d4047",
+      "hash": "2616878acb14a5756439a8794b434db937d4919926e727ab9ee359c381aaeded"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779365735.9569774,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 1,
+        "decade": "70s",
+        "song_commitment": "663426a6fdd8b49e6d069b9a87dbda3c8890311c0e7a058a990faaa4386ab916"
+      },
+      "previous_hash": "2616878acb14a5756439a8794b434db937d4919926e727ab9ee359c381aaeded",
+      "hash": "5c18bb11c596b874f2c19de99ec9c2b95b285454a98a028047ca7094b4b0e830"
+    }
+  ]
+}

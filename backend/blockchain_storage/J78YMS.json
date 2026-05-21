@@ -1,0 +1,58 @@
+{
+  "lobby_id": "J78YMS",
+  "block_count": 5,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779365650.2120278,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "J78YMS"
+      },
+      "previous_hash": "0",
+      "hash": "31e3cff9f3ac3adcf9c599931b51aa5f6416f57b3617d41d19363503b6ad1678"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779365650.2131524,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "J78YMS"
+      },
+      "previous_hash": "31e3cff9f3ac3adcf9c599931b51aa5f6416f57b3617d41d19363503b6ad1678",
+      "hash": "482e6a0f22af796a57d337a953ad8619a9fe5949598abd495e493c259f397553"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779365650.214336,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "482e6a0f22af796a57d337a953ad8619a9fe5949598abd495e493c259f397553",
+      "hash": "19146be50a080e76770b30b1f7b2c6265aad5391775705ce81eb0eee5f83758d"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779365650.22147,
+      "data": {
+        "type": "player_join",
+        "player": "frf"
+      },
+      "previous_hash": "19146be50a080e76770b30b1f7b2c6265aad5391775705ce81eb0eee5f83758d",
+      "hash": "f413024ba036dd2ab783c3f14629d67e943ae77d0bfa7dc9e7dca108f2148818"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779365650.2226107,
+      "data": {
+        "type": "auth_event",
+        "player": "frf",
+        "action": "join_lobby"
+      },
+      "previous_hash": "f413024ba036dd2ab783c3f14629d67e943ae77d0bfa7dc9e7dca108f2148818",
+      "hash": "677b6c51d67f4f50a356d98e471963d4e97a32b807b2a683ade79ac1ef095f89"
+    }
+  ]
+}

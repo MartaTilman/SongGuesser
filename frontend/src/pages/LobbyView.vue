@@ -4,10 +4,19 @@
       <div class="lobby-header">
         <div class="lobby-code-card">
           <span class="code-label">Lobby ID</span>
-          <strong class="code-value">{{ store.lobbyId }}</strong>
+          <div class="code-copy-row">
+            <strong class="code-value">{{ store.lobbyId }}</strong>
+            <button
+              class="copy-btn"
+              type="button"
+              aria-label="Copy lobby code"
+              title="Copy lobby code"
+              @click="copyLobbyCode"
+            >
+              <img src="/icons8-copy-30.png" alt="" aria-hidden="true" />
+            </button>
+          </div>
         </div>
-
-        <button class="copy-btn" type="button" @click="copyLobbyCode">Copy code</button>
       </div>
 
       <div class="content-grid">
@@ -56,6 +65,7 @@ onMounted(async () => {
 
   try {
     await store.fetchLobbyInfo();
+    store.connect();
   } catch (error) {
     console.error("Lobby info fetch failed:", error);
     store.error = "Ne mogu dohvatiti informacije o lobbyju.";
@@ -74,10 +84,39 @@ watch(
 
 async function copyLobbyCode() {
   try {
-    await navigator.clipboard.writeText(store.lobbyId);
+    await copyText(store.lobbyId);
     copyMessage.value = "Code copied.";
   } catch (error) {
     copyMessage.value = "Copy failed.";
+  }
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch (error) {
+      // Some browsers expose the Clipboard API but block it without a permission grant.
+    }
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.top = "-1000px";
+  textArea.style.opacity = "0";
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    const copied = document.execCommand("copy");
+    if (!copied) {
+      throw new Error("Copy command failed.");
+    }
+  } finally {
+    document.body.removeChild(textArea);
   }
 }
 </script>
@@ -93,7 +132,7 @@ async function copyLobbyCode() {
 
 .lobby-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 14px;
   align-items: center;
   margin-bottom: 18px;
@@ -109,6 +148,12 @@ async function copyLobbyCode() {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(216, 231, 255, 0.94));
 }
 
+.code-copy-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .code-label {
   font-size: 12px;
   text-transform: uppercase;
@@ -121,7 +166,6 @@ async function copyLobbyCode() {
   letter-spacing: 0.05em;
 }
 
-.copy-btn,
 .controls-card button {
   padding: 10px 16px;
   border: 1px solid #2959b7;
@@ -131,6 +175,29 @@ async function copyLobbyCode() {
   font-size: 15px;
   font-weight: 700;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.copy-btn {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #8daee0;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.66);
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.copy-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .content-grid {
@@ -198,7 +265,7 @@ async function copyLobbyCode() {
 
   .lobby-header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
 }
 </style>

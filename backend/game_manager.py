@@ -265,11 +265,13 @@ class GameManager:
         game.last_result_payload = None
 
         game.blockchain.add_round_started(
+            game_number=game.current_game_number,
             round_number=game.current_round,
             song_number=game.current_song_in_round,
             decade=chosen_decade,
             song_commitment=create_song_commitment(
                 lobby_id,
+                game.current_game_number,
                 game.current_round,
                 game.current_song_in_round,
                 song
@@ -289,6 +291,7 @@ class GameManager:
 
         payload = {
             "type": "round_started",
+            "game_number": game.current_game_number,
             "youtube_id": song["youtube_id"],
             "start_time": song["start_time"],
             "clip_duration": clip_duration,
@@ -437,6 +440,7 @@ class GameManager:
             leaderboard.sort(key=lambda x: x["score"], reverse=True)
 
             game.blockchain.add_song_result(
+                game_number=game.current_game_number,
                 song_title=game.current_song["title"],
                 artist=game.current_song["artist"],
                 year=game.current_song.get("year"),
@@ -446,6 +450,7 @@ class GameManager:
                 awarded_points=awarded_points,
                 song_commitment=create_song_commitment(
                     lobby_id,
+                    game.current_game_number,
                     game.current_round,
                     game.current_song_in_round,
                     game.current_song
@@ -454,6 +459,7 @@ class GameManager:
 
             result_payload = {
                 "type": "leaderboard",
+                "game_number": game.current_game_number,
                 "data": leaderboard,
                 "round": game.current_round,
                 "song_number": game.current_song_in_round,
@@ -477,10 +483,11 @@ class GameManager:
             game.current_decade = None
 
             if game.current_round > game.total_rounds:
-                game.blockchain.add_game_finished(leaderboard)
+                game.blockchain.add_game_finished(game.current_game_number, leaderboard)
 
                 await self.lobby_manager.broadcast(lobby_id, {
                     "type": "game_finished",
+                    "game_number": game.current_game_number,
                     "leaderboard": leaderboard
                 })
             else:

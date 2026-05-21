@@ -1,0 +1,106 @@
+{
+  "lobby_id": "CBLU6K",
+  "block_count": 7,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779364702.3998177,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "CBLU6K"
+      },
+      "previous_hash": "0",
+      "hash": "b07a127ebaf657131f56ff9ee9dac4c84f816efc501ecf7eb8e9a0d10b305fb1"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779364702.4013612,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "CBLU6K"
+      },
+      "previous_hash": "b07a127ebaf657131f56ff9ee9dac4c84f816efc501ecf7eb8e9a0d10b305fb1",
+      "hash": "8d7ca4c8c769a084eb0d712f87e2ceae9ed2acc766abd9d37efc7b848b6ac9d8"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779364702.4145293,
+      "data": {
+        "type": "player_join",
+        "player": "kmklm"
+      },
+      "previous_hash": "8d7ca4c8c769a084eb0d712f87e2ceae9ed2acc766abd9d37efc7b848b6ac9d8",
+      "hash": "c7ac1b96ecb1a2e77c8941c2d8dd1f733928485d906072f7c5c88bb6a67c1f14"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779364702.4156778,
+      "data": {
+        "type": "auth_event",
+        "player": "kmklm",
+        "action": "join_lobby"
+      },
+      "previous_hash": "c7ac1b96ecb1a2e77c8941c2d8dd1f733928485d906072f7c5c88bb6a67c1f14",
+      "hash": "ad56668fa7e4ed01c9c4c5008121941219255c5d068853bd89fec222adca24a7"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779364703.376843,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "decade": "2000s",
+        "song_commitment": "389219093fec0de8418afe9e27f38eb07994a4fdd9b5b0e767b69719919dd865"
+      },
+      "previous_hash": "ad56668fa7e4ed01c9c4c5008121941219255c5d068853bd89fec222adca24a7",
+      "hash": "5c4a11a02f0137db26b7fd58b15e51fa37ce2903cd0dc5aea7e8280c7abbf37e"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779364716.05469,
+      "data": {
+        "type": "song_result",
+        "song_title": "Whoa!",
+        "artist": "Black Rob",
+        "year": 2004,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "kmklm",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1999,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "389219093fec0de8418afe9e27f38eb07994a4fdd9b5b0e767b69719919dd865"
+      },
+      "previous_hash": "5c4a11a02f0137db26b7fd58b15e51fa37ce2903cd0dc5aea7e8280c7abbf37e",
+      "hash": "68f65f74465c1d51bcbc623aaa673ec4428c9a6ed6bfb9b2bfb2eeb17cbc6dcd"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779364716.062394,
+      "data": {
+        "type": "game_finished",
+        "leaderboard": [
+          {
+            "name": "kmklm",
+            "avatar": "🎸",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "68f65f74465c1d51bcbc623aaa673ec4428c9a6ed6bfb9b2bfb2eeb17cbc6dcd",
+      "hash": "6f3e0dc76e68ee4fc09ac7ba4f5b5215ac7d57e6ea8b66a30c413910918cd9db"
+    }
+  ]
+}

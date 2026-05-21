@@ -230,6 +230,10 @@ function startAutoPlaybackWatcher() {
 function toggleMute() {
   isMuted.value = !isMuted.value;
   syncMuteState();
+
+  if (!isPlaying.value && !props.countdownActive) {
+    startPlayback();
+  }
 }
 
 function createPlayer() {

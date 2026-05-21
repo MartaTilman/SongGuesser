@@ -16,14 +16,36 @@ class Lobby:
         self.finishing_song = False
         self.last_result_payload = None
         self.used_songs = set()
+        self.used_song_keys = set()
         self.last_artist = None
+        self.current_game_number = 1
         self.current_round = 1
         self.current_song_in_round = 1
-        self.songs_per_round = 5
-        self.total_rounds = 5
+        # Temporary leaderboard testing mode: original values were 5 songs per round and 5 total rounds.
+        self.songs_per_round = 1
+        self.total_rounds = 1
         self.answer_phase_started_at = None
         self.clip_started_at = None
         self.blockchain = Blockchain(lobby_id)
+
+    def reset_for_next_game(self):
+        self.current_game_number += 1
+        self.current_round = 1
+        self.current_song_in_round = 1
+        self.current_song = None
+        self.current_decade = None
+        self.answers = []
+        self.finishing_song = False
+        self.last_result_payload = None
+        self.last_artist = None
+        self.answer_phase_started_at = None
+        self.clip_started_at = None
+
+        for player in self.players:
+            player.score = 0
+            player.answers = {}
+
+        self.blockchain.add_game_started(self.current_game_number)
 
 
 class LobbyManager:
@@ -46,6 +68,7 @@ class LobbyManager:
         lobby = Lobby(lobby_id, "")
         self.lobbies[lobby_id] = lobby
         lobby.blockchain.add_lobby_created()
+        lobby.blockchain.add_game_started(lobby.current_game_number)
         return lobby
 
     def join_lobby(self, lobby_id, player):

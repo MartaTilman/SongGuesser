@@ -139,9 +139,9 @@ const currentTitle = computed(() => {
 
 const taskbarTitle = computed(() => {
   const titleMap = {
-    lobby: "SongGuesser Lobby",
-    game: "SongGuesser Media Player",
-    leaderboard: "SongGuesser Results"
+    lobby: "SongGuesser",
+    game: "SongGuesser",
+    leaderboard: "SongGuesser"
   };
 
   return titleMap[route.name] || "SongGuesser";

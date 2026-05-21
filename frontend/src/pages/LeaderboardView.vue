@@ -52,21 +52,21 @@
 
       <div v-else class="panel final-panel">
         <div v-if="!showFullFinalLeaderboard" class="podium">
-          <div class="place-label second-label">#2</div>
-          <div class="place-label first-label">#1</div>
-          <div class="place-label third-label">#3</div>
+          <div v-if="isPodiumRankVisible(2) && topThree[1]" class="place-label second-label">#2</div>
+          <div v-if="isPodiumRankVisible(1) && topThree[0]" class="place-label first-label">#1</div>
+          <div v-if="isPodiumRankVisible(3) && topThree[2]" class="place-label third-label">#3</div>
 
-          <div v-if="topThree[1]" class="podium-card second">
+          <div v-if="isPodiumRankVisible(2) && topThree[1]" class="podium-card second">
             <div class="podium-avatar">{{ topThree[1].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[1].name }}</div>
           </div>
 
-          <div v-if="topThree[0]" class="podium-card first">
+          <div v-if="isPodiumRankVisible(1) && topThree[0]" class="podium-card first">
             <div class="podium-avatar">{{ topThree[0].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[0].name }}</div>
           </div>
 
-          <div v-if="topThree[2]" class="podium-card third">
+          <div v-if="isPodiumRankVisible(3) && topThree[2]" class="podium-card third">
             <div class="podium-avatar">{{ topThree[2].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[2].name }}</div>
           </div>
@@ -80,13 +80,13 @@
 
         <div class="actions final-actions">
           <button
-            v-if="!showFullFinalLeaderboard"
+            v-if="!showFullFinalLeaderboard && showPodiumReveal"
             type="button"
             @click="showFullFinalLeaderboard = true"
           >
             Next
           </button>
-          <template v-else>
+          <template v-else-if="showFullFinalLeaderboard">
             <button type="button" @click="goLobby">Lobby</button>
             <button type="button" @click="goHome">Exit</button>
           </template>
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useGameStore } from "../stores/gameStore";
 import LeaderboardTable from "../components/LeaderboardTable.vue";
@@ -105,8 +105,14 @@ import LeaderboardTable from "../components/LeaderboardTable.vue";
 const router = useRouter();
 const store = useGameStore();
 const showFullFinalLeaderboard = ref(false);
+const showPodiumReveal = ref(false);
+const visiblePodiumRanks = ref([]);
 
 let audioContext = null;
+let podiumRevealTimers = [];
+let drumRollAudio = null;
+let removeDrumRollUnlockListeners = null;
+const drumRollAudioSrc = "/drum-roll.mp3";
 
 const roundBoard = computed(() => {
   return [...store.leaderboard].sort((a, b) => b.score - a.score);
@@ -126,6 +132,10 @@ const sortedAwardedPoints = computed(() => {
 
 function findAvatar(name) {
   return store.players.find((player) => player.name === name)?.avatar || "🎵";
+}
+
+function isPodiumRankVisible(rank) {
+  return visiblePodiumRanks.value.includes(rank);
 }
 
 function nextSong() {
@@ -184,10 +194,105 @@ function playLeaderboardSound() {
   });
 }
 
-onMounted(() => {
-  setTimeout(() => {
+function playDrumRollSound() {
+  if (typeof Audio === "undefined") return Promise.resolve();
+
+  if (!drumRollAudio) {
+    drumRollAudio = new Audio(drumRollAudioSrc);
+    drumRollAudio.preload = "auto";
+    drumRollAudio.volume = 0.72;
+  }
+
+  return new Promise((resolve) => {
+    let resolved = false;
+    const fallbackTimer = setTimeout(() => finish(), 4500);
+
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(fallbackTimer);
+      drumRollAudio.removeEventListener("ended", finish);
+      drumRollAudio.removeEventListener("error", finish);
+      resolve();
+    };
+
+    drumRollAudio.pause();
+    drumRollAudio.currentTime = 0;
+    drumRollAudio.addEventListener("ended", finish, { once: true });
+    drumRollAudio.addEventListener("error", finish, { once: true });
+
+    drumRollAudio.play().catch(() => {
+      setupDrumRollUnlock();
+      finish();
+    });
+  });
+}
+
+function clearPodiumRevealTimers() {
+  podiumRevealTimers.forEach((timer) => clearTimeout(timer));
+  podiumRevealTimers = [];
+}
+
+function setupDrumRollUnlock() {
+  if (typeof window === "undefined" || removeDrumRollUnlockListeners) return;
+
+  const unlockDrumRoll = () => {
+    removeDrumRollUnlockListeners?.();
+    removeDrumRollUnlockListeners = null;
+    playDrumRollSound();
+  };
+
+  const events = ["pointerdown", "touchstart", "keydown"];
+
+  events.forEach((eventName) => {
+    window.addEventListener(eventName, unlockDrumRoll, { once: true, passive: true });
+  });
+
+  removeDrumRollUnlockListeners = () => {
+    events.forEach((eventName) => {
+      window.removeEventListener(eventName, unlockDrumRoll);
+    });
+  };
+}
+
+async function revealPodiumWithDrumRoll() {
+  clearPodiumRevealTimers();
+  showPodiumReveal.value = false;
+  visiblePodiumRanks.value = [];
+  await playDrumRollSound();
+
+  const revealOrder = [3, 2, 1].filter((rank) => topThree.value[rank - 1]);
+
+  revealOrder.forEach((rank, index) => {
+    const timer = setTimeout(() => {
+      visiblePodiumRanks.value = [...visiblePodiumRanks.value, rank];
+    }, index * 720);
+
+    podiumRevealTimers.push(timer);
+  });
+
+  const finishTimer = setTimeout(() => {
+    showPodiumReveal.value = true;
     playLeaderboardSound();
-  }, 80);
+  }, revealOrder.length * 720);
+
+  podiumRevealTimers.push(finishTimer);
+}
+
+onMounted(() => {
+  if (store.phase === "finished") {
+    revealPodiumWithDrumRoll();
+  } else {
+    setTimeout(() => {
+      playLeaderboardSound();
+    }, 80);
+  }
+});
+
+onBeforeUnmount(() => {
+  clearPodiumRevealTimers();
+  removeDrumRollUnlockListeners?.();
+  removeDrumRollUnlockListeners = null;
 });
 
 watch(
@@ -199,7 +304,13 @@ watch(
 
     if (phase !== "finished") {
       showFullFinalLeaderboard.value = false;
+      showPodiumReveal.value = false;
+      visiblePodiumRanks.value = [];
+      clearPodiumRevealTimers();
+      return;
     }
+
+    revealPodiumWithDrumRoll();
   }
 );
 </script>
@@ -382,9 +493,17 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: end;
-  gap: 18px;
+  gap: 16px;
   min-height: 330px;
   padding: 48px 36px 10px;
+  border: 1px solid rgba(58, 112, 196, 0.34);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(237, 247, 255, 0.92), rgba(169, 207, 247, 0.54)),
+    repeating-linear-gradient(90deg, rgba(24, 86, 178, 0.1) 0 1px, transparent 1px 22px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -18px 34px rgba(47, 119, 212, 0.16);
 }
 
 .place-label {
@@ -393,22 +512,29 @@ button {
   font-size: 58px;
   font-style: italic;
   font-weight: 500;
+  opacity: 0;
+  transform-origin: center bottom;
+  animation: xpRankPop 0.44s cubic-bezier(0.2, 1.24, 0.38, 1) forwards;
 }
 
 .first-label {
   top: 14px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(0.92);
+  animation-name: xpFirstRankPop;
+  animation-delay: 0.12s;
 }
 
 .second-label {
   top: 104px;
   left: 82px;
+  animation-delay: 0.24s;
 }
 
 .third-label {
   top: 154px;
   right: 86px;
+  animation-delay: 0.34s;
 }
 
 .podium-card {
@@ -416,25 +542,43 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 14px 14px 0 0;
-  color: white;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  border-radius: 8px 8px 0 0;
+  color: #07377e;
   text-align: center;
-  box-shadow: inset 0 -40px 55px rgba(255, 255, 255, 0.32);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.66);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -34px 48px rgba(24, 87, 184, 0.2),
+    0 12px 18px rgba(27, 65, 128, 0.18);
+  opacity: 0;
+  transform: translateY(28px) scaleY(0.74) scaleX(0.96);
+  transform-origin: center bottom;
+  animation: xpWindowOpen 0.62s cubic-bezier(0.15, 1.18, 0.38, 1) forwards;
 }
 
 .podium-card.first {
+  grid-column: 2;
   height: 240px;
-  background: linear-gradient(180deg, #c12be5 0%, #e05cc8 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #d7f0ff 18%, #70c6ff 54%, #2d76da 100%);
+  animation-delay: 0.08s;
 }
 
 .podium-card.second {
+  grid-column: 1;
+  grid-row: 1;
   height: 170px;
-  background: linear-gradient(180deg, #ffe179 0%, #ffd767 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #edf7ff 20%, #9bd7ff 58%, #5595e7 100%);
+  animation-delay: 0.2s;
 }
 
 .podium-card.third {
+  grid-column: 3;
+  grid-row: 1;
   height: 120px;
-  background: linear-gradient(180deg, #ff3ba9 0%, #ff4fa1 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f0f8ff 22%, #b5e3ff 60%, #72a9ed 100%);
+  animation-delay: 0.3s;
 }
 
 .podium-avatar {
@@ -446,6 +590,76 @@ button {
   font-size: 22px;
   font-style: italic;
   font-weight: 800;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  animation: xpNameGlow 0.52s ease-out forwards;
+  animation-delay: 0.34s;
+}
+
+.podium-card.second .podium-name {
+  animation-delay: 0.46s;
+}
+
+.podium-card.third .podium-name {
+  animation-delay: 0.56s;
+}
+
+@keyframes xpWindowOpen {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scaleY(0.74) scaleX(0.96);
+    filter: brightness(1.25) saturate(1.25);
+  }
+
+  58% {
+    opacity: 1;
+    transform: translateY(-8px) scaleY(1.04) scaleX(1.02);
+    filter: brightness(1.12) saturate(1.12);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1) scaleX(1);
+    filter: brightness(1) saturate(1);
+  }
+}
+
+@keyframes xpRankPop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.86);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes xpFirstRankPop {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px) scale(0.86);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes xpNameGlow {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.66);
+  }
 }
 
 @media (max-width: 720px) {
@@ -469,6 +683,8 @@ button {
   }
 
   .podium-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
     border-radius: 16px;
     height: 140px !important;
   }

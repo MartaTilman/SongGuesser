@@ -1,0 +1,106 @@
+{
+  "lobby_id": "DN175Q",
+  "block_count": 7,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779364804.2599406,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "DN175Q"
+      },
+      "previous_hash": "0",
+      "hash": "ff536a2a9ae6d45851903831cad285299fbf1b19f751928b4b21ab3fa69672b4"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779364804.260759,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "DN175Q"
+      },
+      "previous_hash": "ff536a2a9ae6d45851903831cad285299fbf1b19f751928b4b21ab3fa69672b4",
+      "hash": "fdee6f55f14f84170fbc53217d4d884f6183a15a3dd83c7e959fdfb88d85ee6b"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779364804.2703145,
+      "data": {
+        "type": "player_join",
+        "player": "cfc d"
+      },
+      "previous_hash": "fdee6f55f14f84170fbc53217d4d884f6183a15a3dd83c7e959fdfb88d85ee6b",
+      "hash": "c39226ed22b8f3c573ac4c66408c90668766561b47ae59c03eca16fb52852f46"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779364804.2714078,
+      "data": {
+        "type": "auth_event",
+        "player": "cfc d",
+        "action": "join_lobby"
+      },
+      "previous_hash": "c39226ed22b8f3c573ac4c66408c90668766561b47ae59c03eca16fb52852f46",
+      "hash": "d7ac42e14087313ee1c2dff8bd1020d09084655ea6b6e50743214fea69ae2dd8"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779364805.8681247,
+      "data": {
+        "type": "round_started",
+        "round": 1,
+        "song_number": 1,
+        "decade": "2010s",
+        "song_commitment": "06e78d807a5913c2e4f691c44f3d83c85294fbc6da3cd22d3c4e71f836e47635"
+      },
+      "previous_hash": "d7ac42e14087313ee1c2dff8bd1020d09084655ea6b6e50743214fea69ae2dd8",
+      "hash": "17269b377be40420fd2cefda63a997072e5166c27e44349c2f7c82ae228d59e8"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779364812.0099216,
+      "data": {
+        "type": "song_result",
+        "song_title": "Grenade",
+        "artist": "Bruno Mars",
+        "year": 2011,
+        "decade": "2010s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "cfc d",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2009,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "06e78d807a5913c2e4f691c44f3d83c85294fbc6da3cd22d3c4e71f836e47635"
+      },
+      "previous_hash": "17269b377be40420fd2cefda63a997072e5166c27e44349c2f7c82ae228d59e8",
+      "hash": "08f57f181261a11788ac9da2680766d2a774c7f00c46a1bac8343e2a9d4a92e6"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779364812.0116436,
+      "data": {
+        "type": "game_finished",
+        "leaderboard": [
+          {
+            "name": "cfc d",
+            "avatar": "🎸",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "08f57f181261a11788ac9da2680766d2a774c7f00c46a1bac8343e2a9d4a92e6",
+      "hash": "d53c0db0b7eca032f9e87fff71758f3ce1c4ee1c4d1823e6b95c537e539dd8fd"
+    }
+  ]
+}

@@ -68,6 +68,12 @@ class Blockchain:
             "action": action
         })
 
+    def add_game_started(self, game_number):
+        self.add_block({
+            "type": "game_started",
+            "game_number": game_number
+        })
+
     def add_host_changed(self, previous_host, new_host):
         self.add_block({
             "type": "host_changed",
@@ -77,6 +83,7 @@ class Blockchain:
 
     def add_round_started(
         self,
+        game_number,
         round_number,
         song_number,
         decade,
@@ -84,6 +91,7 @@ class Blockchain:
     ):
         self.add_block({
             "type": "round_started",
+            "game_number": game_number,
             "round": round_number,
             "song_number": song_number,
             "decade": decade,
@@ -92,6 +100,7 @@ class Blockchain:
 
     def add_song_result(
         self,
+        game_number,
         song_title,
         artist,
         year,
@@ -103,6 +112,7 @@ class Blockchain:
     ):
         data = {
             "type": "song_result",
+            "game_number": game_number,
             "song_title": song_title,
             "artist": artist,
             "year": year,
@@ -117,9 +127,10 @@ class Blockchain:
 
         self.add_block(data)
 
-    def add_game_finished(self, leaderboard):
+    def add_game_finished(self, game_number, leaderboard):
         self.add_block({
             "type": "game_finished",
+            "game_number": game_number,
             "leaderboard": leaderboard
         })
 
@@ -183,9 +194,10 @@ class Blockchain:
         return [block.to_dict() for block in self.chain]
 
 
-def create_song_commitment(lobby_id, round_number, song_number, song):
+def create_song_commitment(lobby_id, game_number, round_number, song_number, song):
     payload = {
         "lobby_id": str(lobby_id).upper(),
+        "game_number": game_number,
         "round": round_number,
         "song_number": song_number,
         "youtube_id": song.get("youtube_id"),

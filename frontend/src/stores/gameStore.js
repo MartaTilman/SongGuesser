@@ -103,6 +103,10 @@ export const useGameStore = defineStore("game", {
       if (message.type === "lobby_update") {
         this.players = message.players || [];
         this.host = message.host || "";
+        this.roundData = null;
+        this.leaderboard = [];
+        this.awardedPoints = [];
+        this.finalLeaderboard = [];
         this.phase = "lobby";
       }
 
@@ -157,7 +161,23 @@ export const useGameStore = defineStore("game", {
     },
 
     startRound() {
-      sendWebSocketMessage({ type: "start_round" });
+      if (!this.connected) {
+        this.connect();
+      }
+
+      const sent = sendWebSocketMessage({ type: "start_round" });
+
+      if (!sent) {
+        this.error = "Veza s lobbyjem nije aktivna. Pokusaj ponovno za trenutak.";
+      }
+    },
+
+    requestGameReset() {
+      if (!this.connected) {
+        this.connect();
+      }
+
+      sendWebSocketMessage({ type: "reset_game" });
     },
 
     submitAnswer(payload) {
@@ -178,6 +198,7 @@ export const useGameStore = defineStore("game", {
     },
 
     resetGame() {
+      this.requestGameReset();
       this.roundData = null;
       this.leaderboard = [];
       this.awardedPoints = [];

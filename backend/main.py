@@ -85,6 +85,7 @@ def get_lobby_info(lobby_id: str):
         "host": lobby.host,
         "players": [player.to_dict() for player in lobby.players],
         "current_round": lobby.current_round,
+        "current_game_number": lobby.current_game_number,
         "current_song_in_round": lobby.current_song_in_round,
         "songs_per_round": lobby.songs_per_round,
         "total_rounds": lobby.total_rounds,
@@ -124,6 +125,7 @@ async def get_lobby_state(lobby_id: str):
 
     return {
         "phase": "lobby",
+        "game_number": lobby.current_game_number,
         "round": lobby.current_round,
         "song_number": lobby.current_song_in_round
     }
@@ -188,6 +190,16 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
             if msg_type == "start_round":
                 if player.name == game.host:
                     await game_manager.start_round(normalized_lobby_id)
+
+            elif msg_type == "reset_game":
+                if player.name == game.host:
+                    game.reset_for_next_game()
+                    await lobby_manager.broadcast(normalized_lobby_id, {
+                        "type": "lobby_update",
+                        "host": game.host,
+                        "players": [p.to_dict() for p in game.players],
+                        "game_number": game.current_game_number
+                    })
 
             elif msg_type == "answer":
                 await game_manager.submit_answer(

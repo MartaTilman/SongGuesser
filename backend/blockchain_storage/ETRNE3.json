@@ -1,0 +1,119 @@
+{
+  "lobby_id": "ETRNE3",
+  "block_count": 8,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1779365236.423136,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "ETRNE3"
+      },
+      "previous_hash": "0",
+      "hash": "d1cf26c2062d444223e9d85b0baf06c3dc060ff72e67453dbec68b71f515e607"
+    },
+    {
+      "index": 1,
+      "timestamp": 1779365236.4238713,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "ETRNE3"
+      },
+      "previous_hash": "d1cf26c2062d444223e9d85b0baf06c3dc060ff72e67453dbec68b71f515e607",
+      "hash": "ef9911e28192adfe17f7b0a713e94ff8f92c529f94f241be07ac517552efd9e3"
+    },
+    {
+      "index": 2,
+      "timestamp": 1779365236.4248238,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "ef9911e28192adfe17f7b0a713e94ff8f92c529f94f241be07ac517552efd9e3",
+      "hash": "d2695cafb78e4051eb673f1aaabd0dbdc81e7e63ef78cbbeb09e57e61b464ee5"
+    },
+    {
+      "index": 3,
+      "timestamp": 1779365236.4424863,
+      "data": {
+        "type": "player_join",
+        "player": "mata"
+      },
+      "previous_hash": "d2695cafb78e4051eb673f1aaabd0dbdc81e7e63ef78cbbeb09e57e61b464ee5",
+      "hash": "803f60b5fefd1da05191b559b970e32261901d0763c12a40588dc8493956f89b"
+    },
+    {
+      "index": 4,
+      "timestamp": 1779365236.4451616,
+      "data": {
+        "type": "auth_event",
+        "player": "mata",
+        "action": "join_lobby"
+      },
+      "previous_hash": "803f60b5fefd1da05191b559b970e32261901d0763c12a40588dc8493956f89b",
+      "hash": "b2b68c94ae29815d25108fddf253bf8b3c9c8ed9dbdb0fee0c555ad1a02ce098"
+    },
+    {
+      "index": 5,
+      "timestamp": 1779365237.354782,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 1,
+        "decade": "2000s",
+        "song_commitment": "9e9181e572ce3fcacd22105cae6e778eadc2b6ed7f0c15cf80036940b975c35d"
+      },
+      "previous_hash": "b2b68c94ae29815d25108fddf253bf8b3c9c8ed9dbdb0fee0c555ad1a02ce098",
+      "hash": "f0dcd34628f623dd90087a4f2100d7bd58cf43e3a2c9b521286283fbb275da02"
+    },
+    {
+      "index": 6,
+      "timestamp": 1779365258.5782883,
+      "data": {
+        "type": "song_result",
+        "game_number": 1,
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2002,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "mata",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2001,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 0
+          }
+        ],
+        "song_commitment": "9e9181e572ce3fcacd22105cae6e778eadc2b6ed7f0c15cf80036940b975c35d"
+      },
+      "previous_hash": "f0dcd34628f623dd90087a4f2100d7bd58cf43e3a2c9b521286283fbb275da02",
+      "hash": "779efe5aa5230960a8eed962e830d9a57a3307e357787ac7a299b4fe31b1e4bc"
+    },
+    {
+      "index": 7,
+      "timestamp": 1779365258.5795393,
+      "data": {
+        "type": "game_finished",
+        "game_number": 1,
+        "leaderboard": [
+          {
+            "name": "mata",
+            "avatar": "🎷",
+            "score": 0
+          }
+        ]
+      },
+      "previous_hash": "779efe5aa5230960a8eed962e830d9a57a3307e357787ac7a299b4fe31b1e4bc",
+      "hash": "501cc9da4a4a0031bcf70f11de14471ac0422e7a8d2c805d4c8b82250abec574"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 let socket = null;
+let pendingMessages = [];
 
 export function connectWebSocket(
   lobbyId,
@@ -8,7 +9,10 @@ export function connectWebSocket(
   onClose,
   avatar = "🎵"
 ) {
-  if (socket && socket.readyState === WebSocket.OPEN) {
+  if (
+    socket &&
+    (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
+  ) {
     return socket;
   }
 
@@ -18,6 +22,11 @@ export function connectWebSocket(
 
   socket.onopen = () => {
     if (onOpen) onOpen();
+
+    pendingMessages.forEach((payload) => {
+      socket.send(JSON.stringify(payload));
+    });
+    pendingMessages = [];
   };
 
   socket.onmessage = (event) => {
@@ -40,7 +49,15 @@ export function connectWebSocket(
 export function sendWebSocketMessage(payload) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(payload));
+    return true;
   }
+
+  if (socket && socket.readyState === WebSocket.CONNECTING) {
+    pendingMessages.push(payload);
+    return true;
+  }
+
+  return false;
 }
 
 export function closeWebSocket() {
@@ -48,4 +65,6 @@ export function closeWebSocket() {
     socket.close();
     socket = null;
   }
+
+  pendingMessages = [];
 }
