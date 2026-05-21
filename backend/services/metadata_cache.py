@@ -10,11 +10,16 @@ BACKUP_FILE = BACKEND_DIR / "song_metadata_cache.json.bak"
 
 
 def load_metadata_cache():
-    if not os.path.exists(CACHE_FILE):
+    source_file = CACHE_FILE
+
+    if not os.path.exists(source_file) and os.path.exists(BACKUP_FILE):
+        source_file = BACKUP_FILE
+
+    if not os.path.exists(source_file):
         return {}
 
     try:
-        with open(CACHE_FILE, "r", encoding="utf-8") as f:
+        with open(source_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
             if isinstance(data, dict):
