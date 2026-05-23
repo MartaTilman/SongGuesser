@@ -1,5 +1,6 @@
 let socket = null;
 let pendingMessages = [];
+let manualClose = false;
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000";
 
@@ -11,6 +12,8 @@ export function connectWebSocket(
   onClose,
   avatar = "🎵"
 ) {
+  manualClose = false;
+
   if (
     socket &&
     (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
@@ -64,9 +67,14 @@ export function sendWebSocketMessage(payload) {
 
 export function closeWebSocket() {
   if (socket) {
+    manualClose = true;
     socket.close();
     socket = null;
   }
 
   pendingMessages = [];
+}
+
+export function wasManualClose() {
+  return manualClose;
 }

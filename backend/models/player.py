@@ -4,6 +4,7 @@ class Player:
         self.name = name
         self.websocket = websocket
         self.avatar = avatar
+        self.connected = True
 
         self.score = 0
         self.answers = {}
@@ -12,5 +13,6 @@ class Player:
         return {
             "name": self.name,
             "avatar": self.avatar,
-            "score": self.score
+            "score": self.score,
+            "connected": self.connected
         }

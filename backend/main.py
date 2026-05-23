@@ -93,7 +93,7 @@ def get_lobby_info(lobby_id: str):
 
 
 @app.get("/lobby/{lobby_id}/state")
-async def get_lobby_state(lobby_id: str):
+async def get_lobby_state(lobby_id: str, player_name: str = None):
     normalized_lobby_id = lobby_id.upper()
     lobby = lobby_manager.lobbies.get(normalized_lobby_id)
 
@@ -103,7 +103,10 @@ async def get_lobby_state(lobby_id: str):
     if lobby.last_result_payload is not None:
         return {
             "phase": "leaderboard",
-            "message": lobby.last_result_payload
+            "message": game_manager.build_result_payload(
+                lobby.last_result_payload,
+                player_name
+            )
         }
 
     if lobby.current_song is not None and time.time() >= lobby.round_ends_at:
@@ -112,15 +115,21 @@ async def get_lobby_state(lobby_id: str):
         if lobby.last_result_payload is not None:
             return {
                 "phase": "leaderboard",
-                "message": lobby.last_result_payload
+                "message": game_manager.build_result_payload(
+                    lobby.last_result_payload,
+                    player_name
+                )
             }
 
     if lobby.current_song is not None:
+        player = next(
+            (p for p in lobby.players if p.name == player_name),
+            None
+        )
+
         return {
             "phase": "round",
-            "round": lobby.current_round,
-            "song_number": lobby.current_song_in_round,
-            "round_ends_at": lobby.round_ends_at
+            "message": game_manager.build_round_payload(lobby, player)
         }
 
     return {
@@ -183,6 +192,16 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
             "players": [p.to_dict() for p in game.players]
         })
 
+        if game.last_result_payload is not None:
+            await websocket.send_json(
+                game_manager.build_result_payload(
+                    game.last_result_payload,
+                    player.name
+                )
+            )
+        elif game.current_song is not None:
+            await websocket.send_json(game_manager.build_round_payload(game, player))
+
         while True:
             data = await websocket.receive_json()
             msg_type = data.get("type")
@@ -216,9 +235,18 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
 
             elif msg_type == "sync_state":
                 if game.last_result_payload is not None:
-                    await websocket.send_json(game.last_result_payload)
+                    await websocket.send_json(
+                        game_manager.build_result_payload(
+                            game.last_result_payload,
+                            player.name
+                        )
+                    )
                 elif game.current_song is not None and time.time() >= game.round_ends_at:
                     await game_manager.finish_song(normalized_lobby_id)
+                elif game.current_song is not None:
+                    await websocket.send_json(
+                        game_manager.build_round_payload(game, player)
+                    )
 
     except ValueError as e:
         await websocket.send_json({
@@ -228,7 +256,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
         await websocket.close()
 
     except WebSocketDisconnect:
-        updated_lobby = lobby_manager.remove_player(normalized_lobby_id, player_name)
+        updated_lobby = lobby_manager.remove_player_connection(normalized_lobby_id, player)
 
         if updated_lobby:
             await lobby_manager.broadcast(normalized_lobby_id, {
@@ -242,7 +270,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
     except Exception as e:
         print(f"WebSocket error for {player_name} in lobby {normalized_lobby_id}: {e}")
 
-        updated_lobby = lobby_manager.remove_player(normalized_lobby_id, player_name)
+        updated_lobby = lobby_manager.remove_player_connection(normalized_lobby_id, player)
 
         if updated_lobby:
             try:

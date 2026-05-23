@@ -81,6 +81,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  serverTimeOffset: {
+    type: Number,
+    default: 0
+  },
   playAudio: {
     type: Boolean,
     default: false
@@ -109,9 +113,9 @@ const effectiveStartSeconds = computed(() => {
     return props.startTime || 0;
   }
 
-  const now = Date.now() / 1000;
+  const now = Date.now() / 1000 + props.serverTimeOffset;
   const elapsed = Math.max(0, now - props.clipStartedAt);
-  return Math.floor((props.startTime || 0) + elapsed);
+  return (props.startTime || 0) + elapsed;
 });
 
 const showManualPlay = computed(() => {
@@ -157,6 +161,14 @@ function syncMuteState() {
   }
 }
 
+function syncPlaybackPosition() {
+  if (!player.value?.seekTo || !props.clipStartedAt) {
+    return;
+  }
+
+  player.value.seekTo(effectiveStartSeconds.value, true);
+}
+
 function stopPlayback() {
   clearStopTimeout();
 
@@ -181,7 +193,7 @@ function startPlayback() {
   }
 
   const startedAt = props.clipStartedAt || Date.now() / 1000;
-  const now = Date.now() / 1000;
+  const now = Date.now() / 1000 + props.serverTimeOffset;
   const elapsed = Math.max(0, now - startedAt);
   const remaining = Math.max(0, props.clipDuration - elapsed);
 
@@ -218,7 +230,7 @@ function startAutoPlaybackWatcher() {
   }
 
   autoStartInterval = setInterval(() => {
-    const now = Date.now() / 1000;
+    const now = Date.now() / 1000 + props.serverTimeOffset;
 
     if (!autoStarted.value && now >= props.clipStartedAt) {
       startPlayback();
@@ -231,8 +243,14 @@ function toggleMute() {
   isMuted.value = !isMuted.value;
   syncMuteState();
 
+  if (!isMuted.value) {
+    syncPlaybackPosition();
+  }
+
   if (!isPlaying.value && !props.countdownActive) {
     startPlayback();
+  } else if (!isMuted.value && player.value?.playVideo) {
+    player.value.playVideo();
   }
 }
 
@@ -312,7 +330,14 @@ watch(
 );
 
 watch(
-  () => [props.youtubeId, props.startTime, props.clipDuration, props.clipStartedAt, props.playAudio],
+  () => [
+    props.youtubeId,
+    props.startTime,
+    props.clipDuration,
+    props.clipStartedAt,
+    props.serverTimeOffset,
+    props.playAudio
+  ],
   () => {
     autoStarted.value = false;
     isMuted.value = props.initiallyMuted;

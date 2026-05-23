@@ -191,6 +191,69 @@ class GameManager:
 
         return min(5, remaining_songs)
 
+    def build_round_payload(self, game, player=None):
+        if not game.current_song:
+            return None
+
+        clip_duration = self.get_round_duration(game.current_round)
+        answer_window = 15
+
+        if not hasattr(game, "year_options") or not game.year_options:
+            game.year_options = self.generate_year_options(game.current_song["year"])
+
+        return {
+            "type": "round_started",
+            "game_number": game.current_game_number,
+            "youtube_id": game.current_song["youtube_id"],
+            "start_time": game.current_song["start_time"],
+            "clip_duration": clip_duration,
+            "answer_window": answer_window,
+            "countdown_seconds": self.round_countdown_seconds,
+            "total_duration": clip_duration + answer_window,
+            "decade": game.current_decade,
+            "round": game.current_round,
+            "song_number": game.current_song_in_round,
+            "songs_per_round": game.songs_per_round,
+            "clip_started_at": game.clip_started_at,
+            "round_ends_at": game.round_ends_at,
+            "server_time": time.time(),
+            "year_options": game.year_options,
+            "is_host_turn": bool(player and player.name == game.host)
+        }
+
+    def build_result_payload(self, result_payload, player_name=None):
+        if not result_payload:
+            return None
+
+        payload = result_payload.copy()
+        awarded_points = result_payload.get("awarded_points") or []
+
+        if player_name:
+            payload["awarded_points"] = [
+                item for item in awarded_points
+                if item.get("name") == player_name
+            ]
+
+        return payload
+
+    async def send_result_payloads(self, lobby_id, result_payload):
+        game = self.lobby_manager.lobbies.get(lobby_id)
+        if not game:
+            return
+
+        disconnected = []
+
+        for player in game.players:
+            try:
+                await player.websocket.send_json(
+                    self.build_result_payload(result_payload, player.name)
+                )
+            except Exception:
+                disconnected.append(player)
+
+        for player in disconnected:
+            self.lobby_manager.remove_player_connection(lobby_id, player)
+
     async def start_round(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
 
@@ -285,31 +348,10 @@ class GameManager:
         game.answer_phase_started_at = game.clip_started_at
         game.round_ends_at = game.clip_started_at + clip_duration + answer_window
 
-        year_options = self.generate_year_options(song["year"])
-
-        payload = {
-            "type": "round_started",
-            "game_number": game.current_game_number,
-            "youtube_id": song["youtube_id"],
-            "start_time": song["start_time"],
-            "clip_duration": clip_duration,
-            "answer_window": answer_window,
-            "countdown_seconds": countdown_seconds,
-            "total_duration": clip_duration + answer_window,
-            "decade": chosen_decade,
-            "round": game.current_round,
-            "song_number": game.current_song_in_round,
-            "songs_per_round": game.songs_per_round,
-            "clip_started_at": game.clip_started_at,
-            "round_ends_at": game.round_ends_at,
-            "year_options": year_options,
-            "is_host_turn": False
-        }
+        game.year_options = self.generate_year_options(song["year"])
 
         for player in game.players:
-            player_payload = payload.copy()
-            player_payload["is_host_turn"] = player.name == game.host
-            await player.websocket.send_json(player_payload)
+            await player.websocket.send_json(self.build_round_payload(game, player))
 
         if lobby_id in self.round_tasks:
             self.round_tasks[lobby_id].cancel()
@@ -469,7 +511,7 @@ class GameManager:
             }
             game.last_result_payload = result_payload
 
-            await self.lobby_manager.broadcast(lobby_id, result_payload)
+            await self.send_result_payloads(lobby_id, result_payload)
 
             if game.current_song_in_round < game.songs_per_round:
                 game.current_song_in_round += 1

@@ -37,6 +37,7 @@
               :start-time="store.roundData.start_time"
               :clip-duration="store.roundData.clip_duration"
               :clip-started-at="store.roundData.clip_started_at"
+              :server-time-offset="store.serverTimeOffset"
               :play-audio="true"
               :countdown-active="showCountdown"
               :initially-muted="!store.roundData.is_host_turn"
@@ -110,13 +111,18 @@ let submitRecoveryTimeout = null;
 
 onMounted(async () => {
   intervalId = setInterval(() => {
-    now.value = Date.now() / 1000;
+    now.value = Date.now() / 1000 + store.serverTimeOffset;
   }, 250);
 
   setupAudioUnlock();
+  window.addEventListener("visibilitychange", handleVisibilityRestore);
+  window.addEventListener("focus", handleVisibilityRestore);
 
   if (!store.roundData && route.name !== "lobby") {
-    await router.replace({ name: "lobby" });
+    const state = await store.fetchLobbyState();
+    if (state?.phase !== "round") {
+      await router.replace({ name: "lobby" });
+    }
   }
 });
 
@@ -131,6 +137,8 @@ onBeforeUnmount(() => {
   }
 
   removeAudioUnlockListeners?.();
+  window.removeEventListener("visibilitychange", handleVisibilityRestore);
+  window.removeEventListener("focus", handleVisibilityRestore);
 
   if (submitRecoveryTimeout) {
     clearTimeout(submitRecoveryTimeout);
@@ -260,6 +268,10 @@ function playCountdownBeep(number) {
 }
 
 async function requestResultSync() {
+  if (!store.connected) {
+    store.connect();
+  }
+
   store.syncState();
 
   try {
@@ -267,6 +279,18 @@ async function requestResultSync() {
   } catch (error) {
     console.error("Lobby state sync failed:", error);
   }
+}
+
+function handleVisibilityRestore() {
+  if (document.visibilityState === "hidden") {
+    return;
+  }
+
+  if (!store.connected) {
+    store.connect();
+  }
+
+  requestResultSync();
 }
 
 function submitAnswer(payload) {

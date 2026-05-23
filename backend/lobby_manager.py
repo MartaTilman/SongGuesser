@@ -25,6 +25,8 @@ class Lobby:
         self.total_rounds = 5
         self.answer_phase_started_at = None
         self.clip_started_at = None
+        self.round_ends_at = None
+        self.year_options = []
         self.blockchain = Blockchain(lobby_id)
 
     def reset_for_next_game(self):
@@ -39,6 +41,8 @@ class Lobby:
         self.last_artist = None
         self.answer_phase_started_at = None
         self.clip_started_at = None
+        self.round_ends_at = None
+        self.year_options = []
 
         for player in self.players:
             player.score = 0
@@ -81,9 +85,14 @@ class LobbyManager:
 
         lobby = self.lobbies[lobby_id]
 
-        existing_names = [p.name.lower() for p in lobby.players]
-        if player.name.lower() in existing_names:
-            raise ValueError("Igrač s tim imenom već postoji u lobbyju.")
+        for index, existing_player in enumerate(lobby.players):
+            if player.name.lower() == existing_player.name.lower():
+                player.score = existing_player.score
+                player.answers = existing_player.answers
+                player.connected = True
+                lobby.players[index] = player
+                lobby.blockchain.add_auth_event(player.name, "reconnect")
+                return lobby
 
         if not lobby.host:
             lobby.host = player.name
@@ -115,6 +124,24 @@ class LobbyManager:
 
         return lobby
 
+    def remove_player_connection(self, lobby_id, player):
+        lobby = self.lobbies.get(lobby_id)
+        if not lobby:
+            return None
+
+        active_player = next((p for p in lobby.players if p.name == player.name), None)
+        if active_player is not player:
+            return lobby
+
+        if lobby.current_song is not None or lobby.last_result_payload is not None:
+            if player.connected:
+                lobby.blockchain.add_auth_event(player.name, "disconnect")
+            player.connected = False
+            player.websocket = None
+            return lobby
+
+        return self.remove_player(lobby_id, player.name)
+
     def get_lobby_players(self, lobby_id):
         lobby = self.lobbies.get(lobby_id)
         if not lobby:
@@ -132,7 +159,7 @@ class LobbyManager:
             try:
                 await player.websocket.send_json(message)
             except Exception:
-                disconnected.append(player.name)
+                disconnected.append(player)
 
-        for name in disconnected:
-            self.remove_player(lobby_id, name)
+        for player in disconnected:
+            self.remove_player_connection(lobby_id, player)

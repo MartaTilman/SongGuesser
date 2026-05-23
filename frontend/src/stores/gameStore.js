@@ -1,5 +1,10 @@
 import { defineStore } from "pinia";
-import { connectWebSocket, sendWebSocketMessage, closeWebSocket } from "../services/websocket";
+import {
+  connectWebSocket,
+  sendWebSocketMessage,
+  closeWebSocket,
+  wasManualClose
+} from "../services/websocket";
 import api from "../services/api";
 
 export const useGameStore = defineStore("game", {
@@ -20,7 +25,9 @@ export const useGameStore = defineStore("game", {
     blockchainValid: null,
 
     error: "",
-    phase: "lobby"
+    phase: "lobby",
+    serverTimeOffset: 0,
+    reconnectTimer: null
   }),
 
   getters: {
@@ -82,15 +89,36 @@ export const useGameStore = defineStore("game", {
         (message) => this.handleMessage(message),
         () => {
           this.connected = true;
+          this.error = "";
+          this.syncState();
+          this.fetchLobbyState().catch(() => {});
         },
         () => {
           this.connected = false;
+
+          if (wasManualClose() || !this.lobbyId || !this.playerName) {
+            return;
+          }
+
+          if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+          }
+
+          this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            this.connect();
+          }, 800);
         },
         this.avatar
       );
     },
 
     disconnect() {
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+
       closeWebSocket();
       this.connected = false;
     },
@@ -103,15 +131,24 @@ export const useGameStore = defineStore("game", {
       if (message.type === "lobby_update") {
         this.players = message.players || [];
         this.host = message.host || "";
-        this.roundData = null;
-        this.leaderboard = [];
-        this.awardedPoints = [];
-        this.finalLeaderboard = [];
-        this.phase = "lobby";
+
+        if (this.phase === "lobby" || message.game_number) {
+          this.roundData = null;
+          this.leaderboard = [];
+          this.awardedPoints = [];
+          this.finalLeaderboard = [];
+          this.phase = "lobby";
+        }
       }
 
       if (message.type === "round_started") {
+        if (typeof message.server_time === "number") {
+          this.serverTimeOffset = message.server_time - Date.now() / 1000;
+        }
+
         this.roundData = message;
+        this.leaderboard = [];
+        this.awardedPoints = [];
         this.phase = "round";
       }
 
@@ -145,7 +182,11 @@ export const useGameStore = defineStore("game", {
     async fetchLobbyState() {
       if (!this.lobbyId) return null;
 
-      const res = await api.get(`/lobby/${this.lobbyId}/state`);
+      const res = await api.get(`/lobby/${this.lobbyId}/state`, {
+        params: {
+          player_name: this.playerName
+        }
+      });
 
       if (res.data?.message) {
         this.handleMessage(res.data.message);
@@ -209,6 +250,11 @@ export const useGameStore = defineStore("game", {
     clearAll() {
       this.disconnect();
 
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
+
       this.playerName = "";
       this.lobbyId = "";
       this.avatar = "🎵";
@@ -222,6 +268,7 @@ export const useGameStore = defineStore("game", {
       this.blockchainValid = null;
       this.error = "";
       this.phase = "lobby";
+      this.serverTimeOffset = 0;
 
       localStorage.removeItem("playerName");
       localStorage.removeItem("lobbyId");
