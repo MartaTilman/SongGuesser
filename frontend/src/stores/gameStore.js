@@ -21,6 +21,7 @@ export const useGameStore = defineStore("game", {
     leaderboard: [],
     awardedPoints: [],
     finalLeaderboard: [],
+    finalResultsReady: false,
     blockchain: [],
     blockchainValid: null,
 
@@ -69,7 +70,18 @@ export const useGameStore = defineStore("game", {
         throw new Error("Unesi lobby kod.");
       }
 
-      await api.get(`/lobby/${normalizedLobbyId}/info`);
+      const info = await api.get(`/lobby/${normalizedLobbyId}/info`);
+      const normalizedPlayerName = String(playerName || "").trim().toLowerCase();
+      const nameTaken = (info.data?.players || []).some((player) => {
+        return (
+          player.connected !== false &&
+          String(player.name || "").trim().toLowerCase() === normalizedPlayerName
+        );
+      });
+
+      if (nameTaken) {
+        throw new Error("Ime je vec zauzeto u ovom lobbyju.");
+      }
 
       this.setUserData({
         playerName,
@@ -137,6 +149,7 @@ export const useGameStore = defineStore("game", {
           this.leaderboard = [];
           this.awardedPoints = [];
           this.finalLeaderboard = [];
+          this.finalResultsReady = false;
           this.phase = "lobby";
         }
       }
@@ -149,6 +162,7 @@ export const useGameStore = defineStore("game", {
         this.roundData = message;
         this.leaderboard = [];
         this.awardedPoints = [];
+        this.finalResultsReady = false;
         this.phase = "round";
       }
 
@@ -169,7 +183,11 @@ export const useGameStore = defineStore("game", {
 
       if (message.type === "game_finished") {
         this.finalLeaderboard = message.leaderboard || [];
-        this.phase = "finished";
+        this.finalResultsReady = true;
+
+        if (this.phase !== "leaderboard") {
+          this.phase = "finished";
+        }
       }
     },
 
@@ -234,6 +252,12 @@ export const useGameStore = defineStore("game", {
       sendWebSocketMessage({ type: "finish_song" });
     },
 
+    showFinalResults() {
+      if (this.finalResultsReady) {
+        this.phase = "finished";
+      }
+    },
+
     syncState() {
       sendWebSocketMessage({ type: "sync_state" });
     },
@@ -244,6 +268,7 @@ export const useGameStore = defineStore("game", {
       this.leaderboard = [];
       this.awardedPoints = [];
       this.finalLeaderboard = [];
+      this.finalResultsReady = false;
       this.phase = "lobby";
     },
 
@@ -264,6 +289,7 @@ export const useGameStore = defineStore("game", {
       this.leaderboard = [];
       this.awardedPoints = [];
       this.finalLeaderboard = [];
+      this.finalResultsReady = false;
       this.blockchain = [];
       this.blockchainValid = null;
       this.error = "";

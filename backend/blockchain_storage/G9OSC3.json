@@ -1,0 +1,157 @@
+{
+  "lobby_id": "G9OSC3",
+  "block_count": 10,
+  "valid": true,
+  "chain": [
+    {
+      "index": 0,
+      "timestamp": 1780566990.3420331,
+      "data": {
+        "type": "genesis",
+        "lobby_id": "G9OSC3"
+      },
+      "previous_hash": "0",
+      "hash": "3e6e28813e1698bb01440d3bf7f5190595789a8367af40626f52fbf9daf448b0"
+    },
+    {
+      "index": 1,
+      "timestamp": 1780566990.3435438,
+      "data": {
+        "type": "lobby_created",
+        "lobby_id": "G9OSC3"
+      },
+      "previous_hash": "3e6e28813e1698bb01440d3bf7f5190595789a8367af40626f52fbf9daf448b0",
+      "hash": "ca59563cb220a7bdefb2453f69629a3eb49df7427e487afd4f772e2ea853a4cb"
+    },
+    {
+      "index": 2,
+      "timestamp": 1780566990.3444796,
+      "data": {
+        "type": "game_started",
+        "game_number": 1
+      },
+      "previous_hash": "ca59563cb220a7bdefb2453f69629a3eb49df7427e487afd4f772e2ea853a4cb",
+      "hash": "2668a93b1f865377902bb357999bf1555ea8b7965747de8a1ec97d34aed15251"
+    },
+    {
+      "index": 3,
+      "timestamp": 1780566990.3536007,
+      "data": {
+        "type": "player_join",
+        "player": "marta"
+      },
+      "previous_hash": "2668a93b1f865377902bb357999bf1555ea8b7965747de8a1ec97d34aed15251",
+      "hash": "21aab03afc3d55eb316d230c8b721a49f8f88501fde69b8a384473d54d82fc46"
+    },
+    {
+      "index": 4,
+      "timestamp": 1780566990.3549488,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "join_lobby"
+      },
+      "previous_hash": "21aab03afc3d55eb316d230c8b721a49f8f88501fde69b8a384473d54d82fc46",
+      "hash": "1c0255a8ad14a23c19319ce2e4c7dfe0e6fe11f4a6dc7f448dc462cee90e3578"
+    },
+    {
+      "index": 5,
+      "timestamp": 1780566991.6320324,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 1,
+        "decade": "80s",
+        "song_commitment": "e99336aa6dd49e43a6ef4d24217ba17d5e4d1988e1764d6d17a9b1b62677a010"
+      },
+      "previous_hash": "1c0255a8ad14a23c19319ce2e4c7dfe0e6fe11f4a6dc7f448dc462cee90e3578",
+      "hash": "92eff39a83f9c5be6490c35c64e118ed18c6e865a5d31ddc4cd62efc40a62edd"
+    },
+    {
+      "index": 6,
+      "timestamp": 1780567026.639712,
+      "data": {
+        "type": "song_result",
+        "game_number": 1,
+        "song_title": "You're My Heart, You're My Soul",
+        "artist": "Modern Talking",
+        "year": 1989,
+        "decade": "80s",
+        "round": 1,
+        "song_number": 1,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 1989,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": true,
+            "gained_points": 300,
+            "total_score": 300
+          }
+        ],
+        "song_commitment": "e99336aa6dd49e43a6ef4d24217ba17d5e4d1988e1764d6d17a9b1b62677a010"
+      },
+      "previous_hash": "92eff39a83f9c5be6490c35c64e118ed18c6e865a5d31ddc4cd62efc40a62edd",
+      "hash": "badeb132254bc2472c2aadccb63fce8e78830c076b42cdbe622c06219a650964"
+    },
+    {
+      "index": 7,
+      "timestamp": 1780567028.697992,
+      "data": {
+        "type": "round_started",
+        "game_number": 1,
+        "round": 1,
+        "song_number": 2,
+        "decade": "2000s",
+        "song_commitment": "e31c0c12bce5e9f8799d6efcd2a01371ff9bf826cac8b2fc9046728c178a4938"
+      },
+      "previous_hash": "badeb132254bc2472c2aadccb63fce8e78830c076b42cdbe622c06219a650964",
+      "hash": "05e7a00cded0ba4914be85e5324cfae54e9f6bcd43375577790887ff01d3873b"
+    },
+    {
+      "index": 8,
+      "timestamp": 1780567063.716026,
+      "data": {
+        "type": "song_result",
+        "game_number": 1,
+        "song_title": "It's Been Awhile",
+        "artist": "Staind",
+        "year": 2002,
+        "decade": "2000s",
+        "round": 1,
+        "song_number": 2,
+        "awarded_points": [
+          {
+            "name": "marta",
+            "title_answer": "",
+            "artist_answer": "",
+            "year_answer": 2000,
+            "title_correct": false,
+            "artist_correct": false,
+            "year_correct": false,
+            "gained_points": 0,
+            "total_score": 300
+          }
+        ],
+        "song_commitment": "e31c0c12bce5e9f8799d6efcd2a01371ff9bf826cac8b2fc9046728c178a4938"
+      },
+      "previous_hash": "05e7a00cded0ba4914be85e5324cfae54e9f6bcd43375577790887ff01d3873b",
+      "hash": "9b3c987788780a1df69834dccef70a3515bd85772378a99fb9f68f3c12d7d212"
+    },
+    {
+      "index": 9,
+      "timestamp": 1780567251.3486629,
+      "data": {
+        "type": "auth_event",
+        "player": "marta",
+        "action": "disconnect"
+      },
+      "previous_hash": "9b3c987788780a1df69834dccef70a3515bd85772378a99fb9f68f3c12d7d212",
+      "hash": "0a0426342cf7148d495f345c84efed61da2726ff7e90bd6919f78066c314004b"
+    }
+  ]
+}

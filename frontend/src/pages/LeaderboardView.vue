@@ -45,30 +45,35 @@
         <LeaderboardTable :leaderboard="roundBoard" :title="''" />
 
         <div class="actions">
-          <button v-if="store.isHost" type="button" @click="nextSong">Next</button>
+          <button v-if="isFinalRoundLeaderboard" type="button" @click="showFinalResults">
+            Next
+          </button>
+          <button v-else-if="store.isHost" type="button" @click="nextSong">Next</button>
           <p v-else class="waiting-text">Waiting for host...</p>
         </div>
       </div>
 
       <div v-else class="panel final-panel">
         <div v-if="!showFullFinalLeaderboard" class="podium">
-          <div v-if="isPodiumRankVisible(2) && topThree[1]" class="place-label second-label">#2</div>
-          <div v-if="isPodiumRankVisible(1) && topThree[0]" class="place-label first-label">#1</div>
-          <div v-if="isPodiumRankVisible(3) && topThree[2]" class="place-label third-label">#3</div>
-
           <div v-if="isPodiumRankVisible(2) && topThree[1]" class="podium-card second">
+            <div class="place-label">#2</div>
             <div class="podium-avatar">{{ topThree[1].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[1].name }}</div>
+            <div class="podium-score">{{ topThree[1].score }}</div>
           </div>
 
           <div v-if="isPodiumRankVisible(1) && topThree[0]" class="podium-card first">
+            <div class="place-label">#1</div>
             <div class="podium-avatar">{{ topThree[0].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[0].name }}</div>
+            <div class="podium-score">{{ topThree[0].score }}</div>
           </div>
 
           <div v-if="isPodiumRankVisible(3) && topThree[2]" class="podium-card third">
+            <div class="place-label">#3</div>
             <div class="podium-avatar">{{ topThree[2].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[2].name }}</div>
+            <div class="podium-score">{{ topThree[2].score }}</div>
           </div>
         </div>
 
@@ -130,6 +135,10 @@ const sortedAwardedPoints = computed(() => {
   return [...store.awardedPoints].sort((a, b) => b.total_score - a.total_score);
 });
 
+const isFinalRoundLeaderboard = computed(() => {
+  return store.phase === "leaderboard" && store.finalResultsReady;
+});
+
 function findAvatar(name) {
   return store.players.find((player) => player.name === name)?.avatar || "🎵";
 }
@@ -141,6 +150,10 @@ function isPodiumRankVisible(rank) {
 function nextSong() {
   store.startRound();
   router.push("/game");
+}
+
+function showFinalResults() {
+  store.showFinalResults();
 }
 
 function goLobby() {
@@ -498,7 +511,7 @@ button {
   align-items: end;
   gap: 16px;
   min-height: 330px;
-  padding: 48px 36px 10px;
+  padding: 28px 28px 14px;
   border: 1px solid rgba(58, 112, 196, 0.34);
   border-radius: 18px;
   background:
@@ -510,42 +523,33 @@ button {
 }
 
 .place-label {
-  position: absolute;
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  min-height: 50px;
+  margin-bottom: 14px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
   color: var(--text-blue-strong);
-  font-size: 58px;
+  font-size: 36px;
   font-style: italic;
-  font-weight: 500;
-  opacity: 0;
+  font-weight: 900;
   transform-origin: center bottom;
-  animation: xpRankPop 0.44s cubic-bezier(0.2, 1.24, 0.38, 1) forwards;
-}
-
-.first-label {
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%) scale(0.92);
-  animation-name: xpFirstRankPop;
-  animation-delay: 0.12s;
-}
-
-.second-label {
-  top: 104px;
-  left: 82px;
-  animation-delay: 0.24s;
-}
-
-.third-label {
-  top: 154px;
-  right: 86px;
-  animation-delay: 0.34s;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 6px 14px rgba(29, 76, 148, 0.14);
 }
 
 .podium-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 0;
+  padding: 18px 12px 16px;
   border: 1px solid rgba(255, 255, 255, 0.86);
   border-radius: 8px 8px 0 0;
   color: #07377e;
@@ -585,7 +589,7 @@ button {
 }
 
 .podium-avatar {
-  font-size: 44px;
+  font-size: 42px;
 }
 
 .podium-name {
@@ -597,6 +601,14 @@ button {
   opacity: 0;
   animation: xpNameGlow 0.52s ease-out forwards;
   animation-delay: 0.34s;
+}
+
+.podium-score {
+  margin-top: 8px;
+  color: #174d9d;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 900;
 }
 
 .podium-card.second .podium-name {
@@ -624,30 +636,6 @@ button {
     opacity: 1;
     transform: translateY(0) scaleY(1) scaleX(1);
     filter: brightness(1) saturate(1);
-  }
-}
-
-@keyframes xpRankPop {
-  0% {
-    opacity: 0;
-    transform: translateY(18px) scale(0.86);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes xpFirstRankPop {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(18px) scale(0.86);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 
@@ -703,15 +691,20 @@ button {
     padding: 18px 8px 10px;
   }
 
-  .place-label {
-    display: none;
-  }
-
   .podium-card {
     grid-column: auto !important;
     grid-row: auto !important;
     border-radius: 16px;
-    height: 140px !important;
+    height: auto !important;
+    min-height: 132px;
+    padding: 14px 12px;
+  }
+
+  .place-label {
+    min-width: 58px;
+    min-height: 38px;
+    margin-bottom: 8px;
+    font-size: 26px;
   }
 
   .actions,

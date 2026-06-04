@@ -40,7 +40,7 @@
               :server-time-offset="store.serverTimeOffset"
               :play-audio="true"
               :countdown-active="showCountdown"
-              :initially-muted="!store.roundData.is_host_turn"
+              :initially-muted="false"
             />
 
             <div v-if="showCountdown" class="countdown-box">

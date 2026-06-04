@@ -1,6 +1,8 @@
 import os
 import random
+import re
 import threading
+import unicodedata
 
 from services.metadata_cache import load_metadata_cache, save_metadata_cache
 from services.song_discovery import discover_songs_for_decade
@@ -37,13 +39,20 @@ class SongCache:
         self.background_fill_running = False
 
     def generate_start_time(self, duration_seconds):
-        if duration_seconds <= 140:
-            return random.randint(20, 35)
+        duration_seconds = int(duration_seconds or 180)
 
-        if duration_seconds <= 220:
-            return random.randint(25, 55)
+        if duration_seconds <= 90:
+            return max(0, duration_seconds // 3)
 
-        return random.randint(30, 70)
+        latest_start = max(20, duration_seconds - 35)
+        earliest_start = min(45, latest_start)
+        middle_start = int(duration_seconds * 0.45)
+        middle_end = int(duration_seconds * 0.65)
+
+        start_min = max(earliest_start, min(middle_start, latest_start))
+        start_max = max(start_min, min(middle_end, latest_start))
+
+        return random.randint(start_min, start_max)
 
     def load_from_metadata_cache(self):
         metadata_cache = load_metadata_cache()
@@ -308,11 +317,44 @@ class SongCache:
         year = song.get("year")
         return f"{artist}|{title}|{year}"
 
-    def get_song(self, decade, used_songs, last_artist, used_song_keys=None):
+    def normalize_artist_text(self, value):
+        text = str(value or "").strip().lower()
+        text = unicodedata.normalize("NFKD", text)
+        text = "".join(char for char in text if not unicodedata.combining(char))
+        text = text.replace("&", " and ")
+        text = text.replace("+", " and ")
+        text = re.sub(r"[â€™'`Â´]", "", text)
+        text = re.sub(r"[-_/.,:;!?()\\[\\]{}\"|]+", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
+    def artist_identities(self, value):
+        normalized = self.normalize_artist_text(value)
+        identities = {normalized} if normalized else set()
+
+        for part in re.split(r"\b(?:and|feat|ft|featuring|with|x|y)\b|,", str(value or "").lower()):
+            cleaned = self.normalize_artist_text(part)
+            if cleaned:
+                identities.add(cleaned)
+
+        return identities
+
+    def artist_was_used(self, song, used_artists):
+        return bool(self.artist_identities(song.get("artist")) & used_artists)
+
+    def get_song(
+        self,
+        decade,
+        used_songs,
+        last_artist,
+        used_song_keys=None,
+        used_artists=None
+    ):
         if decade not in self.cache:
             return None
 
         used_song_keys = used_song_keys or set()
+        used_artists = used_artists or set()
 
         with self.cache_lock:
             songs_for_decade = list(self.cache[decade])
@@ -321,6 +363,7 @@ class SongCache:
             song for song in songs_for_decade
             if song.get("youtube_id") not in used_songs
             and song.get("artist") != last_artist
+            and not self.artist_was_used(song, used_artists)
             and song.get("year") is not None
             and song.get("title")
             and song.get("artist")
@@ -331,6 +374,7 @@ class SongCache:
             available = [
                 song for song in songs_for_decade
                 if song.get("youtube_id") not in used_songs
+                and not self.artist_was_used(song, used_artists)
                 and song.get("year") is not None
                 and song.get("title")
                 and song.get("artist")

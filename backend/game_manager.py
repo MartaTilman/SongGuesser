@@ -22,10 +22,17 @@ class GameManager:
             1: 15,
             2: 12,
             3: 9,
-            4: 9,
-            5: 6
         }
         return durations.get(round_number, 6)
+
+    def get_songs_per_round(self, game, round_number=None):
+        target_round = round_number or game.current_round
+        configured_counts = getattr(game, "songs_per_round_by_round", None)
+
+        if configured_counts:
+            return configured_counts.get(target_round, game.songs_per_round)
+
+        return game.songs_per_round
 
     def generate_year_options(self, correct_year):
         candidates = [
@@ -88,6 +95,18 @@ class GameManager:
         ]
 
         return " ".join(filtered_tokens).strip()
+
+    def get_artist_identities(self, value):
+        normalized = self.normalize_text(value)
+        simplified = self.simplify_artist_text(value)
+        identities = {item for item in [normalized, simplified] if item}
+
+        for part in re.split(r"\b(?:and|feat|ft|featuring|with|x|y)\b|,", str(value or "").lower()):
+            simplified_part = self.simplify_artist_text(part)
+            if simplified_part:
+                identities.add(simplified_part)
+
+        return identities
 
     def simplify_title_text(self, value):
         text = self.normalize_text(value)
@@ -182,11 +201,19 @@ class GameManager:
         return max(score, 300)
 
     def get_min_ready_count(self, game):
+        remaining_songs = 0
+
+        for round_number in range(game.current_round, game.total_rounds + 1):
+            songs_in_round = self.get_songs_per_round(game, round_number)
+
+            if round_number == game.current_round:
+                remaining_songs += max(0, songs_in_round - game.current_song_in_round + 1)
+            else:
+                remaining_songs += songs_in_round
+
         remaining_songs = max(
             1,
-            (game.total_rounds - game.current_round) * game.songs_per_round
-            + (game.songs_per_round - game.current_song_in_round)
-            + 1
+            remaining_songs
         )
 
         return min(5, remaining_songs)
@@ -213,7 +240,7 @@ class GameManager:
             "decade": game.current_decade,
             "round": game.current_round,
             "song_number": game.current_song_in_round,
-            "songs_per_round": game.songs_per_round,
+            "songs_per_round": self.get_songs_per_round(game),
             "clip_started_at": game.clip_started_at,
             "round_ends_at": game.round_ends_at,
             "server_time": time.time(),
@@ -290,7 +317,8 @@ class GameManager:
                 decade=decade,
                 used_songs=game.used_songs,
                 last_artist=game.last_artist,
-                used_song_keys=game.used_song_keys
+                used_song_keys=game.used_song_keys,
+                used_artists=game.used_artists
             )
 
             if found_song is not None:
@@ -317,6 +345,7 @@ class GameManager:
         game.used_song_keys.add(
             f"{self.normalize_text(song.get('artist'))}|{self.normalize_text(song.get('title'))}|{song.get('year')}"
         )
+        game.used_artists.update(self.get_artist_identities(song.get("artist")))
         game.last_artist = song["artist"]
 
         game.current_song = song
@@ -357,7 +386,7 @@ class GameManager:
             self.round_tasks[lobby_id].cancel()
 
         self.round_tasks[lobby_id] = asyncio.create_task(
-            self.auto_finish_round(lobby_id, countdown_seconds + clip_duration + answer_window)
+            self.auto_finish_round(lobby_id, countdown_seconds + clip_duration + answer_window + 1)
         )
 
     async def auto_finish_round(self, lobby_id, delay):
@@ -386,9 +415,6 @@ class GameManager:
             "year_answer": year_answer,
             "time": time.time()
         })
-
-        if len(game.answers) >= len(game.players):
-            await self.finish_song(lobby_id)
 
     async def finish_song(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
@@ -513,11 +539,14 @@ class GameManager:
 
             await self.send_result_payloads(lobby_id, result_payload)
 
-            if game.current_song_in_round < game.songs_per_round:
+            songs_in_current_round = self.get_songs_per_round(game)
+
+            if game.current_song_in_round < songs_in_current_round:
                 game.current_song_in_round += 1
             else:
                 game.current_song_in_round = 1
                 game.current_round += 1
+                game.songs_per_round = self.get_songs_per_round(game)
 
             game.current_song = None
             game.current_decade = None

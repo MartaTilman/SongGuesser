@@ -70,7 +70,14 @@ Optional:
 ```env
 OPENAI_API_KEY=your_openai_api_key
 YOUTUBE_DISCOVERY_ATTEMPT_BUDGET=40
+DATABASE_URL=postgresql://user:password@host:5432/database
 ```
+
+`DATABASE_URL` is optional locally. If it is not set, the backend keeps using
+`backend/song_metadata_cache.json`. For deployment, set `DATABASE_URL` to an
+online PostgreSQL database URL, for example Render Postgres, Supabase, or Neon.
+On first start with an empty database, the backend seeds the database from the
+local JSON cache, then stores newly discovered songs in PostgreSQL.
 
 For the deployed frontend, set these Vercel environment variables:
 

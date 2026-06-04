@@ -19,13 +19,20 @@ MIN_TOTAL_SCORE = 70
 
 
 def generate_start_time(duration_seconds):
-    if duration_seconds <= 140:
-        return random.randint(20, 35)
+    duration_seconds = int(duration_seconds or 180)
 
-    if duration_seconds <= 220:
-        return random.randint(25, 55)
+    if duration_seconds <= 90:
+        return max(0, duration_seconds // 3)
 
-    return random.randint(30, 70)
+    latest_start = max(20, duration_seconds - 35)
+    earliest_start = min(45, latest_start)
+    middle_start = int(duration_seconds * 0.45)
+    middle_end = int(duration_seconds * 0.65)
+
+    start_min = max(earliest_start, min(middle_start, latest_start))
+    start_max = max(start_min, min(middle_end, latest_start))
+
+    return random.randint(start_min, start_max)
 
 
 def get_min_parse_confidence(target_decade):

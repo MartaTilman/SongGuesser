@@ -35,20 +35,11 @@
         </div>
       </div>
     </div>
-
-    <button
-      class="submit-btn"
-      type="button"
-      :disabled="submitted || !canAnswer"
-      @click="submit"
-    >
-      {{ submitted ? "Answer submitted" : "Submit answer" }}
-    </button>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   canAnswer: Boolean,
@@ -68,6 +59,7 @@ const titleAnswer = ref("");
 const artistAnswer = ref("");
 const yearAnswer = ref(null);
 const submitted = ref(false);
+const answerWindowOpened = ref(false);
 
 function submit() {
   if (submitted.value) return;
@@ -80,6 +72,32 @@ function submit() {
 
   submitted.value = true;
 }
+
+watch(
+  () => props.canAnswer,
+  (canAnswer) => {
+    if (canAnswer) {
+      answerWindowOpened.value = true;
+      return;
+    }
+
+    if (answerWindowOpened.value) {
+      submit();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.roundEndsAt,
+  () => {
+    submitted.value = false;
+    answerWindowOpened.value = false;
+    titleAnswer.value = "";
+    artistAnswer.value = "";
+    yearAnswer.value = null;
+  }
+);
 </script>
 
 <style scoped>
@@ -140,8 +158,7 @@ input::placeholder {
   gap: 14px 16px;
 }
 
-.year-grid button,
-.submit-btn {
+.year-grid button {
   border: 1px solid rgba(165, 214, 255, 0.2);
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(59, 97, 171, 0.35), rgba(17, 31, 66, 0.55));
@@ -160,22 +177,7 @@ input::placeholder {
   color: white;
 }
 
-.submit-btn {
-  display: block;
-  min-width: 192px;
-  margin: 18px auto 0;
-  padding: 14px 22px;
-  background: linear-gradient(180deg, #5db3ff 0%, #315fb8 100%);
-  color: white;
-  font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  box-shadow: 0 10px 22px rgba(30, 82, 170, 0.28);
-}
-
 .year-grid button:disabled,
-.submit-btn:disabled,
 input:disabled {
   opacity: 0.72;
   cursor: not-allowed;
@@ -213,12 +215,6 @@ input:disabled {
 
   .year-grid button {
     min-height: 46px;
-  }
-
-  .submit-btn {
-    width: 100%;
-    min-width: 0;
-    padding-inline: 14px;
   }
 }
 </style>

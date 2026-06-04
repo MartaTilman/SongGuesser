@@ -17,12 +17,18 @@ class Lobby:
         self.last_result_payload = None
         self.used_songs = set()
         self.used_song_keys = set()
+        self.used_artists = set()
         self.last_artist = None
         self.current_game_number = 1
         self.current_round = 1
         self.current_song_in_round = 1
-        self.songs_per_round = 5
-        self.total_rounds = 5
+        self.songs_per_round_by_round = {
+            1: 5,
+            2: 5,
+            3: 6
+        }
+        self.songs_per_round = self.songs_per_round_by_round[1]
+        self.total_rounds = len(self.songs_per_round_by_round)
         self.answer_phase_started_at = None
         self.clip_started_at = None
         self.round_ends_at = None
@@ -38,6 +44,9 @@ class Lobby:
         self.answers = []
         self.finishing_song = False
         self.last_result_payload = None
+        self.used_songs = set()
+        self.used_song_keys = set()
+        self.used_artists = set()
         self.last_artist = None
         self.answer_phase_started_at = None
         self.clip_started_at = None
@@ -87,6 +96,9 @@ class LobbyManager:
 
         for index, existing_player in enumerate(lobby.players):
             if player.name.lower() == existing_player.name.lower():
+                if existing_player.connected:
+                    raise ValueError("Ime je vec zauzeto u ovom lobbyju.")
+
                 player.score = existing_player.score
                 player.answers = existing_player.answers
                 player.connected = True

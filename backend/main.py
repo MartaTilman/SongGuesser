@@ -87,7 +87,7 @@ def get_lobby_info(lobby_id: str):
         "current_round": lobby.current_round,
         "current_game_number": lobby.current_game_number,
         "current_song_in_round": lobby.current_song_in_round,
-        "songs_per_round": lobby.songs_per_round,
+        "songs_per_round": game_manager.get_songs_per_round(lobby),
         "total_rounds": lobby.total_rounds,
     }
 
