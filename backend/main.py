@@ -9,6 +9,12 @@ from blockchain.blockchain import list_saved_blockchains, load_saved_blockchain
 from game_manager import GameManager, song_cache
 from lobby_manager import LobbyManager
 from models.player import Player
+from services.metadata_cache import (
+    connect_to_database,
+    ensure_song_cache_table,
+    load_metadata_cache_from_file,
+    should_use_database,
+)
 
 
 @asynccontextmanager
@@ -48,6 +54,48 @@ game_manager = GameManager(lobby_manager)
 def root():
     return {
         "status": "backend running",
+        "cache_background_fill_running": song_cache.background_fill_running
+    }
+
+
+@app.get("/cache/status")
+def get_cache_status():
+    if should_use_database():
+        try:
+            with connect_to_database() as conn:
+                ensure_song_cache_table(conn)
+
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        SELECT COUNT(*), MAX(updated_at)
+                        FROM song_metadata_cache
+                        """
+                    )
+                    song_count, latest_update = cur.fetchone()
+
+            return {
+                "using_database": True,
+                "database_connected": True,
+                "song_count": song_count,
+                "latest_update": latest_update.isoformat() if latest_update else None,
+                "cache_background_fill_running": song_cache.background_fill_running
+            }
+        except Exception:
+            return {
+                "using_database": True,
+                "database_connected": False,
+                "song_count": None,
+                "latest_update": None,
+                "cache_background_fill_running": song_cache.background_fill_running
+            }
+
+    file_cache = load_metadata_cache_from_file()
+    return {
+        "using_database": False,
+        "database_connected": False,
+        "song_count": len(file_cache),
+        "latest_update": None,
         "cache_background_fill_running": song_cache.background_fill_running
     }
 
