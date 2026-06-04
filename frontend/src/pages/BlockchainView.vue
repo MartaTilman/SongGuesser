@@ -8,6 +8,12 @@
           {{ store.blockchainValid ? "VALIDAN" : "NEVALIDAN" }}
         </strong>
       </p>
+      <p v-if="store.blockchainConsensus">
+        Consensus: <strong>{{ formatConsensus(store.blockchainConsensus) }}</strong>
+        <span v-if="store.blockchainDifficulty">
+          | Difficulty: <strong>{{ store.blockchainDifficulty }}</strong>
+        </span>
+      </p>
 
       <div class="actions">
         <button type="button" @click="refresh">Osvježi</button>
@@ -19,6 +25,8 @@
           <h3>Blok #{{ block.index }}</h3>
           <p><strong>Hash:</strong> {{ block.hash }}</p>
           <p><strong>Previous:</strong> {{ block.previous_hash }}</p>
+          <p v-if="block.nonce !== undefined"><strong>Nonce:</strong> {{ block.nonce }}</p>
+          <p v-if="block.difficulty !== undefined"><strong>Difficulty:</strong> {{ block.difficulty }}</p>
           <p><strong>Timestamp:</strong> {{ formatTime(block.timestamp) }}</p>
 
           <pre>{{ JSON.stringify(block.data, null, 2) }}</pre>
@@ -60,6 +68,10 @@ function goBack() {
 
 function formatTime(timestamp) {
   return new Date(timestamp * 1000).toLocaleString();
+}
+
+function formatConsensus(consensus) {
+  return String(consensus || "").replaceAll("_", " ").toUpperCase();
 }
 </script>
 

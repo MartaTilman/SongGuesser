@@ -195,6 +195,8 @@ def get_blockchain(lobby_id: str):
     if lobby:
         return {
             "valid": lobby.blockchain.is_valid(),
+            "consensus": "proof_of_work",
+            "difficulty": lobby.blockchain.difficulty,
             "chain": lobby.blockchain.to_list()
         }
 

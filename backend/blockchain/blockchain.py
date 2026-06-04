@@ -1,11 +1,28 @@
 import json
 import hashlib
+import os
 from pathlib import Path
 
 from blockchain.block import Block
 
 
 DEFAULT_STORAGE_DIR = Path(__file__).resolve().parent.parent / "blockchain_storage"
+DEFAULT_DIFFICULTY = 3
+
+
+def get_blockchain_difficulty():
+    raw_difficulty = os.getenv("BLOCKCHAIN_DIFFICULTY")
+
+    if raw_difficulty:
+        try:
+            return max(1, int(raw_difficulty))
+        except ValueError:
+            print(
+                "Invalid BLOCKCHAIN_DIFFICULTY value. "
+                f"Using default={DEFAULT_DIFFICULTY}"
+            )
+
+    return DEFAULT_DIFFICULTY
 
 
 class Blockchain:
@@ -13,6 +30,7 @@ class Blockchain:
     def __init__(self, lobby_id, storage_dir=None, autoload=True):
         self.lobby_id = str(lobby_id).upper()
         self.storage_dir = Path(storage_dir or DEFAULT_STORAGE_DIR)
+        self.difficulty = get_blockchain_difficulty()
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self.file_path = self.storage_dir / f"{self.lobby_id}.json"
 
@@ -23,14 +41,17 @@ class Blockchain:
             self.save()
 
     def create_genesis_block(self):
-        return Block(
+        genesis = Block(
             0,
             {
                 "type": "genesis",
                 "lobby_id": self.lobby_id
             },
-            "0"
+            "0",
+            difficulty=self.difficulty
         )
+        genesis.mine()
+        return genesis
 
     def get_latest_block(self):
         return self.chain[-1]
@@ -41,8 +62,10 @@ class Blockchain:
         new_block = Block(
             index=len(self.chain),
             data=data,
-            previous_hash=previous_block.hash
+            previous_hash=previous_block.hash,
+            difficulty=self.difficulty
         )
+        new_block.mine()
 
         self.chain.append(new_block)
         self.save()
@@ -139,6 +162,8 @@ class Blockchain:
             "lobby_id": self.lobby_id,
             "block_count": len(self.chain),
             "valid": self.is_valid(),
+            "consensus": "proof_of_work",
+            "difficulty": self.difficulty,
             "chain": self.to_list()
         }
 
@@ -175,6 +200,13 @@ class Blockchain:
         if genesis.hash != genesis.calculate_hash():
             return False
 
+        if genesis.schema_version >= 2:
+            if genesis.difficulty < 1:
+                return False
+
+            if not genesis.hash.startswith("0" * genesis.difficulty):
+                return False
+
         for i in range(1, len(self.chain)):
             current = self.chain[i]
             previous = self.chain[i - 1]
@@ -187,6 +219,13 @@ class Blockchain:
 
             if current.previous_hash != previous.hash:
                 return False
+
+            if current.schema_version >= 2:
+                if current.difficulty < 1:
+                    return False
+
+                if not current.hash.startswith("0" * current.difficulty):
+                    return False
 
         return True
 

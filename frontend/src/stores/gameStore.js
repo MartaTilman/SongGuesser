@@ -24,6 +24,8 @@ export const useGameStore = defineStore("game", {
     finalResultsReady: false,
     blockchain: [],
     blockchainValid: null,
+    blockchainConsensus: "",
+    blockchainDifficulty: null,
 
     error: "",
     phase: "lobby",
@@ -217,6 +219,8 @@ export const useGameStore = defineStore("game", {
       const res = await api.get(`/lobby/${this.lobbyId}/blockchain`);
       this.blockchain = res.data.chain || [];
       this.blockchainValid = res.data.valid;
+      this.blockchainConsensus = res.data.consensus || "";
+      this.blockchainDifficulty = res.data.difficulty ?? null;
     },
 
     startRound() {
@@ -292,6 +296,8 @@ export const useGameStore = defineStore("game", {
       this.finalResultsReady = false;
       this.blockchain = [];
       this.blockchainValid = null;
+      this.blockchainConsensus = "";
+      this.blockchainDifficulty = null;
       this.error = "";
       this.phase = "lobby";
       this.serverTimeOffset = 0;
