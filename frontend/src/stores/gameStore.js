@@ -6,6 +6,11 @@ import {
   wasManualClose
 } from "../services/websocket";
 import api from "../services/api";
+import {
+  buildSignedAction,
+  ensureWallet,
+  signPayload
+} from "../services/wallet";
 
 export const useGameStore = defineStore("game", {
   state: () => ({
@@ -26,6 +31,9 @@ export const useGameStore = defineStore("game", {
     blockchainValid: null,
     blockchainConsensus: "",
     blockchainDifficulty: null,
+    walletPublicKey: null,
+    walletPrivateKey: null,
+    joinSignature: null,
 
     error: "",
     phase: "lobby",
@@ -38,7 +46,24 @@ export const useGameStore = defineStore("game", {
   },
 
   actions: {
-    setUserData({ playerName, lobbyId, avatar }) {
+    async prepareWallet() {
+      const wallet = await ensureWallet();
+      this.walletPublicKey = wallet.publicKey;
+      this.walletPrivateKey = wallet.privateKey;
+
+      const joinPayload = buildSignedAction(
+        "join_lobby",
+        this.lobbyId,
+        this.playerName,
+        {
+          avatar: this.avatar
+        }
+      );
+
+      this.joinSignature = await signPayload(this.walletPrivateKey, joinPayload);
+    },
+
+    async setUserData({ playerName, lobbyId, avatar }) {
       this.playerName = playerName;
       this.lobbyId = String(lobbyId || "").trim().toUpperCase();
       this.avatar = avatar;
@@ -46,6 +71,8 @@ export const useGameStore = defineStore("game", {
       localStorage.setItem("playerName", playerName);
       localStorage.setItem("lobbyId", this.lobbyId);
       localStorage.setItem("avatar", avatar);
+
+      await this.prepareWallet();
     },
 
     async createLobby(playerName, avatar) {
@@ -56,7 +83,7 @@ export const useGameStore = defineStore("game", {
         throw new Error("Generiranje lobby koda nije uspjelo.");
       }
 
-      this.setUserData({
+      await this.setUserData({
         playerName,
         lobbyId: generatedLobbyId,
         avatar
@@ -85,7 +112,7 @@ export const useGameStore = defineStore("game", {
         throw new Error("Ime je vec zauzeto u ovom lobbyju.");
       }
 
-      this.setUserData({
+      await this.setUserData({
         playerName,
         lobbyId: normalizedLobbyId,
         avatar
@@ -94,8 +121,12 @@ export const useGameStore = defineStore("game", {
       return normalizedLobbyId;
     },
 
-    connect() {
+    async connect() {
       if (!this.lobbyId || !this.playerName) return;
+
+      if (!this.walletPublicKey || !this.joinSignature) {
+        await this.prepareWallet();
+      }
 
       connectWebSocket(
         this.lobbyId,
@@ -123,7 +154,11 @@ export const useGameStore = defineStore("game", {
             this.connect();
           }, 800);
         },
-        this.avatar
+        this.avatar,
+        {
+          publicKey: this.walletPublicKey,
+          joinSignature: this.joinSignature
+        }
       );
     },
 
@@ -223,9 +258,9 @@ export const useGameStore = defineStore("game", {
       this.blockchainDifficulty = res.data.difficulty ?? null;
     },
 
-    startRound() {
+    async startRound() {
       if (!this.connected) {
-        this.connect();
+        await this.connect();
       }
 
       const sent = sendWebSocketMessage({ type: "start_round" });
@@ -235,20 +270,40 @@ export const useGameStore = defineStore("game", {
       }
     },
 
-    requestGameReset() {
+    async requestGameReset() {
       if (!this.connected) {
-        this.connect();
+        await this.connect();
       }
 
       sendWebSocketMessage({ type: "reset_game" });
     },
 
-    submitAnswer(payload) {
+    async submitAnswer(payload) {
+      if (!this.walletPrivateKey) {
+        await this.prepareWallet();
+      }
+
+      const signedPayload = buildSignedAction(
+        "submit_answer",
+        this.lobbyId,
+        this.playerName,
+        {
+          game_number: this.roundData?.game_number,
+          round: this.roundData?.round,
+          song_number: this.roundData?.song_number,
+          title_answer: payload.title_answer,
+          artist_answer: payload.artist_answer,
+          year_answer: payload.year_answer
+        }
+      );
+      const signature = await signPayload(this.walletPrivateKey, signedPayload);
+
       sendWebSocketMessage({
         type: "answer",
         title_answer: payload.title_answer,
         artist_answer: payload.artist_answer,
-        year_answer: payload.year_answer
+        year_answer: payload.year_answer,
+        signature
       });
     },
 
@@ -298,6 +353,9 @@ export const useGameStore = defineStore("game", {
       this.blockchainValid = null;
       this.blockchainConsensus = "";
       this.blockchainDifficulty = null;
+      this.walletPublicKey = null;
+      this.walletPrivateKey = null;
+      this.joinSignature = null;
       this.error = "";
       this.phase = "lobby";
       this.serverTimeOffset = 0;

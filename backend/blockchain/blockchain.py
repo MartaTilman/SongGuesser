@@ -1,9 +1,9 @@
 import json
-import hashlib
 import os
 from pathlib import Path
 
 from blockchain.block import Block
+from blockchain.crypto_utils import canonical_json, generate_salt, sha256_hex
 
 
 DEFAULT_STORAGE_DIR = Path(__file__).resolve().parent.parent / "blockchain_storage"
@@ -84,11 +84,28 @@ class Blockchain:
             "player": player_name
         })
 
+    def add_player_identity(self, player_name, public_key_jwk, join_signature_valid):
+        self.add_block({
+            "type": "player_identity",
+            "player": player_name,
+            "public_key": public_key_jwk,
+            "join_signature_valid": bool(join_signature_valid)
+        })
+
     def add_auth_event(self, player_name, action):
         self.add_block({
             "type": "auth_event",
             "player": player_name,
             "action": action
+        })
+
+    def add_signed_action(self, player_name, action, payload_hash, signature_valid):
+        self.add_block({
+            "type": "signed_action",
+            "player": player_name,
+            "action": action,
+            "payload_hash": payload_hash,
+            "signature_valid": bool(signature_valid)
         })
 
     def add_game_started(self, game_number):
@@ -131,13 +148,16 @@ class Blockchain:
         round_number,
         song_number,
         awarded_points,
-        song_commitment=None
+        youtube_id=None,
+        song_commitment=None,
+        song_salt=None
     ):
         data = {
             "type": "song_result",
             "game_number": game_number,
             "song_title": song_title,
             "artist": artist,
+            "youtube_id": youtube_id,
             "year": year,
             "decade": decade,
             "round": round_number,
@@ -148,14 +168,24 @@ class Blockchain:
         if song_commitment:
             data["song_commitment"] = song_commitment
 
+        if song_salt:
+            data["song_reveal"] = {
+                "salt": song_salt
+            }
+
         self.add_block(data)
 
     def add_game_finished(self, game_number, leaderboard):
+        final_proof = self.build_final_proof(game_number, leaderboard)
+
         self.add_block({
             "type": "game_finished",
             "game_number": game_number,
-            "leaderboard": leaderboard
+            "leaderboard": leaderboard,
+            "final_proof": final_proof
         })
+
+        return final_proof
 
     def save(self):
         payload = {
@@ -227,13 +257,80 @@ class Blockchain:
                 if not current.hash.startswith("0" * current.difficulty):
                     return False
 
+        return self.has_valid_song_reveals()
+
+    def has_valid_song_reveals(self):
+        commitments = {}
+
+        for block in self.chain:
+            data = block.data
+            if data.get("type") != "round_started":
+                continue
+
+            key = (
+                data.get("game_number"),
+                data.get("round"),
+                data.get("song_number")
+            )
+            commitments[key] = data.get("song_commitment")
+
+        for block in self.chain:
+            data = block.data
+            if data.get("type") != "song_result":
+                continue
+
+            reveal = data.get("song_reveal")
+            if not reveal:
+                continue
+
+            key = (
+                data.get("game_number"),
+                data.get("round"),
+                data.get("song_number")
+            )
+            expected_commitment = commitments.get(key)
+            if not expected_commitment:
+                return False
+
+            calculated_commitment = create_song_commitment(
+                self.lobby_id,
+                data.get("game_number"),
+                data.get("round"),
+                data.get("song_number"),
+                {
+                    "youtube_id": data.get("youtube_id"),
+                    "artist": data.get("artist"),
+                    "title": data.get("song_title"),
+                    "year": data.get("year")
+                },
+                reveal.get("salt")
+            )
+
+            if calculated_commitment != expected_commitment:
+                return False
+
         return True
 
     def to_list(self):
         return [block.to_dict() for block in self.chain]
 
+    def build_final_proof(self, game_number, leaderboard):
+        block_hashes = [block.hash for block in self.chain]
+        return {
+            "game_number": game_number,
+            "lobby_id": self.lobby_id,
+            "chain_hash": calculate_chain_hash(self.to_list()),
+            "merkle_root": calculate_merkle_root(block_hashes),
+            "block_count_before_final": len(self.chain),
+            "leaderboard_hash": sha256_hex(canonical_json(leaderboard)),
+            "anchor_status": "not_submitted"
+        }
 
-def create_song_commitment(lobby_id, game_number, round_number, song_number, song):
+
+def create_song_commitment(lobby_id, game_number, round_number, song_number, song, salt=None):
+    if salt is None:
+        salt = generate_salt()
+
     payload = {
         "lobby_id": str(lobby_id).upper(),
         "game_number": game_number,
@@ -242,11 +339,34 @@ def create_song_commitment(lobby_id, game_number, round_number, song_number, son
         "youtube_id": song.get("youtube_id"),
         "artist": song.get("artist"),
         "title": song.get("title"),
-        "year": song.get("year")
+        "year": song.get("year"),
+        "salt": salt
     }
 
-    payload_string = json.dumps(payload, sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(payload_string.encode("utf-8")).hexdigest()
+    return sha256_hex(canonical_json(payload))
+
+
+def calculate_chain_hash(chain):
+    return sha256_hex(canonical_json(chain))
+
+
+def calculate_merkle_root(hashes):
+    if not hashes:
+        return sha256_hex("")
+
+    level = list(hashes)
+
+    while len(level) > 1:
+        next_level = []
+
+        for index in range(0, len(level), 2):
+            left = level[index]
+            right = level[index + 1] if index + 1 < len(level) else left
+            next_level.append(sha256_hex(left + right))
+
+        level = next_level
+
+    return level[0]
 
 
 def list_saved_blockchains(storage_dir=None):

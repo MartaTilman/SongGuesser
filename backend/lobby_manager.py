@@ -2,6 +2,10 @@ import random
 import string
 
 from blockchain.blockchain import Blockchain
+from blockchain.crypto_utils import (
+    build_signed_action,
+    verify_signed_action
+)
 
 
 class Lobby:
@@ -33,6 +37,8 @@ class Lobby:
         self.clip_started_at = None
         self.round_ends_at = None
         self.year_options = []
+        self.current_song_salt = None
+        self.current_song_commitment = None
         self.blockchain = Blockchain(lobby_id)
 
     def reset_for_next_game(self):
@@ -52,6 +58,8 @@ class Lobby:
         self.clip_started_at = None
         self.round_ends_at = None
         self.year_options = []
+        self.current_song_salt = None
+        self.current_song_commitment = None
 
         for player in self.players:
             player.score = 0
@@ -101,8 +109,15 @@ class LobbyManager:
 
                 player.score = existing_player.score
                 player.answers = existing_player.answers
+                player.public_key = player.public_key or existing_player.public_key
+                player.join_signature = player.join_signature or existing_player.join_signature
                 player.connected = True
                 lobby.players[index] = player
+                lobby.blockchain.add_player_identity(
+                    player.name,
+                    player.public_key,
+                    self.verify_join_signature(lobby, player)
+                )
                 lobby.blockchain.add_auth_event(player.name, "reconnect")
                 return lobby
 
@@ -112,9 +127,32 @@ class LobbyManager:
         lobby.players.append(player)
 
         lobby.blockchain.add_player_join(player.name)
+        lobby.blockchain.add_player_identity(
+            player.name,
+            player.public_key,
+            self.verify_join_signature(lobby, player)
+        )
         lobby.blockchain.add_auth_event(player.name, "join_lobby")
 
         return lobby
+
+    def verify_join_signature(self, lobby, player):
+        expected_payload = build_signed_action(
+            "join_lobby",
+            lobby.id,
+            player.name,
+            {
+                "avatar": player.avatar
+            }
+        )
+
+        return verify_signed_action(
+            player.public_key,
+            player.join_signature,
+            "join_lobby",
+            lobby.id,
+            player.name
+        ) and player.join_signature.get("payload") == expected_payload
 
     def remove_player(self, lobby_id, player_name):
         lobby = self.lobbies.get(lobby_id)

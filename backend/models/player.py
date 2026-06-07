@@ -1,9 +1,11 @@
 class Player:
 
-    def __init__(self, name, websocket, avatar):
+    def __init__(self, name, websocket, avatar, public_key=None, join_signature=None):
         self.name = name
         self.websocket = websocket
         self.avatar = avatar
+        self.public_key = public_key
+        self.join_signature = join_signature
         self.connected = True
 
         self.score = 0
@@ -14,5 +16,6 @@ class Player:
             "name": self.name,
             "avatar": self.avatar,
             "score": self.score,
-            "connected": self.connected
+            "connected": self.connected,
+            "has_wallet": bool(self.public_key)
         }

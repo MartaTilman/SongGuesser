@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import json
 import threading
 import time
 
@@ -210,6 +211,27 @@ def get_blockchain(lobby_id: str):
     }
 
 
+@app.get("/lobby/{lobby_id}/blockchain/final-proof")
+def get_blockchain_final_proof(lobby_id: str):
+    lobby = lobby_manager.lobbies.get(lobby_id.upper())
+
+    if lobby:
+        chain = lobby.blockchain.to_list()
+    else:
+        saved_chain = load_saved_blockchain(lobby_id)
+        if saved_chain is None:
+            raise HTTPException(status_code=404, detail="Lobby not found")
+
+        chain = saved_chain.get("chain", [])
+
+    for block in reversed(chain):
+        data = block.get("data", {})
+        if data.get("type") == "game_finished" and data.get("final_proof"):
+            return data["final_proof"]
+
+    raise HTTPException(status_code=404, detail="Final proof not found")
+
+
 @app.get("/blockchain/history")
 def get_blockchain_history():
     return {"games": list_saved_blockchains()}
@@ -230,7 +252,27 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
     await websocket.accept()
 
     avatar = websocket.query_params.get("avatar", "🎵")
-    player = Player(player_name, websocket, avatar)
+    public_key = None
+    join_signature = None
+
+    try:
+        raw_public_key = websocket.query_params.get("public_key")
+        raw_join_signature = websocket.query_params.get("join_signature")
+
+        if raw_public_key:
+            public_key = json.loads(raw_public_key)
+
+        if raw_join_signature:
+            join_signature = json.loads(raw_join_signature)
+    except json.JSONDecodeError:
+        await websocket.send_json({
+            "type": "error",
+            "message": "Wallet podaci nisu validan JSON."
+        })
+        await websocket.close()
+        return
+
+    player = Player(player_name, websocket, avatar, public_key, join_signature)
     normalized_lobby_id = lobby_id.upper()
 
     try:
@@ -276,7 +318,8 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
                     player,
                     data.get("title_answer"),
                     data.get("artist_answer"),
-                    data.get("year_answer")
+                    data.get("year_answer"),
+                    data.get("signature")
                 )
 
             elif msg_type == "finish_song":

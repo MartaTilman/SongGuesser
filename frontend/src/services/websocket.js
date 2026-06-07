@@ -10,7 +10,8 @@ export function connectWebSocket(
   onMessage,
   onOpen,
   onClose,
-  avatar = "🎵"
+  avatar = "🎵",
+  wallet = {}
 ) {
   manualClose = false;
 
@@ -21,7 +22,19 @@ export function connectWebSocket(
     return socket;
   }
 
-  const wsUrl = `${WS_URL}/ws/${encodeURIComponent(lobbyId)}/${encodeURIComponent(playerName)}?avatar=${encodeURIComponent(avatar)}`;
+  const params = new URLSearchParams({
+    avatar
+  });
+
+  if (wallet.publicKey) {
+    params.set("public_key", JSON.stringify(wallet.publicKey));
+  }
+
+  if (wallet.joinSignature) {
+    params.set("join_signature", JSON.stringify(wallet.joinSignature));
+  }
+
+  const wsUrl = `${WS_URL}/ws/${encodeURIComponent(lobbyId)}/${encodeURIComponent(playerName)}?${params.toString()}`;
 
   socket = new WebSocket(wsUrl);
 

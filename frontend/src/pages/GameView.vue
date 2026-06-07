@@ -269,7 +269,7 @@ function playCountdownBeep(number) {
 
 async function requestResultSync() {
   if (!store.connected) {
-    store.connect();
+    await store.connect();
   }
 
   store.syncState();
@@ -281,20 +281,20 @@ async function requestResultSync() {
   }
 }
 
-function handleVisibilityRestore() {
+async function handleVisibilityRestore() {
   if (document.visibilityState === "hidden") {
     return;
   }
 
   if (!store.connected) {
-    store.connect();
+    await store.connect();
   }
 
   requestResultSync();
 }
 
-function submitAnswer(payload) {
-  store.submitAnswer(payload);
+async function submitAnswer(payload) {
+  await store.submitAnswer(payload);
 
   const submittedRoundKey = roundKey.value;
 

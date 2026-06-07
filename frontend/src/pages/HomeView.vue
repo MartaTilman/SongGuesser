@@ -135,7 +135,7 @@ async function runSubmit(selectedMode) {
       await store.joinExistingLobby(playerName.value.trim(), lobbyId.value.trim(), avatar.value);
     }
 
-    store.connect();
+    await store.connect();
     await router.push("/lobby");
   } catch (err) {
     if (

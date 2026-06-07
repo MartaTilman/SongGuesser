@@ -6,6 +6,13 @@ import unicodedata
 from difflib import SequenceMatcher
 
 from blockchain.blockchain import create_song_commitment
+from blockchain.crypto_utils import (
+    build_signed_action,
+    canonical_json,
+    generate_salt,
+    sha256_hex,
+    verify_signed_action
+)
 from services.song_cache import SongCache
 
 song_cache = SongCache()
@@ -245,7 +252,8 @@ class GameManager:
             "round_ends_at": game.round_ends_at,
             "server_time": time.time(),
             "year_options": game.year_options,
-            "is_host_turn": bool(player and player.name == game.host)
+            "is_host_turn": bool(player and player.name == game.host),
+            "song_commitment": getattr(game, "current_song_commitment", None)
         }
 
     def build_result_payload(self, result_payload, player_name=None):
@@ -350,6 +358,15 @@ class GameManager:
 
         game.current_song = song
         game.current_decade = chosen_decade
+        game.current_song_salt = generate_salt()
+        game.current_song_commitment = create_song_commitment(
+            lobby_id,
+            game.current_game_number,
+            game.current_round,
+            game.current_song_in_round,
+            song,
+            game.current_song_salt
+        )
         game.finishing_song = False
         game.answers = []
         game.last_result_payload = None
@@ -359,13 +376,7 @@ class GameManager:
             round_number=game.current_round,
             song_number=game.current_song_in_round,
             decade=chosen_decade,
-            song_commitment=create_song_commitment(
-                lobby_id,
-                game.current_game_number,
-                game.current_round,
-                game.current_song_in_round,
-                song
-            )
+            song_commitment=game.current_song_commitment
         )
 
         clip_duration = self.get_round_duration(game.current_round)
@@ -398,7 +409,15 @@ class GameManager:
         except asyncio.CancelledError:
             pass
 
-    async def submit_answer(self, lobby_id, player, title_answer, artist_answer, year_answer):
+    async def submit_answer(
+        self,
+        lobby_id,
+        player,
+        title_answer,
+        artist_answer,
+        year_answer,
+        signature=None
+    ):
         game = self.lobby_manager.lobbies[lobby_id]
 
         if not game.current_song or game.finishing_song:
@@ -408,12 +427,43 @@ class GameManager:
         if already_answered:
             return
 
+        answer_payload = {
+            "game_number": game.current_game_number,
+            "round": game.current_round,
+            "song_number": game.current_song_in_round,
+            "title_answer": title_answer or "",
+            "artist_answer": artist_answer or "",
+            "year_answer": year_answer
+        }
+        expected_signed_payload = build_signed_action(
+            "submit_answer",
+            lobby_id,
+            player.name,
+            answer_payload
+        )
+        signature_valid = verify_signed_action(
+            player.public_key,
+            signature,
+            "submit_answer",
+            lobby_id,
+            player.name
+        ) and signature.get("payload") == expected_signed_payload
+
+        game.blockchain.add_signed_action(
+            player.name,
+            "submit_answer",
+            sha256_hex(canonical_json(expected_signed_payload)),
+            signature_valid
+        )
+
         game.answers.append({
             "player": player,
             "title_answer": title_answer or "",
             "artist_answer": artist_answer or "",
             "year_answer": year_answer,
-            "time": time.time()
+            "time": time.time(),
+            "signature": signature,
+            "signature_valid": signature_valid
         })
 
     async def finish_song(self, lobby_id):
@@ -480,7 +530,8 @@ class GameManager:
                     "artist_correct": artist_correct,
                     "year_correct": year_correct,
                     "gained_points": gained_points,
-                    "total_score": player.score
+                    "total_score": player.score,
+                    "answer_signature_valid": bool(entry.get("signature_valid"))
                 })
 
             for player in game.players:
@@ -509,6 +560,7 @@ class GameManager:
                 game_number=game.current_game_number,
                 song_title=game.current_song["title"],
                 artist=game.current_song["artist"],
+                youtube_id=game.current_song.get("youtube_id"),
                 year=game.current_song.get("year"),
                 decade=game.current_decade,
                 round_number=game.current_round,
@@ -519,8 +571,10 @@ class GameManager:
                     game.current_game_number,
                     game.current_round,
                     game.current_song_in_round,
-                    game.current_song
-                )
+                    game.current_song,
+                    game.current_song_salt
+                ),
+                song_salt=game.current_song_salt
             )
 
             result_payload = {
@@ -550,14 +604,20 @@ class GameManager:
 
             game.current_song = None
             game.current_decade = None
+            game.current_song_salt = None
+            game.current_song_commitment = None
 
             if game.current_round > game.total_rounds:
-                game.blockchain.add_game_finished(game.current_game_number, leaderboard)
+                final_proof = game.blockchain.add_game_finished(
+                    game.current_game_number,
+                    leaderboard
+                )
 
                 await self.lobby_manager.broadcast(lobby_id, {
                     "type": "game_finished",
                     "game_number": game.current_game_number,
-                    "leaderboard": leaderboard
+                    "leaderboard": leaderboard,
+                    "final_proof": final_proof
                 })
             else:
                 await self.lobby_manager.broadcast(lobby_id, {

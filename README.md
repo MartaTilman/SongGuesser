@@ -19,7 +19,10 @@ The app has a retro Windows XP / media player visual style and is responsive for
 - Final podium reveal with sound effects
 - YouTube-powered song playback
 - Song metadata cache for faster game startup
-- Blockchain-style game history storage for lobby results
+- Local proof-of-work blockchain audit log for lobby results
+- Browser wallet signatures for player joins and submitted answers
+- Salted commit-reveal proof for each selected song
+- Final game proof with chain hash and Merkle root, ready for public-chain anchoring
 - Responsive UI for smaller screens
 
 ## Tech Stack
@@ -45,6 +48,7 @@ The app has a retro Windows XP / media player visual style and is responsive for
 ```text
 song-guesser/
   backend/      FastAPI server, game logic, lobby manager, blockchain storage
+  contracts/    Solidity contract for public blockchain proof anchoring
   frontend/     Vue/Vite client application
   README.md     Project documentation
 ```
@@ -71,6 +75,7 @@ Optional:
 OPENAI_API_KEY=your_openai_api_key
 YOUTUBE_DISCOVERY_ATTEMPT_BUDGET=40
 DATABASE_URL=postgresql://user:password@host:5432/database
+BLOCKCHAIN_DIFFICULTY=3
 ```
 
 `DATABASE_URL` is optional locally. If it is not set, the backend keeps using
@@ -78,6 +83,29 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 online PostgreSQL database URL, for example Render Postgres, Supabase, or Neon.
 On first start with an empty database, the backend seeds the database from the
 local JSON cache, then stores newly discovered songs in PostgreSQL.
+
+## Blockchain Model
+
+The app keeps a local proof-of-work chain per lobby in `backend/blockchain_storage`.
+Each block links to the previous block hash and is mined with `BLOCKCHAIN_DIFFICULTY`.
+
+The game also uses:
+
+- browser-generated RSA-PSS wallets for players,
+- signed `join_lobby` and `submit_answer` actions,
+- salted song commitments before each round,
+- song reveal data after each round,
+- a final game proof containing `chain_hash`, `merkle_root`, and `leaderboard_hash`.
+
+After a game finishes, fetch the anchoring payload from:
+
+```text
+GET /lobby/{lobby_id}/blockchain/final-proof
+```
+
+The Solidity contract in `contracts/SongGuesserAnchor.sol` can anchor that final
+proof on a public EVM chain such as Polygon, Base, Arbitrum, or a Sepolia testnet.
+Deploying and submitting the proof requires your own RPC URL and wallet key.
 
 For the deployed frontend, set these Vercel environment variables:
 

@@ -65,7 +65,7 @@ onMounted(async () => {
 
   try {
     await store.fetchLobbyInfo();
-    store.connect();
+    await store.connect();
   } catch (error) {
     console.error("Lobby info fetch failed:", error);
     store.error = "Ne mogu dohvatiti informacije o lobbyju.";
