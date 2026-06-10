@@ -12,6 +12,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 USE_OPENAI = os.getenv("USE_OPENAI", "true").lower() == "true"
+MUSICBRAINZ_UNAVAILABLE_UNTIL = 0
+MUSICBRAINZ_TIMEOUT_SECONDS = int(os.getenv("MUSICBRAINZ_TIMEOUT_SECONDS", "20"))
+MUSICBRAINZ_MAX_ATTEMPTS = int(os.getenv("MUSICBRAINZ_MAX_ATTEMPTS", "4"))
+MUSICBRAINZ_COOLDOWN_SECONDS = int(os.getenv("MUSICBRAINZ_COOLDOWN_SECONDS", "300"))
 
 client = None
 if USE_OPENAI:
@@ -139,7 +143,14 @@ def decade_to_year_range(decade):
     return ranges.get(decade)
 
 
-def musicbrainz_request(params, attempts=3):
+def musicbrainz_request(params, attempts=None):
+    global MUSICBRAINZ_UNAVAILABLE_UNTIL
+
+    attempts = attempts or MUSICBRAINZ_MAX_ATTEMPTS
+
+    if time.time() < MUSICBRAINZ_UNAVAILABLE_UNTIL:
+        return None
+
     url = "https://musicbrainz.org/ws/2/recording/"
     headers = {
         "User-Agent": "song-guesser/1.0 (student project)"
@@ -148,23 +159,37 @@ def musicbrainz_request(params, attempts=3):
     for attempt in range(attempts):
         try:
             time.sleep(1.2)
-            response = requests.get(url, params=params, headers=headers, timeout=8)
+            response = requests.get(
+                url,
+                params=params,
+                headers=headers,
+                timeout=MUSICBRAINZ_TIMEOUT_SECONDS
+            )
 
             if response.status_code == 503:
                 print(f"MusicBrainz temporary unavailable (attempt {attempt + 1}/{attempts})")
+                MUSICBRAINZ_UNAVAILABLE_UNTIL = time.time() + MUSICBRAINZ_COOLDOWN_SECONDS
                 time.sleep(3 + attempt)
-                continue
+                return None
 
             if response.status_code == 429:
                 print(f"MusicBrainz rate limited (attempt {attempt + 1}/{attempts})")
+                MUSICBRAINZ_UNAVAILABLE_UNTIL = time.time() + MUSICBRAINZ_COOLDOWN_SECONDS
                 time.sleep(5 + attempt)
-                continue
+                return None
 
             response.raise_for_status()
             return response.json()
 
         except Exception as e:
             print(f"MusicBrainz error: {e}")
+
+            error_text = str(e).lower()
+            if "ssl" in error_text or "eof" in error_text or "max retries exceeded" in error_text:
+                if attempt >= attempts - 1:
+                    MUSICBRAINZ_UNAVAILABLE_UNTIL = time.time() + MUSICBRAINZ_COOLDOWN_SECONDS
+                    return None
+
             time.sleep(3 + attempt)
 
     return None

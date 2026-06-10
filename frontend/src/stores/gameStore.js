@@ -136,7 +136,9 @@ export const useGameStore = defineStore("game", {
           this.connected = true;
           this.error = "";
           this.syncState();
-          this.fetchLobbyState().catch(() => {});
+          this.fetchLobbyState().catch((error) => {
+            this.handleRequestError(error);
+          });
         },
         () => {
           this.connected = false;
@@ -175,6 +177,10 @@ export const useGameStore = defineStore("game", {
     handleMessage(message) {
       if (message.type === "error") {
         this.error = message.message;
+
+        if (this.isMissingLobbyMessage(message.message)) {
+          this.expireLobbySession();
+        }
       }
 
       if (message.type === "lobby_update") {
@@ -229,25 +235,65 @@ export const useGameStore = defineStore("game", {
     },
 
     async fetchLobbyInfo() {
-      const res = await api.get(`/lobby/${this.lobbyId}/info`);
-      this.host = res.data.host || "";
-      this.players = res.data.players || [];
+      try {
+        const res = await api.get(`/lobby/${this.lobbyId}/info`);
+        this.host = res.data.host || "";
+        this.players = res.data.players || [];
+      } catch (error) {
+        this.handleRequestError(error);
+        throw error;
+      }
     },
 
     async fetchLobbyState() {
       if (!this.lobbyId) return null;
 
-      const res = await api.get(`/lobby/${this.lobbyId}/state`, {
-        params: {
-          player_name: this.playerName
-        }
-      });
+      let res;
+
+      try {
+        res = await api.get(`/lobby/${this.lobbyId}/state`, {
+          params: {
+            player_name: this.playerName
+          }
+        });
+      } catch (error) {
+        this.handleRequestError(error);
+        throw error;
+      }
 
       if (res.data?.message) {
         this.handleMessage(res.data.message);
       }
 
       return res.data;
+    },
+
+    isMissingLobbyMessage(message) {
+      return String(message || "").toLowerCase().includes("lobby not found");
+    },
+
+    handleRequestError(error) {
+      if (error?.response?.status === 404) {
+        this.expireLobbySession();
+      }
+    },
+
+    expireLobbySession() {
+      const playerName = this.playerName;
+      const avatar = this.avatar;
+
+      this.clearAll();
+      this.playerName = playerName;
+      this.avatar = avatar;
+      this.error = "Lobby vise ne postoji. Napravi novi lobby.";
+
+      if (playerName) {
+        localStorage.setItem("playerName", playerName);
+      }
+
+      if (avatar) {
+        localStorage.setItem("avatar", avatar);
+      }
     },
 
     async fetchBlockchain() {
