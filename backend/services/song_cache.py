@@ -45,17 +45,27 @@ class SongCache:
             return max(0, duration_seconds // 3)
 
         latest_start = max(20, duration_seconds - 35)
-        earliest_start = min(45, latest_start)
-        middle_start = int(duration_seconds * 0.45)
-        middle_end = int(duration_seconds * 0.65)
+        body_start = min(35, latest_start)
+        body_end = min(max(55, int(duration_seconds * 0.38)), latest_start)
 
-        start_min = max(earliest_start, min(middle_start, latest_start))
-        start_max = max(start_min, min(middle_end, latest_start))
+        start_min = min(body_start, latest_start)
+        start_max = max(start_min, body_end)
 
         return random.randint(start_min, start_max)
 
+    def start_time_is_risky_middle(self, song):
+        duration_seconds = int(song.get("duration_seconds") or 0)
+        start_time = int(song.get("start_time") or 0)
+
+        if duration_seconds <= 120 or start_time <= 0:
+            return False
+
+        ratio = start_time / duration_seconds
+        return 0.44 <= ratio <= 0.66
+
     def load_from_metadata_cache(self):
         metadata_cache = load_metadata_cache()
+        repaired_count = 0
 
         with self.cache_lock:
             for decade in self.cache.keys():
@@ -64,7 +74,17 @@ class SongCache:
             for song in metadata_cache.values():
                 decade = song.get("decade")
                 if decade in self.cache:
+                    if self.start_time_is_risky_middle(song):
+                        song["start_time"] = self.generate_start_time(
+                            song.get("duration_seconds", 180)
+                        )
+                        repaired_count += 1
+
                     self.cache[decade].append(song)
+
+        if repaired_count:
+            print(f"Adjusted {repaired_count} cached song start times away from video middle.")
+            save_metadata_cache(metadata_cache)
 
     def get_decades_sorted_by_priority(self):
         with self.cache_lock:

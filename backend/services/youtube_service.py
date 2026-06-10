@@ -532,6 +532,18 @@ def score_candidate(candidate):
     if channel_score >= 2:
         score += 10
 
+    lowered_title = normalize_text(raw_title)
+    lowered_channel = normalize_text(channel_title)
+
+    if "topic" in lowered_channel:
+        score += 18
+
+    if "official audio" in lowered_title or "audio" in lowered_title:
+        score += 14
+
+    if "official music video" in lowered_title or "official video" in lowered_title:
+        score += 4
+
     if 150 <= duration_seconds <= 330:
         score += 10
     elif 80 <= duration_seconds <= 360:

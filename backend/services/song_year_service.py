@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import re
 import time
 from difflib import SequenceMatcher
@@ -116,76 +117,200 @@ def score_musicbrainz_recording(recording, artist, title):
     }
 
 
-def get_song_year_from_musicbrainz(artist, title):
-    url = "https://musicbrainz.org/ws/2/recording/"
-    params = {
-        "query": f'artist:"{artist}" recording:"{title}"',
-        "fmt": "json",
-        "limit": 10,
-    }
+def extract_artist_credit(recording):
+    return " ".join(
+        credit.get("name", "")
+        for credit in recording.get("artist-credit", [])
+        if isinstance(credit, dict)
+    ).strip()
 
+
+def decade_to_year_range(decade):
+    ranges = {
+        "50s": (1950, 1959),
+        "60s": (1960, 1969),
+        "70s": (1970, 1979),
+        "80s": (1980, 1989),
+        "90s": (1990, 1999),
+        "2000s": (2000, 2009),
+        "2010s": (2010, 2019),
+        "2020s": (2020, 2026),
+    }
+    return ranges.get(decade)
+
+
+def musicbrainz_request(params, attempts=3):
+    url = "https://musicbrainz.org/ws/2/recording/"
     headers = {
         "User-Agent": "song-guesser/1.0 (student project)"
     }
 
-    for attempt in range(3):
+    for attempt in range(attempts):
         try:
             time.sleep(1.2)
-
             response = requests.get(url, params=params, headers=headers, timeout=8)
 
             if response.status_code == 503:
-                print(f"MusicBrainz temporary unavailable (attempt {attempt + 1}/3)")
+                print(f"MusicBrainz temporary unavailable (attempt {attempt + 1}/{attempts})")
                 time.sleep(3 + attempt)
                 continue
 
             if response.status_code == 429:
-                print(f"MusicBrainz rate limited (attempt {attempt + 1}/3)")
+                print(f"MusicBrainz rate limited (attempt {attempt + 1}/{attempts})")
                 time.sleep(5 + attempt)
                 continue
 
             response.raise_for_status()
-            data = response.json()
-
-            recordings = data.get("recordings", [])
-            if not recordings:
-                return None
-
-            scored_results = []
-
-            for rec in recordings:
-                scored = score_musicbrainz_recording(rec, artist, title)
-                if scored is not None:
-                    scored_results.append(scored)
-
-            if not scored_results:
-                return None
-
-            scored_results.sort(
-                key=lambda item: (
-                    item.get("confidence", 0),
-                    item.get("title_score", 0),
-                    item.get("artist_score", 0),
-                ),
-                reverse=True,
-            )
-
-            best = scored_results[0]
-
-            if best["confidence"] < 80:
-                return None
-
-            return {
-                "year": best["year"],
-                "confidence": best["confidence"],
-                "source": "musicbrainz",
-            }
+            return response.json()
 
         except Exception as e:
             print(f"MusicBrainz error: {e}")
             time.sleep(3 + attempt)
 
     return None
+
+
+def recording_to_song_candidate(recording, target_decade):
+    title = str(recording.get("title") or "").strip()
+    artist = extract_artist_credit(recording)
+    year = extract_year_from_text(recording.get("first-release-date"))
+
+    if not title or not artist or year is None:
+        return None
+
+    if year_to_decade(year) != target_decade:
+        return None
+
+    title_clean = simplify_text(title)
+    artist_clean = simplify_text(artist)
+
+    if not title_clean or not artist_clean:
+        return None
+
+    if len(title_clean) < 3 or len(artist_clean) < 2:
+        return None
+
+    disallowed_title_words = {
+        "interview",
+        "medley",
+        "karaoke",
+        "commentary",
+        "dialogue",
+        "demo",
+        "outtake",
+    }
+
+    if any(word in title_clean.split() for word in disallowed_title_words):
+        return None
+
+    try:
+        mb_score = int(recording.get("score", 0))
+    except Exception:
+        mb_score = 0
+
+    return {
+        "artist": artist,
+        "title": title,
+        "year": year,
+        "musicbrainz_id": recording.get("id"),
+        "musicbrainz_score": mb_score,
+    }
+
+
+def fetch_musicbrainz_songs_for_decade(decade, limit=25):
+    year_range = decade_to_year_range(decade)
+    if year_range is None:
+        return []
+
+    start_year, end_year = year_range
+    offset = random.choice([0, 25, 50, 75])
+    query = (
+        f'firstreleasedate:[{start_year}-01-01 TO {end_year}-12-31] '
+        'AND type:single'
+    )
+
+    data = musicbrainz_request({
+        "query": query,
+        "fmt": "json",
+        "limit": limit,
+        "offset": offset,
+    })
+
+    if not data:
+        return []
+
+    songs = []
+    seen = set()
+
+    for recording in data.get("recordings", []):
+        candidate = recording_to_song_candidate(recording, decade)
+        if candidate is None:
+            continue
+
+        identity = (
+            simplify_text(candidate["artist"]),
+            simplify_text(candidate["title"]),
+            candidate["year"],
+        )
+
+        if identity in seen:
+            continue
+
+        seen.add(identity)
+        songs.append(candidate)
+
+    songs.sort(
+        key=lambda item: item.get("musicbrainz_score", 0),
+        reverse=True,
+    )
+
+    print(f"{decade}: musicbrainz song candidates={len(songs)}")
+    return songs
+
+
+def get_song_year_from_musicbrainz(artist, title):
+    data = musicbrainz_request({
+        "query": f'artist:"{artist}" recording:"{title}"',
+        "fmt": "json",
+        "limit": 10,
+    })
+
+    if not data:
+        return None
+
+    recordings = data.get("recordings", [])
+    if not recordings:
+        return None
+
+    scored_results = []
+
+    for rec in recordings:
+        scored = score_musicbrainz_recording(rec, artist, title)
+        if scored is not None:
+            scored_results.append(scored)
+
+    if not scored_results:
+        return None
+
+    scored_results.sort(
+        key=lambda item: (
+            item.get("confidence", 0),
+            item.get("title_score", 0),
+            item.get("artist_score", 0),
+        ),
+        reverse=True,
+    )
+
+    best = scored_results[0]
+
+    if best["confidence"] < 80:
+        return None
+
+    return {
+        "year": best["year"],
+        "confidence": best["confidence"],
+        "source": "musicbrainz",
+    }
 
 
 def get_song_year_with_ai(artist, title):

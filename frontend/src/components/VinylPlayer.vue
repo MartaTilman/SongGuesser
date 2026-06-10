@@ -103,6 +103,7 @@ const player = ref(null);
 const isPlaying = ref(false);
 const isMuted = ref(props.initiallyMuted);
 const autoStarted = ref(false);
+const playbackError = ref("");
 const playerElementId = `youtube-player-${Math.random().toString(36).slice(2)}`;
 
 let stopTimeout = null;
@@ -123,6 +124,10 @@ const showManualPlay = computed(() => {
 });
 
 const statusText = computed(() => {
+  if (playbackError.value) {
+    return playbackError.value;
+  }
+
   if (props.countdownActive) {
     return "Priprema reprodukcije...";
   }
@@ -191,6 +196,8 @@ function startPlayback() {
   if (!props.playAudio || !props.youtubeId || !player.value) {
     return;
   }
+
+  playbackError.value = "";
 
   const startedAt = props.clipStartedAt || Date.now() / 1000;
   const now = Date.now() / 1000 + props.serverTimeOffset;
@@ -291,6 +298,8 @@ function createPlayer() {
       },
       onError: (event) => {
         console.error("YouTube player error:", event.data);
+        isPlaying.value = false;
+        playbackError.value = "YouTube ne moze reproducirati ovu pjesmu.";
       }
     }
   });
@@ -340,6 +349,7 @@ watch(
   ],
   () => {
     autoStarted.value = false;
+    playbackError.value = "";
     isMuted.value = props.initiallyMuted;
 
     if (!player.value) return;

@@ -7,9 +7,10 @@ from services.metadata_cache import (
     song_exists,
 )
 from services.song_parser import parse_song_from_title
-from services.song_year_service import validate_song_year_for_decade
+from services.song_year_service import fetch_musicbrainz_songs_for_decade, validate_song_year_for_decade
 from services.youtube_service import (
     fetch_youtube_candidates_for_decade,
+    find_replacement_video_for_song,
     is_global_2020s_candidate,
 )
 
@@ -25,12 +26,11 @@ def generate_start_time(duration_seconds):
         return max(0, duration_seconds // 3)
 
     latest_start = max(20, duration_seconds - 35)
-    earliest_start = min(45, latest_start)
-    middle_start = int(duration_seconds * 0.45)
-    middle_end = int(duration_seconds * 0.65)
+    body_start = min(35, latest_start)
+    body_end = min(max(55, int(duration_seconds * 0.38)), latest_start)
 
-    start_min = max(earliest_start, min(middle_start, latest_start))
-    start_max = max(start_min, min(middle_end, latest_start))
+    start_min = min(body_start, latest_start)
+    start_max = max(start_min, body_end)
 
     return random.randint(start_min, start_max)
 
@@ -276,18 +276,110 @@ def validate_candidate(candidate, target_decade, cache):
     return song
 
 
-def discover_songs_for_decade(decade, target_count=10, max_results_per_query=15):
-    cache = load_metadata_cache()
+def build_song_from_musicbrainz_candidate(mb_song, youtube_candidate, target_decade):
+    return {
+        "artist": mb_song.get("artist", "").strip(),
+        "title": mb_song.get("title", "").strip(),
+        "youtube_id": youtube_candidate.get("youtube_id"),
+        "start_time": generate_start_time(youtube_candidate.get("duration_seconds", 180)),
+        "decade": target_decade,
+        "year": mb_song.get("year"),
+        "channel_title": youtube_candidate.get("channel_title"),
+        "view_count": youtube_candidate.get("view_count", 0),
+        "duration_seconds": youtube_candidate.get("duration_seconds", 0),
+        "published_at": youtube_candidate.get("published_at"),
+        "source_query": youtube_candidate.get("source_query"),
+        "parse_confidence": 100,
+        "parse_source": "musicbrainz",
+        "year_confidence": 100,
+        "year_source": "musicbrainz",
+        "musicbrainz_id": mb_song.get("musicbrainz_id"),
+        "pre_validation_score": youtube_candidate.get("pre_validation_score", 0),
+        "final_score": youtube_candidate.get("pre_validation_score", 0) + 55,
+    }
 
-    existing_for_decade = [
-        song for song in cache.values()
-        if song.get("decade") == decade
-    ]
 
-    if len(existing_for_decade) >= target_count:
-        print(f"{decade}: discovery skipped, cache already has {len(existing_for_decade)} songs")
-        return existing_for_decade
+def validate_musicbrainz_candidate(mb_song, target_decade, cache):
+    artist = str(mb_song.get("artist") or "").strip()
+    title = str(mb_song.get("title") or "").strip()
+    year = mb_song.get("year")
 
+    if not artist or not title or year is None:
+        return None
+
+    replacement = find_replacement_video_for_song(
+        artist=artist,
+        title=title,
+        decade=target_decade,
+    )
+
+    if replacement is None:
+        print(
+            "REJECT "
+            f"[{target_decade}] musicbrainz_no_youtube_match | "
+            f"artist={artist} | title={title} | year={year}"
+        )
+        return None
+
+    youtube_id = replacement.get("youtube_id")
+    if youtube_id in cache:
+        return reject(target_decade, "youtube_id_already_in_cache", replacement)
+
+    song = build_song_from_musicbrainz_candidate(mb_song, replacement, target_decade)
+
+    if song_exists(cache, song):
+        return reject(
+            target_decade,
+            "same_song_already_exists",
+            replacement,
+            extra=f"artist={artist} | parsed_title={title} | year={year}"
+        )
+
+    print(
+        "ACCEPT "
+        f"[{target_decade}] | id={youtube_id} | artist={artist} | title={title} | "
+        f"year={year} | parse_source=musicbrainz | year_source=musicbrainz | "
+        f"final_score={song.get('final_score')}"
+    )
+
+    return song
+
+
+def discover_songs_from_musicbrainz(decade, target_count, cache):
+    mb_candidates = fetch_musicbrainz_songs_for_decade(decade)
+
+    if not mb_candidates:
+        return []
+
+    added_songs = []
+
+    for mb_song in mb_candidates:
+        validated_song = validate_musicbrainz_candidate(mb_song, decade, cache)
+
+        if validated_song is None:
+            continue
+
+        was_added = add_song_to_cache(cache, validated_song)
+
+        if was_added:
+            added_songs.append(validated_song)
+            print(
+                f"{decade}: added from musicbrainz {validated_song.get('artist')} - "
+                f"{validated_song.get('title')} ({validated_song.get('year')})"
+            )
+
+        current_total = len([
+            song for song in cache.values()
+            if song.get("decade") == decade
+        ])
+
+        if current_total >= target_count:
+            break
+
+    return added_songs
+
+
+def discover_songs_from_youtube(decade, target_count, max_results_per_query, cache):
     candidates = fetch_youtube_candidates_for_decade(
         decade=decade,
         max_results_per_query=max_results_per_query
@@ -319,6 +411,38 @@ def discover_songs_for_decade(decade, target_count=10, max_results_per_query=15)
 
         if current_total >= target_count:
             break
+
+    return added_songs
+
+
+def discover_songs_for_decade(decade, target_count=10, max_results_per_query=15):
+    cache = load_metadata_cache()
+
+    existing_for_decade = [
+        song for song in cache.values()
+        if song.get("decade") == decade
+    ]
+
+    if len(existing_for_decade) >= target_count:
+        print(f"{decade}: discovery skipped, cache already has {len(existing_for_decade)} songs")
+        return existing_for_decade
+
+    added_songs = discover_songs_from_musicbrainz(decade, target_count, cache)
+
+    current_total = len([
+        song for song in cache.values()
+        if song.get("decade") == decade
+    ])
+
+    if current_total < target_count:
+        added_songs.extend(
+            discover_songs_from_youtube(
+                decade=decade,
+                target_count=target_count,
+                max_results_per_query=max_results_per_query,
+                cache=cache
+            )
+        )
 
     save_metadata_cache(cache)
 
