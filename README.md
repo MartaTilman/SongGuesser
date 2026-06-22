@@ -18,7 +18,8 @@ The app has a retro Windows XP / media player visual style and is responsive for
 - Live scoring and leaderboard screens
 - Final podium reveal with sound effects
 - YouTube-powered song playback
-- Song metadata cache for faster game startup
+- Song metadata cache for faster game startup (backed by Supabase on the deployed server)
+- Songs never repeat across multiple games played in the same lobby session
 - Local proof-of-work blockchain audit log for lobby results
 - Browser wallet signatures for player joins and submitted answers
 - Salted commit-reveal proof for each selected song
@@ -40,7 +41,8 @@ The app has a retro Windows XP / media player visual style and is responsive for
 - Python
 - FastAPI
 - WebSockets
-- YouTube Data API
+- Supabase (PostgreSQL) for persistent song metadata storage
+- YouTube Data API for song discovery
 - MusicBrainz API for song year validation and decade-based song discovery
 - Optional OpenAI API support for song metadata parsing and validation
 
@@ -84,11 +86,13 @@ SUBMITTER_PRIVATE_KEY=0xYourWalletPrivateKey
 
 `ETH_RPC_URL`, `CONTRACT_ADDRESS`, and `SUBMITTER_PRIVATE_KEY` are only needed if you want final game proofs anchored on-chain. Without them the game still works and the local blockchain audit log is still kept — anchoring is simply skipped. Anchoring also requires the `web3` Python package (`pip install web3`).
 
-`DATABASE_URL` is optional locally. If it is not set, the backend keeps using
-`backend/song_metadata_cache.json`. For deployment, set `DATABASE_URL` to an
-online PostgreSQL database URL, for example Render Postgres, Supabase, or Neon.
-On first start with an empty database, the backend seeds the database from the
-local JSON cache, then stores newly discovered songs in PostgreSQL.
+`DATABASE_URL` is optional locally — without it the backend reads and writes
+`backend/song_metadata_cache.json`. **For deployment, `DATABASE_URL` is required.**
+The JSON cache is gitignored so it is never present on the deployed Render server;
+without a database URL the backend has no song storage and will fail to start a game.
+Set it to a Supabase, Render Postgres, or Neon connection string (use port 6543 for
+Supabase with IPv4). On first start with an empty database the backend seeds itself
+from the local JSON cache, then stores all newly discovered songs in PostgreSQL.
 
 ## Blockchain Model
 
@@ -97,7 +101,7 @@ Each block links to the previous block hash and is mined with `BLOCKCHAIN_DIFFIC
 
 The game also uses:
 
-- browser-generated RSA-PSS wallets for players,
+- browser-generated ECDSA wallets for players,
 - signed `join_lobby` and `submit_answer` actions,
 - salted song commitments before each round,
 - song reveal data after each round,
