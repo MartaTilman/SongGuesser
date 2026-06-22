@@ -11,7 +11,10 @@
         "lobby_id": "6TUPX3"
       },
       "previous_hash": "0",
-      "hash": "1b3a8b9e7c8be7900855c13ec4935a81a699b2a9e1a856d158ed7c9403a8194b"
+      "hash": "1b3a8b9e7c8be7900855c13ec4935a81a699b2a9e1a856d158ed7c9403a8194b",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "6TUPX3"
       },
       "previous_hash": "1b3a8b9e7c8be7900855c13ec4935a81a699b2a9e1a856d158ed7c9403a8194b",
-      "hash": "f1563b9d90e39b6e4d0208ad46504f1f2480e5cde13574ae41717cfce5378392"
+      "hash": "f1563b9d90e39b6e4d0208ad46504f1f2480e5cde13574ae41717cfce5378392",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "rffcd"
       },
       "previous_hash": "f1563b9d90e39b6e4d0208ad46504f1f2480e5cde13574ae41717cfce5378392",
-      "hash": "95819500225e36fa0c33c1373ff6577d493fc1098889c1e6a34ae9f812257c07"
+      "hash": "95819500225e36fa0c33c1373ff6577d493fc1098889c1e6a34ae9f812257c07",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "95819500225e36fa0c33c1373ff6577d493fc1098889c1e6a34ae9f812257c07",
-      "hash": "281133800b2e6a89a8d37bcdd3e54219cda0c373c63d9a1be0607a71dfccadaf"
+      "hash": "281133800b2e6a89a8d37bcdd3e54219cda0c373c63d9a1be0607a71dfccadaf",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,10 @@
         "decade": "50s"
       },
       "previous_hash": "281133800b2e6a89a8d37bcdd3e54219cda0c373c63d9a1be0607a71dfccadaf",
-      "hash": "db78e84aea14e569ac87e4a617e8f5f388a21cf7acbde2ad7a9f00eb9a8e73c1"
+      "hash": "db78e84aea14e569ac87e4a617e8f5f388a21cf7acbde2ad7a9f00eb9a8e73c1",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -85,7 +100,10 @@
         ]
       },
       "previous_hash": "db78e84aea14e569ac87e4a617e8f5f388a21cf7acbde2ad7a9f00eb9a8e73c1",
-      "hash": "2ff9b6eae6585446680a61e945d071a006c5c9927254ebdd7e0992deaef00033"
+      "hash": "2ff9b6eae6585446680a61e945d071a006c5c9927254ebdd7e0992deaef00033",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -100,7 +118,10 @@
         "decade": "50s"
       },
       "previous_hash": "2ff9b6eae6585446680a61e945d071a006c5c9927254ebdd7e0992deaef00033",
-      "hash": "937d5d213e23ded0ebd889eec1c541651928b5dc86ea12fa9db2d422f5689c5a"
+      "hash": "937d5d213e23ded0ebd889eec1c541651928b5dc86ea12fa9db2d422f5689c5a",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 7,
@@ -128,7 +149,10 @@
         ]
       },
       "previous_hash": "937d5d213e23ded0ebd889eec1c541651928b5dc86ea12fa9db2d422f5689c5a",
-      "hash": "94e026a2a4034df2fb23e0fdf94daec24e81cfd5fc35138a74c9b4bf8fb72964"
+      "hash": "94e026a2a4034df2fb23e0fdf94daec24e81cfd5fc35138a74c9b4bf8fb72964",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 8,
@@ -143,7 +167,10 @@
         "decade": "90s"
       },
       "previous_hash": "94e026a2a4034df2fb23e0fdf94daec24e81cfd5fc35138a74c9b4bf8fb72964",
-      "hash": "affe123f576966e941e82ab47c57113b1636b945e899fbc31a4fde0b39a66672"
+      "hash": "affe123f576966e941e82ab47c57113b1636b945e899fbc31a4fde0b39a66672",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 9,
@@ -171,7 +198,12 @@
         ]
       },
       "previous_hash": "affe123f576966e941e82ab47c57113b1636b945e899fbc31a4fde0b39a66672",
-      "hash": "aacf17a2799f5a54860cbe1049a006d68a1d8485808a950bddccf50d8197a89e"
+      "hash": "aacf17a2799f5a54860cbe1049a006d68a1d8485808a950bddccf50d8197a89e",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

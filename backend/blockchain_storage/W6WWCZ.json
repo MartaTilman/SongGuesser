@@ -11,7 +11,10 @@
         "lobby_id": "W6WWCZ"
       },
       "previous_hash": "0",
-      "hash": "3626b71b297f0beb1f535b6cad73cd8c25dff80de5d0a6e73c3be93a257430c7"
+      "hash": "3626b71b297f0beb1f535b6cad73cd8c25dff80de5d0a6e73c3be93a257430c7",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "W6WWCZ"
       },
       "previous_hash": "3626b71b297f0beb1f535b6cad73cd8c25dff80de5d0a6e73c3be93a257430c7",
-      "hash": "e5a436cf4f2e2f17f761dd36365c3340dbea255d6d1e650acb77646d720f3ec4"
+      "hash": "e5a436cf4f2e2f17f761dd36365c3340dbea255d6d1e650acb77646d720f3ec4",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "vfvgg"
       },
       "previous_hash": "e5a436cf4f2e2f17f761dd36365c3340dbea255d6d1e650acb77646d720f3ec4",
-      "hash": "45ef57fd6bd79d79595dd41329c1f72db5462a1b5ba79f50b53774ab6c90b3b3"
+      "hash": "45ef57fd6bd79d79595dd41329c1f72db5462a1b5ba79f50b53774ab6c90b3b3",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "45ef57fd6bd79d79595dd41329c1f72db5462a1b5ba79f50b53774ab6c90b3b3",
-      "hash": "3522fd06b85bd53f08b4f56865e4b836c2bbf0d13d76b3770cf1ce4b67fffe30"
+      "hash": "3522fd06b85bd53f08b4f56865e4b836c2bbf0d13d76b3770cf1ce4b67fffe30",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,12 @@
         "decade": "90s"
       },
       "previous_hash": "3522fd06b85bd53f08b4f56865e4b836c2bbf0d13d76b3770cf1ce4b67fffe30",
-      "hash": "a29dab0fe52eaccc0d0c78a41e304df6cf97dd4c6f98d8896e6b51bf2fac2b9e"
+      "hash": "a29dab0fe52eaccc0d0c78a41e304df6cf97dd4c6f98d8896e6b51bf2fac2b9e",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

@@ -11,7 +11,10 @@
         "lobby_id": "03CI2Q"
       },
       "previous_hash": "0",
-      "hash": "f1f4308a8bcdebdfc937240bd7b87327076becdb9300079c7e5ac95f9b4c5a05"
+      "hash": "f1f4308a8bcdebdfc937240bd7b87327076becdb9300079c7e5ac95f9b4c5a05",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "03CI2Q"
       },
       "previous_hash": "f1f4308a8bcdebdfc937240bd7b87327076becdb9300079c7e5ac95f9b4c5a05",
-      "hash": "fd905b40b215a7b9cd98c796d58317e6c7eb2ad48889176374e049003839bc5d"
+      "hash": "fd905b40b215a7b9cd98c796d58317e6c7eb2ad48889176374e049003839bc5d",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "marta"
       },
       "previous_hash": "fd905b40b215a7b9cd98c796d58317e6c7eb2ad48889176374e049003839bc5d",
-      "hash": "3ea5fb5d8822df28b7e7500bddd0c2157548377713ce254dfa1c4c52db9b7dcc"
+      "hash": "3ea5fb5d8822df28b7e7500bddd0c2157548377713ce254dfa1c4c52db9b7dcc",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "3ea5fb5d8822df28b7e7500bddd0c2157548377713ce254dfa1c4c52db9b7dcc",
-      "hash": "735e62fa15dd76b175cd93b26aa96eb3093a3cdb72e7f7b4226849ca3d790239"
+      "hash": "735e62fa15dd76b175cd93b26aa96eb3093a3cdb72e7f7b4226849ca3d790239",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,10 @@
         "decade": "2000s"
       },
       "previous_hash": "735e62fa15dd76b175cd93b26aa96eb3093a3cdb72e7f7b4226849ca3d790239",
-      "hash": "f1355139fc66982477b9a34e9a54d11af45304544e7f2da2ab3e5c719883f16f"
+      "hash": "f1355139fc66982477b9a34e9a54d11af45304544e7f2da2ab3e5c719883f16f",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -85,7 +100,10 @@
         ]
       },
       "previous_hash": "f1355139fc66982477b9a34e9a54d11af45304544e7f2da2ab3e5c719883f16f",
-      "hash": "41ba98f279ac4ce3423e539d0a6728b3d9bfa4210ce4f6ae491f5a13dce389b2"
+      "hash": "41ba98f279ac4ce3423e539d0a6728b3d9bfa4210ce4f6ae491f5a13dce389b2",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -100,7 +118,10 @@
         "decade": "2020s"
       },
       "previous_hash": "41ba98f279ac4ce3423e539d0a6728b3d9bfa4210ce4f6ae491f5a13dce389b2",
-      "hash": "9d8b3ecdae5970c752ae7e8cdd4faa6d8aa6e2474a3eaa68b9803a8126f2cffa"
+      "hash": "9d8b3ecdae5970c752ae7e8cdd4faa6d8aa6e2474a3eaa68b9803a8126f2cffa",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 7,
@@ -128,7 +149,12 @@
         ]
       },
       "previous_hash": "9d8b3ecdae5970c752ae7e8cdd4faa6d8aa6e2474a3eaa68b9803a8126f2cffa",
-      "hash": "e3bc954a69b045d394ef0357360c186076f96c4e1dadda0ffeb8160d572d968b"
+      "hash": "e3bc954a69b045d394ef0357360c186076f96c4e1dadda0ffeb8160d572d968b",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

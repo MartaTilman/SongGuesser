@@ -11,7 +11,10 @@
         "lobby_id": "P76YI1"
       },
       "previous_hash": "0",
-      "hash": "789f7df3a1325b4a398bb0ee40f35407c4e2864c72bedf0f07c7b9723e1790d2"
+      "hash": "789f7df3a1325b4a398bb0ee40f35407c4e2864c72bedf0f07c7b9723e1790d2",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "P76YI1"
       },
       "previous_hash": "789f7df3a1325b4a398bb0ee40f35407c4e2864c72bedf0f07c7b9723e1790d2",
-      "hash": "54dade97ea30220f6d8f35811f503307898ab26779920ea919dd4ee68cba86f4"
+      "hash": "54dade97ea30220f6d8f35811f503307898ab26779920ea919dd4ee68cba86f4",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "rge"
       },
       "previous_hash": "54dade97ea30220f6d8f35811f503307898ab26779920ea919dd4ee68cba86f4",
-      "hash": "a84c5fcbd771f4530ad1b8c24638b666e3e15b9a8788e93e93d0bd199ab962ee"
+      "hash": "a84c5fcbd771f4530ad1b8c24638b666e3e15b9a8788e93e93d0bd199ab962ee",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "a84c5fcbd771f4530ad1b8c24638b666e3e15b9a8788e93e93d0bd199ab962ee",
-      "hash": "7be3308e6377dc93b9b30e8b72c52466077e16ab6e257c6278dbbedba399fb65"
+      "hash": "7be3308e6377dc93b9b30e8b72c52466077e16ab6e257c6278dbbedba399fb65",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,10 @@
         "decade": "90s"
       },
       "previous_hash": "7be3308e6377dc93b9b30e8b72c52466077e16ab6e257c6278dbbedba399fb65",
-      "hash": "de841534aeb67ccf744bc97bac43a72eb4490a12c1607a771b47b5a767084f69"
+      "hash": "de841534aeb67ccf744bc97bac43a72eb4490a12c1607a771b47b5a767084f69",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -85,7 +100,12 @@
         ]
       },
       "previous_hash": "de841534aeb67ccf744bc97bac43a72eb4490a12c1607a771b47b5a767084f69",
-      "hash": "7fa2f309b5c3f0558449fef9c149055814f45059e0b4aaac3f10d03f82fa8491"
+      "hash": "7fa2f309b5c3f0558449fef9c149055814f45059e0b4aaac3f10d03f82fa8491",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

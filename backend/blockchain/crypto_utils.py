@@ -1,8 +1,12 @@
 import base64
 import hashlib
-import hmac
 import json
 import secrets
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicNumbers
 
 
 def canonical_json(payload):
@@ -23,26 +27,12 @@ def sha256_hex(payload):
 
 def base64url_decode(value):
     raw = str(value or "").encode("ascii")
-    padding = b"=" * ((4 - len(raw) % 4) % 4)
-    return base64.urlsafe_b64decode(raw + padding)
+    padding_chars = b"=" * ((4 - len(raw) % 4) % 4)
+    return base64.urlsafe_b64decode(raw + padding_chars)
 
 
 def generate_salt(byte_count=32):
     return secrets.token_hex(byte_count)
-
-
-def mgf1(seed, length, hash_name="sha256"):
-    output = b""
-    counter = 0
-
-    while len(output) < length:
-        output += hashlib.new(
-            hash_name,
-            seed + counter.to_bytes(4, "big")
-        ).digest()
-        counter += 1
-
-    return output[:length]
 
 
 def verify_rsa_pss_sha256(public_key_jwk, message, signature):
@@ -57,62 +47,21 @@ def verify_rsa_pss_sha256(public_key_jwk, message, signature):
         exponent = int.from_bytes(base64url_decode(public_key_jwk["e"]), "big")
         signature_bytes = base64url_decode(signature)
 
-        modulus_length = (modulus.bit_length() + 7) // 8
-        if len(signature_bytes) != modulus_length:
-            return False
+        public_key = RSAPublicNumbers(exponent, modulus).public_key()
 
-        encoded = pow(
-            int.from_bytes(signature_bytes, "big"),
-            exponent,
-            modulus
-        ).to_bytes(modulus_length, "big")
-
-        return verify_pss_encoded_message(
-            encoded,
-            hashlib.sha256(message.encode("utf-8")).digest(),
-            modulus.bit_length() - 1
+        public_key.verify(
+            signature_bytes,
+            message.encode("utf-8"),
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=32
+            ),
+            hashes.SHA256()
         )
-    except Exception:
+
+        return True
+    except (InvalidSignature, Exception):
         return False
-
-
-def verify_pss_encoded_message(encoded, message_hash, em_bits):
-    hash_length = hashlib.sha256().digest_size
-    salt_length = hash_length
-    encoded_length = (em_bits + 7) // 8
-
-    if len(encoded) != encoded_length:
-        return False
-
-    if encoded_length < hash_length + salt_length + 2:
-        return False
-
-    if encoded[-1] != 0xBC:
-        return False
-
-    masked_db = encoded[:encoded_length - hash_length - 1]
-    digest = encoded[encoded_length - hash_length - 1:-1]
-
-    leftmost_bits = 8 * encoded_length - em_bits
-    if leftmost_bits and masked_db[0] >> (8 - leftmost_bits):
-        return False
-
-    db_mask = mgf1(digest, encoded_length - hash_length - 1)
-    db = bytes(a ^ b for a, b in zip(masked_db, db_mask))
-
-    if leftmost_bits:
-        db = bytes([db[0] & (0xFF >> leftmost_bits)]) + db[1:]
-
-    padding_length = encoded_length - hash_length - salt_length - 2
-    if db[:padding_length] != b"\x00" * padding_length:
-        return False
-
-    if db[padding_length] != 0x01:
-        return False
-
-    salt = db[-salt_length:]
-    expected = hashlib.sha256(b"\x00" * 8 + message_hash + salt).digest()
-    return hmac.compare_digest(digest, expected)
 
 
 def build_signed_action(action, lobby_id, player_name, payload=None):

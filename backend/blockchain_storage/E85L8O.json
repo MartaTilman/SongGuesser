@@ -11,7 +11,10 @@
         "lobby_id": "E85L8O"
       },
       "previous_hash": "0",
-      "hash": "b3e31caae9bb5a0a6e51a4c28dd06b6f4547d792efd66c8158e41d8a1180df74"
+      "hash": "b3e31caae9bb5a0a6e51a4c28dd06b6f4547d792efd66c8158e41d8a1180df74",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "E85L8O"
       },
       "previous_hash": "b3e31caae9bb5a0a6e51a4c28dd06b6f4547d792efd66c8158e41d8a1180df74",
-      "hash": "2310b3b2b35ca5f73c3ca8996ca088988bf2c241d38ddb7ab27a8faa164301bf"
+      "hash": "2310b3b2b35ca5f73c3ca8996ca088988bf2c241d38ddb7ab27a8faa164301bf",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "dnfdc"
       },
       "previous_hash": "2310b3b2b35ca5f73c3ca8996ca088988bf2c241d38ddb7ab27a8faa164301bf",
-      "hash": "98f4dfa9a7adbca3c9a4c0d610190c7b5b5c2fc1b9bf079b946f2bfd9063204c"
+      "hash": "98f4dfa9a7adbca3c9a4c0d610190c7b5b5c2fc1b9bf079b946f2bfd9063204c",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,12 @@
         "action": "join_lobby"
       },
       "previous_hash": "98f4dfa9a7adbca3c9a4c0d610190c7b5b5c2fc1b9bf079b946f2bfd9063204c",
-      "hash": "0225010ddb952961a6fcb107457665bf371fbcf11ad4a9c688a5dd33261ff907"
+      "hash": "0225010ddb952961a6fcb107457665bf371fbcf11ad4a9c688a5dd33261ff907",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

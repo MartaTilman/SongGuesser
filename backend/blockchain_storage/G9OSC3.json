@@ -11,7 +11,10 @@
         "lobby_id": "G9OSC3"
       },
       "previous_hash": "0",
-      "hash": "3e6e28813e1698bb01440d3bf7f5190595789a8367af40626f52fbf9daf448b0"
+      "hash": "3e6e28813e1698bb01440d3bf7f5190595789a8367af40626f52fbf9daf448b0",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "G9OSC3"
       },
       "previous_hash": "3e6e28813e1698bb01440d3bf7f5190595789a8367af40626f52fbf9daf448b0",
-      "hash": "ca59563cb220a7bdefb2453f69629a3eb49df7427e487afd4f772e2ea853a4cb"
+      "hash": "ca59563cb220a7bdefb2453f69629a3eb49df7427e487afd4f772e2ea853a4cb",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "game_number": 1
       },
       "previous_hash": "ca59563cb220a7bdefb2453f69629a3eb49df7427e487afd4f772e2ea853a4cb",
-      "hash": "2668a93b1f865377902bb357999bf1555ea8b7965747de8a1ec97d34aed15251"
+      "hash": "2668a93b1f865377902bb357999bf1555ea8b7965747de8a1ec97d34aed15251",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -41,7 +50,10 @@
         "player": "marta"
       },
       "previous_hash": "2668a93b1f865377902bb357999bf1555ea8b7965747de8a1ec97d34aed15251",
-      "hash": "21aab03afc3d55eb316d230c8b721a49f8f88501fde69b8a384473d54d82fc46"
+      "hash": "21aab03afc3d55eb316d230c8b721a49f8f88501fde69b8a384473d54d82fc46",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -52,7 +64,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "21aab03afc3d55eb316d230c8b721a49f8f88501fde69b8a384473d54d82fc46",
-      "hash": "1c0255a8ad14a23c19319ce2e4c7dfe0e6fe11f4a6dc7f448dc462cee90e3578"
+      "hash": "1c0255a8ad14a23c19319ce2e4c7dfe0e6fe11f4a6dc7f448dc462cee90e3578",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -66,7 +81,10 @@
         "song_commitment": "e99336aa6dd49e43a6ef4d24217ba17d5e4d1988e1764d6d17a9b1b62677a010"
       },
       "previous_hash": "1c0255a8ad14a23c19319ce2e4c7dfe0e6fe11f4a6dc7f448dc462cee90e3578",
-      "hash": "92eff39a83f9c5be6490c35c64e118ed18c6e865a5d31ddc4cd62efc40a62edd"
+      "hash": "92eff39a83f9c5be6490c35c64e118ed18c6e865a5d31ddc4cd62efc40a62edd",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -96,7 +114,10 @@
         "song_commitment": "e99336aa6dd49e43a6ef4d24217ba17d5e4d1988e1764d6d17a9b1b62677a010"
       },
       "previous_hash": "92eff39a83f9c5be6490c35c64e118ed18c6e865a5d31ddc4cd62efc40a62edd",
-      "hash": "badeb132254bc2472c2aadccb63fce8e78830c076b42cdbe622c06219a650964"
+      "hash": "badeb132254bc2472c2aadccb63fce8e78830c076b42cdbe622c06219a650964",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 7,
@@ -110,7 +131,10 @@
         "song_commitment": "e31c0c12bce5e9f8799d6efcd2a01371ff9bf826cac8b2fc9046728c178a4938"
       },
       "previous_hash": "badeb132254bc2472c2aadccb63fce8e78830c076b42cdbe622c06219a650964",
-      "hash": "05e7a00cded0ba4914be85e5324cfae54e9f6bcd43375577790887ff01d3873b"
+      "hash": "05e7a00cded0ba4914be85e5324cfae54e9f6bcd43375577790887ff01d3873b",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 8,
@@ -140,7 +164,10 @@
         "song_commitment": "e31c0c12bce5e9f8799d6efcd2a01371ff9bf826cac8b2fc9046728c178a4938"
       },
       "previous_hash": "05e7a00cded0ba4914be85e5324cfae54e9f6bcd43375577790887ff01d3873b",
-      "hash": "9b3c987788780a1df69834dccef70a3515bd85772378a99fb9f68f3c12d7d212"
+      "hash": "9b3c987788780a1df69834dccef70a3515bd85772378a99fb9f68f3c12d7d212",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 9,
@@ -151,7 +178,12 @@
         "action": "disconnect"
       },
       "previous_hash": "9b3c987788780a1df69834dccef70a3515bd85772378a99fb9f68f3c12d7d212",
-      "hash": "0a0426342cf7148d495f345c84efed61da2726ff7e90bd6919f78066c314004b"
+      "hash": "0a0426342cf7148d495f345c84efed61da2726ff7e90bd6919f78066c314004b",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

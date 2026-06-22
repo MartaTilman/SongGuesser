@@ -11,7 +11,10 @@
         "lobby_id": "NCZM6N"
       },
       "previous_hash": "0",
-      "hash": "ac6453f25dee43848c47c0d4a9dab971a777101fd42981a456d4e67b951ce3e8"
+      "hash": "ac6453f25dee43848c47c0d4a9dab971a777101fd42981a456d4e67b951ce3e8",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "NCZM6N"
       },
       "previous_hash": "ac6453f25dee43848c47c0d4a9dab971a777101fd42981a456d4e67b951ce3e8",
-      "hash": "890870f469d68b734751056cb993aaab8b54f1bf98d8e32677ff596bfaaf90d7"
+      "hash": "890870f469d68b734751056cb993aaab8b54f1bf98d8e32677ff596bfaaf90d7",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "dscsd"
       },
       "previous_hash": "890870f469d68b734751056cb993aaab8b54f1bf98d8e32677ff596bfaaf90d7",
-      "hash": "1227fb30be1235d0ed2e79d9fd5e38305696ff0ff09e278bd0444b31353484e8"
+      "hash": "1227fb30be1235d0ed2e79d9fd5e38305696ff0ff09e278bd0444b31353484e8",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "1227fb30be1235d0ed2e79d9fd5e38305696ff0ff09e278bd0444b31353484e8",
-      "hash": "ec5fe108aecfc0df0b13c3015da6324d0f89f95a0ea00f894516a02af09f5ab2"
+      "hash": "ec5fe108aecfc0df0b13c3015da6324d0f89f95a0ea00f894516a02af09f5ab2",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,10 @@
         "decade": "80s"
       },
       "previous_hash": "ec5fe108aecfc0df0b13c3015da6324d0f89f95a0ea00f894516a02af09f5ab2",
-      "hash": "a46f7fcd67b1c959b361a024db5bcdd537ed50dc5d4a4a5884801c072fa69748"
+      "hash": "a46f7fcd67b1c959b361a024db5bcdd537ed50dc5d4a4a5884801c072fa69748",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -85,7 +100,10 @@
         ]
       },
       "previous_hash": "a46f7fcd67b1c959b361a024db5bcdd537ed50dc5d4a4a5884801c072fa69748",
-      "hash": "1225a1a3d135386d5df963121b4bf0d1bd55b6ccd3714f4f49bbb38fc8059642"
+      "hash": "1225a1a3d135386d5df963121b4bf0d1bd55b6ccd3714f4f49bbb38fc8059642",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -100,7 +118,10 @@
         "decade": "2020s"
       },
       "previous_hash": "1225a1a3d135386d5df963121b4bf0d1bd55b6ccd3714f4f49bbb38fc8059642",
-      "hash": "bea2ddd4e87c36343394938ec3b7d7d9e2a23c347e454f1578ec0c96c18cc5d8"
+      "hash": "bea2ddd4e87c36343394938ec3b7d7d9e2a23c347e454f1578ec0c96c18cc5d8",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 7,
@@ -128,7 +149,10 @@
         ]
       },
       "previous_hash": "bea2ddd4e87c36343394938ec3b7d7d9e2a23c347e454f1578ec0c96c18cc5d8",
-      "hash": "e07d782ea05a02bf03e40894a93976176b2cdb55189926a409863bd40d9f8644"
+      "hash": "e07d782ea05a02bf03e40894a93976176b2cdb55189926a409863bd40d9f8644",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 8,
@@ -143,7 +167,10 @@
         "decade": "2020s"
       },
       "previous_hash": "e07d782ea05a02bf03e40894a93976176b2cdb55189926a409863bd40d9f8644",
-      "hash": "ff6f23e93fc3d6749509badc651748710c44866270191c285bb0c1a0b6c25e8e"
+      "hash": "ff6f23e93fc3d6749509badc651748710c44866270191c285bb0c1a0b6c25e8e",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 9,
@@ -171,7 +198,10 @@
         ]
       },
       "previous_hash": "ff6f23e93fc3d6749509badc651748710c44866270191c285bb0c1a0b6c25e8e",
-      "hash": "9544ace3853dd7d58706e64e108f56fb2457b6e75ef836b8747df01e20ffed1e"
+      "hash": "9544ace3853dd7d58706e64e108f56fb2457b6e75ef836b8747df01e20ffed1e",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 10,
@@ -186,7 +216,10 @@
         "decade": "80s"
       },
       "previous_hash": "9544ace3853dd7d58706e64e108f56fb2457b6e75ef836b8747df01e20ffed1e",
-      "hash": "d8d8d04fbe326c1440cf8e730347fd8fe3edf862eadb0de7aa93d497d17f841f"
+      "hash": "d8d8d04fbe326c1440cf8e730347fd8fe3edf862eadb0de7aa93d497d17f841f",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 11,
@@ -214,7 +247,12 @@
         ]
       },
       "previous_hash": "d8d8d04fbe326c1440cf8e730347fd8fe3edf862eadb0de7aa93d497d17f841f",
-      "hash": "b93a4468290b11dcb3172ca6d7e51f5810640e65f9af8ce1e837f130f0f34e15"
+      "hash": "b93a4468290b11dcb3172ca6d7e51f5810640e65f9af8ce1e837f130f0f34e15",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

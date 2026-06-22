@@ -11,7 +11,10 @@
         "lobby_id": "F6KHRU"
       },
       "previous_hash": "0",
-      "hash": "fef383a76e2d214f53669b76fada03762ddb5ab40417df3ed3221d6252780323"
+      "hash": "fef383a76e2d214f53669b76fada03762ddb5ab40417df3ed3221d6252780323",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "F6KHRU"
       },
       "previous_hash": "fef383a76e2d214f53669b76fada03762ddb5ab40417df3ed3221d6252780323",
-      "hash": "f6b435b16044744c36c7ec5b506e1e28ba078aedbc9f1395229a65f6314176ad"
+      "hash": "f6b435b16044744c36c7ec5b506e1e28ba078aedbc9f1395229a65f6314176ad",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "Marta"
       },
       "previous_hash": "f6b435b16044744c36c7ec5b506e1e28ba078aedbc9f1395229a65f6314176ad",
-      "hash": "7304784e9b7d47775d44d1ef669d35b4bcb66ddb4942bab6f03b33de2e055dbf"
+      "hash": "7304784e9b7d47775d44d1ef669d35b4bcb66ddb4942bab6f03b33de2e055dbf",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,12 @@
         "action": "join_lobby"
       },
       "previous_hash": "7304784e9b7d47775d44d1ef669d35b4bcb66ddb4942bab6f03b33de2e055dbf",
-      "hash": "9dc242e7a31e3c38ea4b026031998438b2e8869ee16466c13f5a93c8f1a24f30"
+      "hash": "9dc242e7a31e3c38ea4b026031998438b2e8869ee16466c13f5a93c8f1a24f30",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

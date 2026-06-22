@@ -11,7 +11,10 @@
         "lobby_id": "EA4AZJ"
       },
       "previous_hash": "0",
-      "hash": "e7e47f12ab2f77bc1fb3cb128e79f5a9517f708c24a4ba28da859477f1cbf651"
+      "hash": "e7e47f12ab2f77bc1fb3cb128e79f5a9517f708c24a4ba28da859477f1cbf651",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "EA4AZJ"
       },
       "previous_hash": "e7e47f12ab2f77bc1fb3cb128e79f5a9517f708c24a4ba28da859477f1cbf651",
-      "hash": "2d83efe04f96aeeac8f3f3175a41af7485076d94caf00604a4ae451c52e9b17d"
+      "hash": "2d83efe04f96aeeac8f3f3175a41af7485076d94caf00604a4ae451c52e9b17d",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "game_number": 1
       },
       "previous_hash": "2d83efe04f96aeeac8f3f3175a41af7485076d94caf00604a4ae451c52e9b17d",
-      "hash": "9a2af341f3d73c29cbb0849a3049dd12ab41a1294fa1adc7ecb39d7d16a24416"
+      "hash": "9a2af341f3d73c29cbb0849a3049dd12ab41a1294fa1adc7ecb39d7d16a24416",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -41,7 +50,10 @@
         "player": "dkewdmk"
       },
       "previous_hash": "9a2af341f3d73c29cbb0849a3049dd12ab41a1294fa1adc7ecb39d7d16a24416",
-      "hash": "5f11b16603f495fbc2b1021634aaebd9ce2bee07e55468a943fc66925c6baaa6"
+      "hash": "5f11b16603f495fbc2b1021634aaebd9ce2bee07e55468a943fc66925c6baaa6",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -52,7 +64,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "5f11b16603f495fbc2b1021634aaebd9ce2bee07e55468a943fc66925c6baaa6",
-      "hash": "fb8d93cb3d9b71e4989c2e6da2ede7b42bc562234663cdb3a335f1061194bdc1"
+      "hash": "fb8d93cb3d9b71e4989c2e6da2ede7b42bc562234663cdb3a335f1061194bdc1",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -66,7 +81,10 @@
         "song_commitment": "a55bf85752747a74f4b04a733cc560aabeea308c1023d73d2882e951d7a002cd"
       },
       "previous_hash": "fb8d93cb3d9b71e4989c2e6da2ede7b42bc562234663cdb3a335f1061194bdc1",
-      "hash": "33a5747c200cef8011781e42ea667c52ebc66a0d1a8947b6b671b16db14e5bc0"
+      "hash": "33a5747c200cef8011781e42ea667c52ebc66a0d1a8947b6b671b16db14e5bc0",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -96,7 +114,10 @@
         "song_commitment": "a55bf85752747a74f4b04a733cc560aabeea308c1023d73d2882e951d7a002cd"
       },
       "previous_hash": "33a5747c200cef8011781e42ea667c52ebc66a0d1a8947b6b671b16db14e5bc0",
-      "hash": "6d1d2f1702546296704dde9a512b6b1b3d333662627e36b15c6e239570c0298c"
+      "hash": "6d1d2f1702546296704dde9a512b6b1b3d333662627e36b15c6e239570c0298c",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 7,
@@ -113,7 +134,10 @@
         ]
       },
       "previous_hash": "6d1d2f1702546296704dde9a512b6b1b3d333662627e36b15c6e239570c0298c",
-      "hash": "f0458af10ead2f787ced1c22cbc356e7ed7053f0310bc27a48fc98994bd02ca0"
+      "hash": "f0458af10ead2f787ced1c22cbc356e7ed7053f0310bc27a48fc98994bd02ca0",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 8,
@@ -123,7 +147,12 @@
         "game_number": 2
       },
       "previous_hash": "f0458af10ead2f787ced1c22cbc356e7ed7053f0310bc27a48fc98994bd02ca0",
-      "hash": "f719736d765f466177cbc9a2bc060db66ba02eb61d75d9edef5176c50c670ef2"
+      "hash": "f719736d765f466177cbc9a2bc060db66ba02eb61d75d9edef5176c50c670ef2",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

@@ -5,6 +5,7 @@ import time
 import unicodedata
 from difflib import SequenceMatcher
 
+from blockchain.anchor import submit_anchor
 from blockchain.blockchain import create_song_commitment
 from blockchain.crypto_utils import (
     build_signed_action,
@@ -612,6 +613,8 @@ class GameManager:
                     game.current_game_number,
                     leaderboard
                 )
+
+                final_proof = await submit_anchor(final_proof)
 
                 await self.lobby_manager.broadcast(lobby_id, {
                     "type": "game_finished",

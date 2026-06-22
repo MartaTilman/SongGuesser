@@ -11,7 +11,10 @@
         "lobby_id": "YS52S3"
       },
       "previous_hash": "0",
-      "hash": "f0bae19789354c47fc40a1c85cafd0346b43b5430e5cd83601fbc474b34f7858"
+      "hash": "f0bae19789354c47fc40a1c85cafd0346b43b5430e5cd83601fbc474b34f7858",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "YS52S3"
       },
       "previous_hash": "f0bae19789354c47fc40a1c85cafd0346b43b5430e5cd83601fbc474b34f7858",
-      "hash": "806ed575b39830d24b553fad0b74ccd5ce601a1d347011cb97be3da841a0a380"
+      "hash": "806ed575b39830d24b553fad0b74ccd5ce601a1d347011cb97be3da841a0a380",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "ddc"
       },
       "previous_hash": "806ed575b39830d24b553fad0b74ccd5ce601a1d347011cb97be3da841a0a380",
-      "hash": "adfb6837eac5997692333e4532aa5898714504122123268b9a49ca6601eda8ec"
+      "hash": "adfb6837eac5997692333e4532aa5898714504122123268b9a49ca6601eda8ec",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "adfb6837eac5997692333e4532aa5898714504122123268b9a49ca6601eda8ec",
-      "hash": "6ea0dc464ea525891abcec18bea2f2e07ab73648d771829d90200ec66a237413"
+      "hash": "6ea0dc464ea525891abcec18bea2f2e07ab73648d771829d90200ec66a237413",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -55,7 +67,10 @@
         "song_commitment": "c972942432ac39ba4ca3b7a00968c1308eca887ce70179ffd9f52a7aef0c99c1"
       },
       "previous_hash": "6ea0dc464ea525891abcec18bea2f2e07ab73648d771829d90200ec66a237413",
-      "hash": "d1c4ef241fd0882c8163636ad96ff7258d32bb8580d34cc03a73b3c1ddb19b5f"
+      "hash": "d1c4ef241fd0882c8163636ad96ff7258d32bb8580d34cc03a73b3c1ddb19b5f",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 5,
@@ -84,7 +99,10 @@
         "song_commitment": "c972942432ac39ba4ca3b7a00968c1308eca887ce70179ffd9f52a7aef0c99c1"
       },
       "previous_hash": "d1c4ef241fd0882c8163636ad96ff7258d32bb8580d34cc03a73b3c1ddb19b5f",
-      "hash": "77414435ab9398a24b1e16aeef371efaf92160f4fb0d305043c8a678958e45e3"
+      "hash": "77414435ab9398a24b1e16aeef371efaf92160f4fb0d305043c8a678958e45e3",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 6,
@@ -100,7 +118,12 @@
         ]
       },
       "previous_hash": "77414435ab9398a24b1e16aeef371efaf92160f4fb0d305043c8a678958e45e3",
-      "hash": "3160b4cee3f26fb46aa5456a3d58b1f0a4dd263a76fb18ee33b54646d759ccc8"
+      "hash": "3160b4cee3f26fb46aa5456a3d58b1f0a4dd263a76fb18ee33b54646d759ccc8",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }

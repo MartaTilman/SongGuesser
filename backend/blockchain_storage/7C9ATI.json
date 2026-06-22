@@ -11,7 +11,10 @@
         "lobby_id": "7C9ATI"
       },
       "previous_hash": "0",
-      "hash": "ced3cd6bfc15ecd73b0c85c7034dda3b33b918c2eee0ae0e4646f5efae14b119"
+      "hash": "ced3cd6bfc15ecd73b0c85c7034dda3b33b918c2eee0ae0e4646f5efae14b119",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 1,
@@ -21,7 +24,10 @@
         "lobby_id": "7C9ATI"
       },
       "previous_hash": "ced3cd6bfc15ecd73b0c85c7034dda3b33b918c2eee0ae0e4646f5efae14b119",
-      "hash": "23f7e76caf330096e374c1369878ed4690ee064f1795d1614653897d7cbc6aa5"
+      "hash": "23f7e76caf330096e374c1369878ed4690ee064f1795d1614653897d7cbc6aa5",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 2,
@@ -31,7 +37,10 @@
         "player": "djnd"
       },
       "previous_hash": "23f7e76caf330096e374c1369878ed4690ee064f1795d1614653897d7cbc6aa5",
-      "hash": "93f14a4dee916b6e513a95ffa357057d37b2b2d4726c9be120df94c3ed842052"
+      "hash": "93f14a4dee916b6e513a95ffa357057d37b2b2d4726c9be120df94c3ed842052",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 3,
@@ -42,7 +51,10 @@
         "action": "join_lobby"
       },
       "previous_hash": "93f14a4dee916b6e513a95ffa357057d37b2b2d4726c9be120df94c3ed842052",
-      "hash": "662fe71c043bb0154d6703f8b9a2ed9780d7aa7568ead76112c5cd70c614dd3c"
+      "hash": "662fe71c043bb0154d6703f8b9a2ed9780d7aa7568ead76112c5cd70c614dd3c",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     },
     {
       "index": 4,
@@ -57,7 +69,12 @@
         "decade": "80s"
       },
       "previous_hash": "662fe71c043bb0154d6703f8b9a2ed9780d7aa7568ead76112c5cd70c614dd3c",
-      "hash": "0db88aeb57ae3e18cbfeeb82da6ccf555d0d6d28ecdbbd9b565653a059def7e0"
+      "hash": "0db88aeb57ae3e18cbfeeb82da6ccf555d0d6d28ecdbbd9b565653a059def7e0",
+      "schema_version": 1,
+      "nonce": 0,
+      "difficulty": 0
     }
-  ]
+  ],
+  "consensus": "legacy_no_pow",
+  "difficulty": 0
 }
