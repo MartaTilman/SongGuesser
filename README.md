@@ -41,6 +41,7 @@ The app has a retro Windows XP / media player visual style and is responsive for
 - FastAPI
 - WebSockets
 - YouTube Data API
+- MusicBrainz API for song year validation and decade-based song discovery
 - Optional OpenAI API support for song metadata parsing and validation
 
 ## Project Structure
@@ -76,7 +77,12 @@ OPENAI_API_KEY=your_openai_api_key
 YOUTUBE_DISCOVERY_ATTEMPT_BUDGET=40
 DATABASE_URL=postgresql://user:password@host:5432/database
 BLOCKCHAIN_DIFFICULTY=3
+ETH_RPC_URL=https://your-rpc-endpoint
+CONTRACT_ADDRESS=0xYourDeployedContractAddress
+SUBMITTER_PRIVATE_KEY=0xYourWalletPrivateKey
 ```
+
+`ETH_RPC_URL`, `CONTRACT_ADDRESS`, and `SUBMITTER_PRIVATE_KEY` are only needed if you want final game proofs anchored on-chain. Without them the game still works and the local blockchain audit log is still kept — anchoring is simply skipped. Anchoring also requires the `web3` Python package (`pip install web3`).
 
 `DATABASE_URL` is optional locally. If it is not set, the backend keeps using
 `backend/song_metadata_cache.json`. For deployment, set `DATABASE_URL` to an
@@ -148,15 +154,25 @@ The frontend runs on:
 http://localhost:5173
 ```
 
+## Game Structure
+
+A full game is 3 rounds with 16 songs total (5 in round 1, 5 in round 2, 6 in round 3). Each round plays shorter clips to increase the difficulty:
+
+- Round 1 — 15-second clips
+- Round 2 — 12-second clips
+- Round 3 — 9-second clips
+
+After each clip there is a 15-second answer window. Submitting the correct answer faster earns more points (300–1000 per correct field). After all songs a final podium reveals the top three players.
+
 ## How To Play
 
 1. Open the frontend in the browser.
 2. Enter a player name and choose an avatar.
 3. Create a lobby or join an existing lobby with a lobby code.
 4. The host starts the game.
-5. Listen to the clip and submit guesses for title, artist, and year.
+5. Listen to the clip and submit guesses for title, artist, and year before the timer runs out.
 6. Check the leaderboard after each song.
-7. Play through all rounds and reveal the final winner.
+7. Play through all 3 rounds and see the final podium.
 
 ## Build
 
