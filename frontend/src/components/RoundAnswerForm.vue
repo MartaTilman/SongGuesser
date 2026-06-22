@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 
 const props = defineProps({
   canAnswer: Boolean,
@@ -89,19 +89,28 @@ function submit() {
   submitted.value = true;
 }
 
+// Set initial state on mount (don't auto-submit here — no prev value to compare against)
+onMounted(() => {
+  if (props.canAnswer) {
+    answerWindowOpened.value = true;
+  }
+});
+
+// Only auto-submit when canAnswer GENUINELY transitions true → false
 watch(
   () => props.canAnswer,
-  (canAnswer) => {
+  (canAnswer, prevCanAnswer) => {
     if (canAnswer) {
       answerWindowOpened.value = true;
       return;
     }
 
-    if (answerWindowOpened.value) {
+    // prevCanAnswer is undefined on first run if immediate is not set,
+    // so this only fires on real transitions
+    if (prevCanAnswer && answerWindowOpened.value) {
       submit();
     }
-  },
-  { immediate: true }
+  }
 );
 
 watch(

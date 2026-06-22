@@ -100,7 +100,7 @@ const router = useRouter();
 const route = useRoute();
 const store = useGameStore();
 
-const now = ref(Date.now() / 1000);
+const now = ref(Date.now() / 1000 + store.serverTimeOffset);
 const lastPlayedCountdownNumber = ref(null);
 const syncRequestedForRound = ref("");
 

@@ -254,18 +254,27 @@ function startPlayback(fromGesture = false) {
     if (!player.value?.playVideo) return;
 
     // Always start muted — browsers (including iOS Safari) allow muted autoplay.
-    // After confirming playback started, restore the user's sound preference.
     player.value.mute?.();
     player.value.playVideo();
     isPlaying.value = true;
     autoStarted.value = true;
 
-    setTimeout(() => {
+    // Unmute must happen synchronously when called from a user gesture.
+    // A setTimeout would leave the user-gesture chain, causing browsers to
+    // block the volume change under autoplay policy — leaving audio silent.
+    if (fromGesture) {
       if (!isMuted.value && player.value) {
         player.value.unMute?.();
         player.value.setVolume?.(100);
       }
-    }, 350);
+    } else {
+      setTimeout(() => {
+        if (!isMuted.value && player.value) {
+          player.value.unMute?.();
+          player.value.setVolume?.(100);
+        }
+      }, 350);
+    }
   }
 
   if (fromGesture) {
