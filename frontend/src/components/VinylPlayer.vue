@@ -52,7 +52,7 @@
       v-if="playAudio && showManualPlay"
       class="play-btn"
       type="button"
-      @click="startPlayback"
+      @click="startPlayback(true)"
     >
       Play
     </button>
@@ -103,11 +103,13 @@ const player = ref(null);
 const isPlaying = ref(false);
 const isMuted = ref(props.initiallyMuted);
 const autoStarted = ref(false);
+const audioUnlocked = ref(false);
 const playbackError = ref("");
 const playerElementId = `youtube-player-${Math.random().toString(36).slice(2)}`;
 
 let stopTimeout = null;
 let autoStartInterval = null;
+let removeUnlockListener = null;
 
 const effectiveStartSeconds = computed(() => {
   if (!props.clipStartedAt) {
@@ -174,6 +176,38 @@ function syncPlaybackPosition() {
   player.value.seekTo(effectiveStartSeconds.value, true);
 }
 
+// iOS Safari blocks audio from iframes unless the iframe's own audio context
+// was activated by a user gesture. We can't unlock it from the parent page
+// (different origin). Instead, once the YouTube player is ready we listen for
+// the next touch/click anywhere on the page and call playVideo() synchronously
+// inside that handler — iOS sees it as user-initiated, marks the player as
+// unlocked, and every future playVideo() call (including the auto-timer) works.
+function setupIOSUnlock() {
+  if (audioUnlocked.value) return;
+
+  function doUnlock() {
+    if (audioUnlocked.value || !player.value?.playVideo) return;
+    audioUnlocked.value = true;
+    removeUnlockListener?.();
+    removeUnlockListener = null;
+    try {
+      player.value.mute?.();
+      player.value.playVideo();
+      // Pause after a tick — no gesture needed to pause, and it prevents the
+      // silent unlock from interfering with actual playback later.
+      setTimeout(() => player.value?.pauseVideo?.(), 50);
+    } catch (e) { /* ignore */ }
+  }
+
+  document.addEventListener("touchstart", doUnlock, { capture: true, passive: true, once: true });
+  document.addEventListener("click",      doUnlock, { capture: true, passive: true, once: true });
+
+  removeUnlockListener = () => {
+    document.removeEventListener("touchstart", doUnlock, { capture: true });
+    document.removeEventListener("click",      doUnlock, { capture: true });
+  };
+}
+
 function stopPlayback() {
   clearStopTimeout();
 
@@ -192,7 +226,7 @@ function scheduleStop(durationMs) {
   }, durationMs);
 }
 
-function startPlayback() {
+function startPlayback(fromGesture = false) {
   if (!props.playAudio || !props.youtubeId || !player.value) {
     return;
   }
@@ -216,15 +250,32 @@ function startPlayback() {
     });
   }
 
-  setTimeout(() => {
-    syncMuteState();
+  function doPlay() {
+    if (!player.value?.playVideo) return;
 
-    if (player.value?.playVideo) {
-      player.value.playVideo();
-      isPlaying.value = true;
-      autoStarted.value = true;
-    }
-  }, 250);
+    // Always start muted — browsers (including iOS Safari) allow muted autoplay.
+    // After confirming playback started, restore the user's sound preference.
+    player.value.mute?.();
+    player.value.playVideo();
+    isPlaying.value = true;
+    autoStarted.value = true;
+
+    setTimeout(() => {
+      if (!isMuted.value && player.value) {
+        player.value.unMute?.();
+        player.value.setVolume?.(100);
+      }
+    }, 350);
+  }
+
+  if (fromGesture) {
+    // Called directly from a tap/click — run synchronously so iOS Safari
+    // recognises it as user-initiated audio. setTimeout would break that.
+    doPlay();
+  } else {
+    // Called from the auto-start timer — small delay lets loadVideoById settle.
+    setTimeout(doPlay, 250);
+  }
 
   scheduleStop(remaining * 1000);
 }
@@ -255,7 +306,7 @@ function toggleMute() {
   }
 
   if (!isPlaying.value && !props.countdownActive) {
-    startPlayback();
+    startPlayback(true);
   } else if (!isMuted.value && player.value?.playVideo) {
     player.value.playVideo();
   }
@@ -279,6 +330,7 @@ function createPlayer() {
     events: {
       onReady: () => {
         syncMuteState();
+        setupIOSUnlock();
         startAutoPlaybackWatcher();
       },
       onStateChange: (event) => {
@@ -373,6 +425,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearStopTimeout();
   clearAutoStartInterval();
+  removeUnlockListener?.();
+  removeUnlockListener = null;
 
   if (player.value?.destroy) {
     player.value.destroy();

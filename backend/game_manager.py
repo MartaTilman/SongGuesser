@@ -391,8 +391,14 @@ class GameManager:
 
         game.year_options = self.generate_year_options(song["year"])
 
+        disconnected = []
         for player in game.players:
-            await player.websocket.send_json(self.build_round_payload(game, player))
+            try:
+                await player.websocket.send_json(self.build_round_payload(game, player))
+            except Exception:
+                disconnected.append(player)
+        for player in disconnected:
+            self.lobby_manager.remove_player_connection(lobby_id, player)
 
         if lobby_id in self.round_tasks:
             self.round_tasks[lobby_id].cancel()
@@ -448,7 +454,7 @@ class GameManager:
             "submit_answer",
             lobby_id,
             player.name
-        ) and signature.get("payload") == expected_signed_payload
+        ) and (signature or {}).get("payload") == expected_signed_payload
 
         game.blockchain.add_signed_action(
             player.name,
