@@ -191,11 +191,13 @@ function setupIOSUnlock() {
     removeUnlockListener?.();
     removeUnlockListener = null;
     try {
-      player.value.mute?.();
-      player.value.playVideo();
-      // Pause after a tick — no gesture needed to pause, and it prevents the
-      // silent unlock from interfering with actual playback later.
-      setTimeout(() => player.value?.pauseVideo?.(), 50);
+      // Only do the silent play/pause unlock if the song isn't already playing.
+      // If it's playing, the player is already unlocked — pausing would interrupt it.
+      if (!isPlaying.value) {
+        player.value.mute?.();
+        player.value.playVideo();
+        setTimeout(() => player.value?.pauseVideo?.(), 50);
+      }
     } catch (e) { /* ignore */ }
   }
 
