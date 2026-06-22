@@ -1,5 +1,11 @@
 <template>
   <div class="card">
+    <div class="status-bar">
+      <span v-if="submitted" class="status-badge submitted">✓ Answer submitted</span>
+      <span v-else-if="canAnswer" class="status-badge active">Answer now!</span>
+      <span v-else class="status-badge waiting">Waiting for song to start...</span>
+    </div>
+
     <div class="answers-layout">
       <div class="left-side">
         <div class="field">
@@ -17,6 +23,16 @@
             placeholder="Artist"
           />
         </div>
+
+        <button
+          v-if="!submitted"
+          type="button"
+          class="submit-btn"
+          :disabled="!canAnswer"
+          @click="submit"
+        >
+          Submit answer
+        </button>
       </div>
 
       <div class="right-side">
@@ -103,6 +119,63 @@ watch(
 <style scoped>
 .card {
   padding: 0;
+}
+
+.status-bar {
+  margin-bottom: 10px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.status-badge.waiting {
+  background: rgba(100, 120, 180, 0.28);
+  color: rgba(177, 208, 255, 0.78);
+  border: 1px solid rgba(165, 214, 255, 0.15);
+}
+
+.status-badge.active {
+  background: rgba(37, 99, 235, 0.45);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.status-badge.submitted {
+  background: rgba(22, 163, 74, 0.3);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.submit-btn {
+  margin-top: 16px;
+  width: 100%;
+  height: 48px;
+  border: 1px solid rgba(165, 214, 255, 0.3);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: opacity 0.15s;
+}
+
+.submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .answers-layout {
