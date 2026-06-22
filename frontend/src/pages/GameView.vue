@@ -367,11 +367,17 @@ watch(
 
 <style scoped>
 .page {
-  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
   width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .player-header {
@@ -379,6 +385,7 @@ watch(
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 14px;
+  flex-shrink: 0;
 }
 
 .track-meta h1 {
@@ -428,6 +435,8 @@ watch(
 }
 
 .game-shell {
+  flex: 1;
+  min-height: 0;
   padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: 10px;
@@ -436,12 +445,15 @@ watch(
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     0 14px 36px rgba(0, 30, 92, 0.32);
+  display: flex;
+  flex-direction: column;
 }
 
 .visualizer-panel {
   position: relative;
   overflow: hidden;
-  min-height: clamp(330px, 46vw, 390px);
+  flex: 1;
+  min-height: 130px;
   padding: 16px 16px 76px;
   border: 1px solid rgba(12, 35, 81, 0.88);
   border-radius: 8px;
@@ -723,7 +735,8 @@ watch(
 }
 
 .answer-section {
-  margin-top: 18px;
+  margin-top: 14px;
+  flex-shrink: 0;
 }
 
 .waiting-note {
