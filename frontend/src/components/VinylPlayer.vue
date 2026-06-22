@@ -362,7 +362,11 @@ function createPlayer() {
       onError: (event) => {
         console.error("YouTube player error:", event.data);
         isPlaying.value = false;
-        playbackError.value = "YouTube ne moze reproducirati ovu pjesmu.";
+        // 101 / 150 = owner blocked embedding; 100 = video removed
+        const blocked = [100, 101, 150].includes(event.data);
+        playbackError.value = blocked
+          ? "This song is unavailable in your region or has embedding disabled."
+          : "YouTube could not play this song.";
       }
     }
   });

@@ -50,9 +50,8 @@ class Lobby:
         self.answers = []
         self.finishing_song = False
         self.last_result_payload = None
-        self.used_songs = set()
-        self.used_song_keys = set()
-        self.used_artists = set()
+        # Keep used_songs / used_song_keys / used_artists from previous games
+        # so the same songs and artists don't repeat across games in the same lobby session.
         self.last_artist = None
         self.answer_phase_started_at = None
         self.clip_started_at = None
