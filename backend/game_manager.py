@@ -297,8 +297,15 @@ class GameManager:
             game.used_song_keys = set()
 
         if game.current_round > game.total_rounds:
+            leaderboard = [
+                {"name": p.name, "avatar": p.avatar, "score": p.score}
+                for p in game.players
+            ]
+            leaderboard.sort(key=lambda x: x["score"], reverse=True)
             await self.lobby_manager.broadcast(lobby_id, {
                 "type": "game_finished",
+                "game_number": game.current_game_number,
+                "leaderboard": leaderboard,
                 "message": "Igra je završena!"
             })
             return

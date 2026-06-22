@@ -152,8 +152,10 @@ def musicbrainz_request(params, attempts=None):
         return None
 
     url = "https://musicbrainz.org/ws/2/recording/"
+    # MusicBrainz policy requires a contact URL or e-mail in User-Agent.
+    # Without it they will throttle or 503 the app.
     headers = {
-        "User-Agent": "song-guesser/1.0 (student project)"
+        "User-Agent": "song-guesser/1.0 (https://github.com/MartaTilman/SongGuesser; marta.tilman@gmail.com)"
     }
 
     for attempt in range(attempts):
@@ -169,13 +171,11 @@ def musicbrainz_request(params, attempts=None):
             if response.status_code == 503:
                 print(f"MusicBrainz temporary unavailable (attempt {attempt + 1}/{attempts})")
                 MUSICBRAINZ_UNAVAILABLE_UNTIL = time.time() + MUSICBRAINZ_COOLDOWN_SECONDS
-                time.sleep(3 + attempt)
                 return None
 
             if response.status_code == 429:
                 print(f"MusicBrainz rate limited (attempt {attempt + 1}/{attempts})")
                 MUSICBRAINZ_UNAVAILABLE_UNTIL = time.time() + MUSICBRAINZ_COOLDOWN_SECONDS
-                time.sleep(5 + attempt)
                 return None
 
             response.raise_for_status()

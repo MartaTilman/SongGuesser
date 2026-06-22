@@ -596,11 +596,19 @@ def candidate_matches_song(candidate, artist, title):
     artist_tokens = [token for token in re.split(r"\s+", normalized_artist) if len(token) > 2]
     title_tokens = [token for token in re.split(r"\s+", normalized_title) if len(token) > 2]
 
-    artist_hits = sum(1 for token in artist_tokens if token in raw_title)
-    title_hits = sum(1 for token in title_tokens if token in raw_title)
+    # When all tokens are too short (e.g. artist="U2", title="No"),
+    # fall back to checking whether the full name appears in the raw title.
+    if artist_tokens:
+        artist_hits = sum(1 for token in artist_tokens if token in raw_title)
+        artist_ok = artist_hits >= max(1, min(2, len(artist_tokens)))
+    else:
+        artist_ok = bool(normalized_artist) and normalized_artist in raw_title
 
-    artist_ok = artist_hits >= max(1, min(2, len(artist_tokens)))
-    title_ok = title_hits >= max(1, min(2, len(title_tokens)))
+    if title_tokens:
+        title_hits = sum(1 for token in title_tokens if token in raw_title)
+        title_ok = title_hits >= max(1, min(2, len(title_tokens)))
+    else:
+        title_ok = bool(normalized_title) and normalized_title in raw_title
 
     return artist_ok and title_ok
 

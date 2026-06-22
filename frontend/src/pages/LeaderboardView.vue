@@ -54,15 +54,15 @@
       </div>
 
       <div v-else class="panel final-panel">
-        <div v-if="!showFullFinalLeaderboard" class="podium">
-          <div v-if="isPodiumRankVisible(2) && topThree[1]" class="podium-card second">
+        <div v-if="!showFullFinalLeaderboard" class="podium" :style="{ '--podium-cols': topThree.length }">
+          <div v-if="isPodiumRankVisible(2) && topThree[1]" class="podium-card second" :class="{ 'solo': topThree.length === 1, 'duo': topThree.length === 2 }">
             <div class="place-label">#2</div>
             <div class="podium-avatar">{{ topThree[1].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[1].name }}</div>
             <div class="podium-score">{{ topThree[1].score }}</div>
           </div>
 
-          <div v-if="isPodiumRankVisible(1) && topThree[0]" class="podium-card first">
+          <div v-if="isPodiumRankVisible(1) && topThree[0]" class="podium-card first" :class="{ 'solo': topThree.length === 1, 'duo': topThree.length === 2 }">
             <div class="place-label">#1</div>
             <div class="podium-avatar">{{ topThree[0].avatar || "🎵" }}</div>
             <div class="podium-name">{{ topThree[0].name }}</div>
@@ -507,7 +507,7 @@ button {
 .podium {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--podium-cols, 3), 1fr);
   align-items: end;
   gap: 16px;
   min-height: 330px;
@@ -570,6 +570,10 @@ button {
   height: 240px;
   background: linear-gradient(180deg, #ffffff 0%, #d7f0ff 18%, #70c6ff 54%, #2d76da 100%);
   animation-delay: 0.08s;
+}
+
+.podium-card.first.solo {
+  grid-column: 1;
 }
 
 .podium-card.second {
