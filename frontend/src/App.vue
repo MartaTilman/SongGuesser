@@ -273,8 +273,7 @@ input {
 }
 
 .player-window {
-  height: calc(100dvh - 70px); /* 18px top + 18px bottom margin + 34px taskbar */
-  min-height: 0;
+  min-height: 760px;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, rgba(28, 59, 117, 0.95), rgba(12, 24, 53, 0.95));
@@ -375,7 +374,6 @@ input {
   grid-template-columns: 220px minmax(0, 1fr);
   flex: 1;
   min-height: 0;
-  overflow: hidden;
   background: linear-gradient(180deg, rgba(16, 34, 74, 0.88), rgba(8, 20, 44, 0.92));
 }
 
@@ -411,10 +409,7 @@ input {
 
 .window-content {
   min-width: 0;
-  min-height: 0;
   padding: 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .window-status {
@@ -560,18 +555,10 @@ input {
   .xp-window,
   .player-window {
     width: 100%;
+    min-height: calc(100vh - 42px);
     margin: 0;
     border-inline: 0;
     border-radius: 0;
-  }
-
-  .xp-window {
-    min-height: calc(100dvh - 42px);
-  }
-
-  .player-window {
-    height: calc(100dvh - 42px);
-    min-height: 0;
   }
 
   .xp-content,
