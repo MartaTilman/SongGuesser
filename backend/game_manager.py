@@ -337,18 +337,31 @@ class GameManager:
                 used_artists=game.used_artists
             )
 
-            if found_song is not None:
-                song = found_song
-                chosen_decade = decade
+            if found_song is None:
+                continue
+
+            embeddable = song_cache.ensure_song_embeddable(found_song, decade)
+            if not embeddable:
                 print(
-                    "ROUND DEBUG | "
+                    f"SKIP non-embeddable | "
                     f"youtube_id={found_song.get('youtube_id')} | "
                     f"title={found_song.get('title')} | "
-                    f"artist={found_song.get('artist')} | "
-                    f"year={found_song.get('year')} | "
-                    f"start_time={found_song.get('start_time')}"
+                    f"artist={found_song.get('artist')}"
                 )
-                break
+                game.used_songs.add(found_song["youtube_id"])
+                continue
+
+            song = found_song
+            chosen_decade = decade
+            print(
+                "ROUND DEBUG | "
+                f"youtube_id={found_song.get('youtube_id')} | "
+                f"title={found_song.get('title')} | "
+                f"artist={found_song.get('artist')} | "
+                f"year={found_song.get('year')} | "
+                f"start_time={found_song.get('start_time')}"
+            )
+            break
 
         if song is None:
             await self.lobby_manager.broadcast(lobby_id, {
