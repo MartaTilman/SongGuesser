@@ -154,13 +154,11 @@ class GameManager:
         if submitted_normalized == correct_normalized:
             return True
 
-        if submitted_normalized in correct_normalized:
-            return True
 
         length_gap = abs(len(submitted_normalized) - len(correct_normalized))
         similarity = SequenceMatcher(None, submitted_normalized, correct_normalized).ratio()
 
-        if len(correct_normalized) >= 5 and length_gap <= 1 and similarity >= 0.88:
+        if len(correct_normalized) >= 5 and length_gap <= 3 and similarity >= 0.82:
             return True
 
         submitted_tokens = self.token_set(submitted_normalized)
@@ -187,7 +185,7 @@ class GameManager:
                     fuzzy_token_matches += 1
                     break
 
-                if len(correct_token) >= 4 and token_length_gap <= 1 and token_similarity >= 0.8:
+                if len(correct_token) >= 4 and token_length_gap <= 3 and token_similarity >= 0.75:
                     fuzzy_token_matches += 1
                     break
 
@@ -492,6 +490,9 @@ class GameManager:
             "signature": signature,
             "signature_valid": signature_valid
         })
+
+        if len(game.answers) >= len(game.players):
+            asyncio.create_task(self.finish_song(lobby_id))
 
     async def finish_song(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
