@@ -494,6 +494,47 @@ class GameManager:
         if len(game.answers) >= len(game.players):
             asyncio.create_task(self.finish_song(lobby_id))
 
+    async def swap_video(self, lobby_id, bad_youtube_id):
+        game = self.lobby_manager.lobbies[lobby_id]
+        game.used_songs.add(bad_youtube_id)
+
+        decades = list(song_cache.cache.keys())
+        random.shuffle(decades)
+
+        for decade in decades:
+            found_song = song_cache.get_song(
+                decade=decade,
+                used_songs=game.used_songs,
+                last_artist=game.last_artist,
+                used_song_keys=game.used_song_keys,
+                used_artists=game.used_artists
+            )
+            if found_song is None:
+                continue
+
+            embeddable = song_cache.ensure_song_embeddable(found_song, decade)
+            if not embeddable:
+                game.used_songs.add(found_song["youtube_id"])
+                continue
+
+            game.current_song["youtube_id"] = found_song["youtube_id"]
+            game.current_song["start_time"] = found_song.get("start_time", 0)
+
+            print(
+                f"SWAP VIDEO | old={bad_youtube_id} | "
+                f"new={found_song['youtube_id']} | "
+                f"title={found_song.get('title')} | artist={found_song.get('artist')}"
+            )
+
+            await self.lobby_manager.broadcast(lobby_id, {
+                "type": "update_video",
+                "youtube_id": found_song["youtube_id"],
+                "start_time": found_song.get("start_time", 0)
+            })
+            return
+
+        print(f"SWAP VIDEO failed — no embeddable replacement found for lobby {lobby_id}")
+
     async def finish_song(self, lobby_id):
         game = self.lobby_manager.lobbies[lobby_id]
 

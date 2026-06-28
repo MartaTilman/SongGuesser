@@ -6,7 +6,7 @@ import unicodedata
 
 from services.metadata_cache import load_metadata_cache, save_metadata_cache
 from services.song_discovery import discover_songs_for_decade
-from services.youtube_service import find_replacement_video_for_song, is_video_embeddable
+from services.youtube_service import fetch_video_details, find_replacement_video_for_song, is_video_embeddable
 
 
 DEFAULT_DISCOVERY_ATTEMPT_BUDGET = 8
@@ -63,9 +63,45 @@ class SongCache:
         ratio = start_time / duration_seconds
         return 0.44 <= ratio <= 0.66
 
+    def batch_check_embeddable(self, metadata_cache):
+        """Batch-check all cached songs for embeddability in one API call (max 50 per request).
+        Removes non-embeddable songs from metadata_cache in-place and returns removed IDs."""
+        all_ids = list(metadata_cache.keys())
+        if not all_ids:
+            return set()
+
+        removed_ids = set()
+        try:
+            details_map = fetch_video_details(all_ids)
+            for video_id in all_ids:
+                details = details_map.get(video_id)
+                if details is None or not details.get("embeddable", False):
+                    song = metadata_cache.get(video_id, {})
+                    print(
+                        f"CACHE PURGE non-embeddable | id={video_id} | "
+                        f"artist={song.get('artist')} | title={song.get('title')}"
+                    )
+                    removed_ids.add(video_id)
+            for video_id in removed_ids:
+                metadata_cache.pop(video_id, None)
+        except Exception as e:
+            error_text = str(e).lower()
+            if "quota" in error_text or "quotaexceeded" in error_text:
+                self.youtube_quota_exceeded = True
+                print("YouTube quota exceeded during embeddability pre-check — skipping purge.")
+            else:
+                print(f"Embeddability pre-check failed: {e}")
+
+        return removed_ids
+
     def load_from_metadata_cache(self):
         metadata_cache = load_metadata_cache()
         repaired_count = 0
+
+        removed_ids = self.batch_check_embeddable(metadata_cache)
+        if removed_ids:
+            print(f"Removed {len(removed_ids)} non-embeddable songs from cache.")
+            save_metadata_cache(metadata_cache, allow_deletions=True)
 
         with self.cache_lock:
             for decade in self.cache.keys():

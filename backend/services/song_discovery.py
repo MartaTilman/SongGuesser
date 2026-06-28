@@ -163,6 +163,9 @@ def validate_candidate(candidate, target_decade, cache):
     if not youtube_id or not raw_title:
         return reject(target_decade, "missing_id_or_title", candidate)
 
+    if not candidate.get("embeddable", True):
+        return reject(target_decade, "not_embeddable", candidate)
+
     if youtube_id in cache:
         return reject(target_decade, "youtube_id_already_in_cache", candidate)
 

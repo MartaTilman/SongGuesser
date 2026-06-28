@@ -99,6 +99,8 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(["player-error"]);
+
 const player = ref(null);
 const isPlaying = ref(false);
 const isMuted = ref(props.initiallyMuted);
@@ -361,13 +363,13 @@ function createPlayer() {
         }
       },
       onError: (event) => {
-        console.error("YouTube player error:", event.data);
-        isPlaying.value = false;
-        // 101 / 150 = owner blocked embedding; 100 = video removed
         const blocked = [100, 101, 150].includes(event.data);
-        playbackError.value = blocked
-          ? "This song is unavailable in your region or has embedding disabled."
-          : "YouTube could not play this song.";
+        if (blocked) {
+          emit("player-error", { code: event.data, youtubeId: props.youtubeId });
+        } else {
+          isPlaying.value = false;
+          playbackError.value = "YouTube could not play this song.";
+        }
       }
     }
   });

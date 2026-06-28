@@ -326,6 +326,20 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
                 if player.name == game.host:
                     await game_manager.finish_song(normalized_lobby_id)
 
+            elif msg_type == "report_player_error":
+                youtube_id = data.get("youtube_id")
+                if (
+                    player.name == game.host
+                    and game.current_song
+                    and game.current_song.get("youtube_id") == youtube_id
+                    and not game.finishing_song
+                ):
+                    print(
+                        f"Player error {data.get('code')} reported for {youtube_id} "
+                        f"by host {player.name} — swapping video in same round"
+                    )
+                    await game_manager.swap_video(normalized_lobby_id, youtube_id)
+
             elif msg_type == "sync_state":
                 if game.last_result_payload is not None:
                     await websocket.send_json(

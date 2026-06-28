@@ -224,6 +224,14 @@ export const useGameStore = defineStore("game", {
         this.phase = "leaderboard";
       }
 
+      if (message.type === "update_video" && this.roundData) {
+        this.roundData = {
+          ...this.roundData,
+          youtube_id: message.youtube_id,
+          start_time: message.start_time
+        };
+      }
+
       if (message.type === "game_finished") {
         this.finalLeaderboard = message.leaderboard || [];
         this.finalResultsReady = true;
@@ -355,6 +363,10 @@ export const useGameStore = defineStore("game", {
 
     finishSong() {
       sendWebSocketMessage({ type: "finish_song" });
+    },
+
+    reportPlayerError({ code, youtubeId }) {
+      sendWebSocketMessage({ type: "report_player_error", code, youtube_id: youtubeId });
     },
 
     showFinalResults() {

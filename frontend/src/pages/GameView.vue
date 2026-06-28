@@ -41,6 +41,7 @@
               :play-audio="true"
               :countdown-active="showCountdown"
               :initially-muted="false"
+              @player-error="onPlayerError"
             />
 
             <div v-if="showCountdown" class="countdown-box">
@@ -311,6 +312,11 @@ async function submitAnswer(payload) {
 
 function finishRoundNow() {
   store.finishSong();
+}
+
+function onPlayerError({ code, youtubeId }) {
+  console.warn(`Player error ${code} for video ${youtubeId}, reporting to server.`);
+  store.reportPlayerError({ code, youtubeId });
 }
 
 watch(
