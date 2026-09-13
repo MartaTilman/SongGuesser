@@ -83,6 +83,30 @@
           :title="''"
         />
 
+        <div v-if="showFullFinalLeaderboard && achievementEntries.length" class="achievements-card">
+          <h3 class="achievements-title">🏆 Postignuća</h3>
+
+          <div v-for="entry in achievementEntries" :key="entry.name" class="achievement-row">
+            <div class="achievement-player">
+              <span class="player-avatar">{{ entry.avatar }}</span>
+              <span>{{ entry.name }}</span>
+            </div>
+
+            <div class="achievement-badges">
+              <span
+                v-for="id in entry.ids"
+                :key="id"
+                class="badge-pill"
+                :title="achievementLabel(id)"
+              >
+                {{ achievementIcon(id) }} {{ achievementLabel(id) }}
+              </span>
+            </div>
+
+            <p class="achievement-status">{{ achievementStatusText(entry) }}</p>
+          </div>
+        </div>
+
         <div class="actions final-actions">
           <button
             v-if="!showFullFinalLeaderboard && showPodiumReveal"
@@ -133,6 +157,54 @@ const topThree = computed(() => {
 
 const sortedAwardedPoints = computed(() => {
   return [...store.awardedPoints].sort((a, b) => b.total_score - a.total_score);
+});
+
+const ACHIEVEMENT_META = {
+  1: { icon: "🏆", label: "Pobjednik" },
+  2: { icon: "🎯", label: "Savrsena runda" },
+  3: { icon: "🔥", label: "Niz pogodaka" },
+  4: { icon: "⚡", label: "Najbrzi odgovor" }
+};
+
+function achievementIcon(id) {
+  return ACHIEVEMENT_META[id]?.icon || "🎖";
+}
+
+function achievementLabel(id) {
+  return ACHIEVEMENT_META[id]?.label || `Postignuce #${id}`;
+}
+
+function achievementStatusText(entry) {
+  if (entry.status === "minted") {
+    return "Poslano na blockchain (Sepolia) - vidljivo na tvom walletu.";
+  }
+
+  if (entry.status === "no_wallet") {
+    return "Spoji MetaMask idući put da ovo primis kao NFT na svoj wallet.";
+  }
+
+  if (entry.status === "not_configured") {
+    return "On-chain izdavanje trenutno nije podeseno na backendu.";
+  }
+
+  return "Mintanje na blockchain nije uspjelo, postignuce je ipak zabilezeno lokalno.";
+}
+
+const achievementEntries = computed(() => {
+  const achievements = store.finalAchievements || {};
+
+  return Object.keys(achievements)
+    .map((name) => {
+      const entry = achievements[name] || {};
+      return {
+        name,
+        avatar: findAvatar(name),
+        ids: entry.ids || [],
+        status: entry.status,
+        txHash: entry.tx_hash
+      };
+    })
+    .filter((entry) => entry.ids.length > 0);
 });
 
 const isFinalRoundLeaderboard = computed(() => {
@@ -502,6 +574,63 @@ button {
 
 .final-panel {
   min-height: 460px;
+}
+
+.achievements-card {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(218, 233, 255, 0.96));
+}
+
+.achievements-title {
+  margin: 0 0 12px;
+  color: var(--text-blue);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 800;
+}
+
+.achievement-row {
+  padding: 10px 0;
+  border-top: 1px solid rgba(58, 112, 196, 0.16);
+}
+
+.achievement-row:first-of-type {
+  border-top: 0;
+}
+
+.achievement-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0b2563;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.achievement-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.badge-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--badge-yellow);
+  color: #7a4b00;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.achievement-status {
+  margin: 8px 0 0;
+  color: #3a5f9c;
+  font-size: 12px;
+  font-style: italic;
 }
 
 .podium {

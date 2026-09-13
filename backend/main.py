@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from blockchain.blockchain import list_saved_blockchains, load_saved_blockchain
+from blockchain.crypto_utils import build_wallet_link_message, verify_eth_signature
 from game_manager import GameManager, song_cache
 from lobby_manager import LobbyManager
 from models.player import Player
@@ -254,6 +255,22 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
     avatar = websocket.query_params.get("avatar", "🎵")
     public_key = None
     join_signature = None
+    # Real Ethereum address, verified via a MetaMask personal_sign
+    # signature so a player can't just type in someone else's address.
+    # Optional and separate from the RSA public_key above -- used only for
+    # minting on-chain achievement badges.
+    wallet_address = None
+    raw_eth_address = websocket.query_params.get("eth_address")
+    raw_eth_signature = websocket.query_params.get("eth_signature")
+    raw_eth_signed_at = websocket.query_params.get("eth_signed_at")
+
+    if raw_eth_address and raw_eth_signature and raw_eth_signed_at:
+        expected_message = build_wallet_link_message(lobby_id, player_name, raw_eth_signed_at)
+
+        if verify_eth_signature(raw_eth_address, expected_message, raw_eth_signature):
+            wallet_address = raw_eth_address
+        else:
+            print(f"Eth wallet signature verification failed for {player_name} in lobby {lobby_id}")
 
     try:
         raw_public_key = websocket.query_params.get("public_key")
@@ -272,7 +289,7 @@ async def websocket_endpoint(websocket: WebSocket, lobby_id: str, player_name: s
         await websocket.close()
         return
 
-    player = Player(player_name, websocket, avatar, public_key, join_signature)
+    player = Player(player_name, websocket, avatar, public_key, join_signature, wallet_address)
     normalized_lobby_id = lobby_id.upper()
 
     try:

@@ -5,7 +5,10 @@
     <div class="player-list">
       <div v-for="player in players" :key="player.name" class="player-row">
         <span class="avatar">{{ player.avatar || "🎵" }}</span>
-        <span class="name">{{ player.name }}</span>
+        <span class="name">
+          {{ player.name }}
+          <span v-if="player.has_eth_wallet" class="wallet-icon" title="Wallet povezan">🦊</span>
+        </span>
         <span v-if="player.name === host" class="host-badge">HOST</span>
       </div>
     </div>
@@ -69,6 +72,12 @@ h3 {
 .name {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.wallet-icon {
+  margin-left: 4px;
+  font-size: 14px;
+  vertical-align: middle;
 }
 
 .host-badge {

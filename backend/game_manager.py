@@ -5,6 +5,7 @@ import time
 import unicodedata
 from difflib import SequenceMatcher
 
+from blockchain.achievements import determine_achievements, mint_achievements
 from blockchain.anchor import submit_anchor
 from blockchain.blockchain import create_song_commitment
 from blockchain.crypto_utils import (
@@ -684,11 +685,25 @@ class GameManager:
 
                 final_proof = await submit_anchor(final_proof)
 
+                achievements_by_player = determine_achievements(
+                    game.blockchain, leaderboard, game.current_game_number
+                )
+                wallet_addresses = {
+                    p.name: p.wallet_address for p in game.players if p.wallet_address
+                }
+                achievement_results = await mint_achievements(
+                    lobby_id,
+                    game.current_game_number,
+                    achievements_by_player,
+                    wallet_addresses
+                )
+
                 await self.lobby_manager.broadcast(lobby_id, {
                     "type": "game_finished",
                     "game_number": game.current_game_number,
                     "leaderboard": leaderboard,
-                    "final_proof": final_proof
+                    "final_proof": final_proof,
+                    "achievements": achievement_results
                 })
             else:
                 await self.lobby_manager.broadcast(lobby_id, {

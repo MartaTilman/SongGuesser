@@ -64,6 +64,43 @@ def verify_rsa_pss_sha256(public_key_jwk, message, signature):
         return False
 
 
+def build_wallet_link_message(lobby_id, player_name, timestamp):
+    """
+    The exact message a player's real Ethereum wallet signs (via
+    personal_sign) to prove they control the address they're claiming.
+    Must match byte-for-byte between frontend/src/services/ethWallet.js
+    (buildWalletLinkMessage) and this function, or verification fails.
+    """
+    return (
+        "Song Guesser wallet link\n"
+        f"Lobby: {str(lobby_id or '').upper()}\n"
+        f"Player: {player_name}\n"
+        f"Timestamp: {timestamp}"
+    )
+
+
+def verify_eth_signature(address, message, signature):
+    """
+    Verify that `signature` is a valid personal_sign signature of `message`
+    produced by the private key behind `address`. Used to make sure a
+    player actually controls the wallet address they say they connected,
+    before we ever mint an achievement to it.
+    """
+    try:
+        from eth_account import Account
+        from eth_account.messages import encode_defunct
+
+        if not address or not message or not signature:
+            return False
+
+        encoded = encode_defunct(text=message)
+        recovered_address = Account.recover_message(encoded, signature=signature)
+
+        return recovered_address.lower() == str(address).lower()
+    except Exception:
+        return False
+
+
 def build_signed_action(action, lobby_id, player_name, payload=None):
     return {
         "action": action,

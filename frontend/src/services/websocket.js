@@ -34,6 +34,12 @@ export function connectWebSocket(
     params.set("join_signature", JSON.stringify(wallet.joinSignature));
   }
 
+  if (wallet.ethAddress && wallet.ethSignature && wallet.ethSignedAt) {
+    params.set("eth_address", wallet.ethAddress);
+    params.set("eth_signature", wallet.ethSignature);
+    params.set("eth_signed_at", String(wallet.ethSignedAt));
+  }
+
   const wsUrl = `${WS_URL}/ws/${encodeURIComponent(lobbyId)}/${encodeURIComponent(playerName)}?${params.toString()}`;
 
   socket = new WebSocket(wsUrl);

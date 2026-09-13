@@ -80,11 +80,14 @@ YOUTUBE_DISCOVERY_ATTEMPT_BUDGET=40
 DATABASE_URL=postgresql://user:password@host:5432/database
 BLOCKCHAIN_DIFFICULTY=3
 ETH_RPC_URL=https://your-rpc-endpoint
-CONTRACT_ADDRESS=0xYourDeployedContractAddress
+CONTRACT_ADDRESS=0xYourDeployedAnchorContractAddress
 SUBMITTER_PRIVATE_KEY=0xYourWalletPrivateKey
+ACHIEVEMENTS_CONTRACT_ADDRESS=0xYourDeployedAchievementsContractAddress
 ```
 
 `ETH_RPC_URL`, `CONTRACT_ADDRESS`, and `SUBMITTER_PRIVATE_KEY` are only needed if you want final game proofs anchored on-chain. Without them the game still works and the local blockchain audit log is still kept — anchoring is simply skipped. Anchoring also requires the `web3` Python package (`pip install web3`).
+
+`ACHIEVEMENTS_CONTRACT_ADDRESS` is only needed if you want on-chain achievement badges minted. It reuses `ETH_RPC_URL` and `SUBMITTER_PRIVATE_KEY` above. Without it, achievements are still computed and reported, minting is just skipped per player.
 
 `DATABASE_URL` is optional locally — without it the backend reads and writes
 `backend/song_metadata_cache.json`. **For deployment, `DATABASE_URL` is required.**
@@ -116,6 +119,40 @@ GET /lobby/{lobby_id}/blockchain/final-proof
 The Solidity contract in `contracts/SongGuesserAnchor.sol` can anchor that final
 proof on a public EVM chain such as Polygon, Base, Arbitrum, or a Sepolia testnet.
 Deploying and submitting the proof requires your own RPC URL and wallet key.
+
+### On-chain achievement badges
+
+`contracts/SongGuesserAchievements.sol` is a soulbound (non-transferable) ERC-1155
+contract. After a game finishes, the backend works out which players earned which
+badges — winner, perfect round (every song in a round fully correct), a streak of
+3+ fully correct answers in a row, and fastest correct answer of the game — purely
+by reading back that game's own local blockchain log (`backend/blockchain/achievements.py`,
+`determine_achievements`). If a player has connected a wallet, the matching badge(s)
+are minted straight to their address (`mint_achievements`), paid for by the same
+submitter wallet used for anchoring. Players without a connected wallet still have
+their achievements recorded locally, they're just not minted on-chain yet.
+
+Badges are soulbound on purpose: they can never be transferred, sold, or approved
+away, so a badge on an address is a permanent, tamper-proof record that the player
+actually earned it.
+
+To deploy the achievements contract to Sepolia:
+
+```bash
+cd backend
+python ../scripts/deploy_achievements.py
+```
+
+This reads `ETH_RPC_URL` and `SUBMITTER_PRIVATE_KEY` from `backend/.env`, deploys
+using the pre-compiled ABI/bytecode in `contracts/build/`, and prints the address
+to put in `ACHIEVEMENTS_CONTRACT_ADDRESS`. The submitter wallet needs a small
+amount of Sepolia test ETH (from a Sepolia faucet) to pay for deployment and for
+every future mint.
+
+Connecting a real wallet (MetaMask) on the frontend so players actually have an
+address to mint to is a separate, not-yet-built piece of this feature — for now
+the backend accepts an optional `eth_address` on join and skips minting
+gracefully when it's missing.
 
 For the deployed frontend, set these Vercel environment variables:
 

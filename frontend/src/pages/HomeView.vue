@@ -52,6 +52,16 @@
             Lobby ID will be generated automatically
           </div>
 
+          <button
+            type="button"
+            class="xp-btn wallet-btn"
+            :disabled="walletConnecting"
+            @click="connectWallet"
+          >
+            {{ walletButtonLabel }}
+          </button>
+          <p v-if="walletError" class="error small">{{ walletError }}</p>
+
           <button type="button" class="xp-btn main-btn" :disabled="loading" @click="joinGame">
             {{ loading && mode === "join" ? "Loading..." : "Get in the game" }}
           </button>
@@ -102,6 +112,33 @@ const loading = ref(false);
 const windowOpen = ref(false);
 const zooming = ref(false);
 const now = ref(new Date());
+
+const walletAddress = ref("");
+const walletConnecting = ref(false);
+const walletError = ref("");
+
+const walletButtonLabel = computed(() => {
+  if (walletConnecting.value) return "Spajanje...";
+
+  if (walletAddress.value) {
+    return `🦊 ${walletAddress.value.slice(0, 6)}...${walletAddress.value.slice(-4)}`;
+  }
+
+  return "🦊 Poveži MetaMask (opcionalno)";
+});
+
+async function connectWallet() {
+  walletError.value = "";
+  walletConnecting.value = true;
+
+  try {
+    walletAddress.value = await store.connectEthWallet();
+  } catch (err) {
+    walletError.value = err?.message || "Spajanje novčanika nije uspjelo.";
+  } finally {
+    walletConnecting.value = false;
+  }
+}
 
 let clockInterval = null;
 
@@ -388,6 +425,22 @@ input::placeholder {
   text-align: center;
   color: #d64545;
   font-weight: 700;
+}
+
+.error.small {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wallet-btn {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 14px 0 0;
+  background: linear-gradient(180deg, #fff6ea 0%, #ffe0b3 15%, #ffb35f 52%, #f7893c 100%);
+  border-color: #c9640f;
+  color: #6d3300;
 }
 
 .xp-taskbar {

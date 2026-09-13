@@ -11,6 +11,10 @@ import {
   ensureWallet,
   signPayload
 } from "../services/wallet";
+import {
+  connectEthWallet as connectMetaMaskWallet,
+  signWalletLink
+} from "../services/ethWallet";
 
 export const useGameStore = defineStore("game", {
   state: () => ({
@@ -27,6 +31,7 @@ export const useGameStore = defineStore("game", {
     awardedPoints: [],
     finalLeaderboard: [],
     finalResultsReady: false,
+    finalAchievements: {},
     blockchain: [],
     blockchainValid: null,
     blockchainConsensus: "",
@@ -34,6 +39,14 @@ export const useGameStore = defineStore("game", {
     walletPublicKey: null,
     walletPrivateKey: null,
     joinSignature: null,
+
+    // Real Ethereum wallet (MetaMask), optional. Only used to receive
+    // on-chain achievement badges -- the RSA keys above still handle all
+    // in-game action signing regardless of whether this is connected.
+    ethAddress: null,
+    ethSignature: null,
+    ethSignedAt: null,
+    ethWalletError: "",
 
     error: "",
     phase: "lobby",
@@ -61,6 +74,30 @@ export const useGameStore = defineStore("game", {
       );
 
       this.joinSignature = await signPayload(this.walletPrivateKey, joinPayload);
+
+      if (this.ethAddress) {
+        try {
+          const linked = await signWalletLink(this.ethAddress, this.lobbyId, this.playerName);
+          this.ethSignature = linked.signature;
+          this.ethSignedAt = linked.timestamp;
+        } catch (err) {
+          // Not fatal -- the game still works without the eth wallet linked,
+          // the player just won't receive on-chain achievement badges.
+          this.ethWalletError = err?.message || "Potpisivanje novčanika nije uspjelo.";
+          this.ethSignature = null;
+          this.ethSignedAt = null;
+        }
+      }
+    },
+
+    async connectEthWallet() {
+      this.ethWalletError = "";
+      const address = await connectMetaMaskWallet();
+      this.ethAddress = address;
+      // Signature happens later in prepareWallet(), once lobbyId is final.
+      this.ethSignature = null;
+      this.ethSignedAt = null;
+      return address;
     },
 
     async setUserData({ playerName, lobbyId, avatar }) {
@@ -159,7 +196,10 @@ export const useGameStore = defineStore("game", {
         this.avatar,
         {
           publicKey: this.walletPublicKey,
-          joinSignature: this.joinSignature
+          joinSignature: this.joinSignature,
+          ethAddress: this.ethAddress,
+          ethSignature: this.ethSignature,
+          ethSignedAt: this.ethSignedAt
         }
       );
     },
@@ -193,6 +233,7 @@ export const useGameStore = defineStore("game", {
           this.awardedPoints = [];
           this.finalLeaderboard = [];
           this.finalResultsReady = false;
+          this.finalAchievements = {};
           this.phase = "lobby";
         }
       }
@@ -235,6 +276,7 @@ export const useGameStore = defineStore("game", {
       if (message.type === "game_finished") {
         this.finalLeaderboard = message.leaderboard || [];
         this.finalResultsReady = true;
+        this.finalAchievements = message.achievements || {};
 
         if (this.phase !== "leaderboard") {
           this.phase = "finished";
@@ -386,6 +428,7 @@ export const useGameStore = defineStore("game", {
       this.awardedPoints = [];
       this.finalLeaderboard = [];
       this.finalResultsReady = false;
+      this.finalAchievements = {};
       this.phase = "lobby";
     },
 
@@ -407,6 +450,7 @@ export const useGameStore = defineStore("game", {
       this.awardedPoints = [];
       this.finalLeaderboard = [];
       this.finalResultsReady = false;
+      this.finalAchievements = {};
       this.blockchain = [];
       this.blockchainValid = null;
       this.blockchainConsensus = "";
